@@ -252,8 +252,8 @@ body[data-family="console"] .readout .hint { grid-column: 2 / -1; color: var(--g
 body[data-family="console"] .readout .cur .w { color: var(--g3); } body[data-family="console"] .readout .cur .n { color: var(--g3); }
 
 /* Timer, axis charts, manual, result. */
-body[data-family="console"] .blk-timer { padding-bottom: 14px; }
-body[data-family="console"] .timer { display: flex; }
+body[data-family="console"] .blk-timer { padding: 30px 20px 16px; align-items: center; justify-content: center; }
+body[data-family="console"] .timer { display: flex; justify-content: center; align-items: center; width: 100%; }
 body[data-family="console"] .clock { font-size: 52px; font-weight: var(--clock-weight); letter-spacing: 0.06em; color: var(--g4); font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 10px rgba(95, 191, 138, 0.35); }
 body[data-family="console"] .clock-label { font: 11px/1 var(--label-font); letter-spacing: 0.22em; text-transform: uppercase; color: var(--g2); }
 body[data-family="console"] .times { list-style: none; margin: 8px 0 0; padding: 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -296,12 +296,11 @@ body[data-family="console"] details p { margin: 8px 0 0; }
   body[data-family="console"] .plate h1 { font-size: 20px; letter-spacing: 0.28em; }
   body[data-family="console"] .plate .sub { font-size: 13px; letter-spacing: 0.04em; }
   body[data-family="console"] .blk-timer, body[data-family="console"] .blk-tally { min-height: 0 !important; }
-  body[data-family="console"] .blk-tally { padding: 24px 16px 10px; position: sticky; top: 6px; z-index: 20; justify-content: flex-start; }
+  body[data-family="console"] .blk-tally { padding: 24px 16px 10px; position: sticky; top: 6px; z-index: 20; }
   body[data-family="console"] .score-big { font-size: 34px; margin-top: 2px; }
   body[data-family="console"] .score-sub { display: none; }
   /* The timer pins under the header as the page scrolls, as one short line. */
   body[data-family="console"] .blk-timer { position: sticky; top: 6px; z-index: 20; padding: 24px 16px 10px; }
-  body[data-family="console"] .blk-timer .timer { flex-direction: column; align-items: flex-start; gap: 4px; }
   body[data-family="console"] .blk-timer .clock { font-size: 30px; }
   body[data-family="console"] .blk-timer .clock-label { font-size: 10px; white-space: nowrap; }
   /* The word input is a short chin fixed to the bottom of the screen. */
