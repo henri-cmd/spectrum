@@ -275,8 +275,14 @@ body[data-family="console"] summary { color: var(--g4); letter-spacing: 0.14em; 
 body[data-family="console"] details p { margin: 8px 0 0; }
 
 @media (max-width: 960px) {
-  body[data-tab="darts"][data-family="console"] main { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 14px; padding: 12px;
-    grid-template-areas: "head" "status" "category" "timer" "scope" "command" "log" "axes" "manual" "settings"; padding-bottom: 120px; }
+  body[data-tab="darts"][data-family="console"] main { grid-template-columns: 1fr 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 12px; padding: 12px;
+    grid-template-areas: "head status" "category category" "timer timer" "scope scope" "command command" "log log" "axes axes" "manual manual" "settings settings"; padding-bottom: 120px; }
+  /* The name plate and the round/score screen share the top row, each on two lines. */
+  body[data-family="console"] .plate { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
+  body[data-family="console"] .plate h1 { font-size: 20px; letter-spacing: 0.28em; }
+  body[data-family="console"] .plate .sub { font-size: 13px; letter-spacing: 0.04em; }
+  body[data-family="console"] .sign .status { padding: 12px 14px; font-size: 18px; letter-spacing: 0.08em; }
+  body[data-family="console"] .sign .status > span { flex-direction: column; gap: 4px; align-items: center; white-space: nowrap; }
   /* The timer pins under the header as the page scrolls, as one short line. */
   body[data-family="console"] .blk-timer { position: sticky; top: 6px; z-index: 20; padding: 24px 16px 10px; }
   body[data-family="console"] .blk-timer .timer { flex-direction: row; align-items: baseline; gap: 14px; }
@@ -291,8 +297,6 @@ body[data-family="console"] details p { margin: 8px 0 0; }
   body[data-family="console"] .blk-axes { min-height: 420px; }
   body[data-family="console"] .stage { width: 100%; height: auto; aspect-ratio: 1; margin: 0; }
   body[data-family="console"] .blk { min-height: 130px; }
-  body[data-family="console"] .plate { flex-wrap: wrap; gap: 8px 20px; }
-  body[data-family="console"] .sign .status { white-space: normal; font-size: 18px; }
   body[data-family="console"] #d-guess { font-size: 34px; }
   body[data-family="console"] .views, body[data-family="console"] .themes { background: rgba(8, 11, 14, 0.92); opacity: 0.9; }
 }
