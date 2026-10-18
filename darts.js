@@ -220,7 +220,8 @@ function placeOverlays() {
 
 // ---- The other screens ----
 function renderSide() {
-  $('d-round').textContent = phase === 'idle' ? `${ROUNDS} rounds` : phase === 'over' ? 'all rounds complete' : `Round ${roundIdx + 1} of ${ROUNDS} · ${KIND_NAMES[kind(roundIdx)]}`;
+  const rp = $('d-round'); let rpText = rp.querySelector('span'); if (!rpText) { rpText = document.createElement('span'); rp.prepend(rpText); } // the overlay stays beside the text
+  rpText.innerHTML = phase === 'idle' ? `<b>Sonar #${dayNumber}</b><b>${ROUNDS} rounds</b>` : phase === 'over' ? `<b>All rounds</b><b>complete</b>` : `<b>Round ${roundIdx + 1} of ${ROUNDS}</b><b>${esc(KIND_NAMES[kind(roundIdx)])}</b>`;
   $('d-category').innerHTML = phase === 'idle' ? `<div class="cat-name dim">—</div>` : `<div class="cat-name">${esc(cat(roundIdx).name)}</div>`;
   $('d-score-big').textContent = total();
   const lastDone = phase === 'between' || phase === 'over' ? rounds[roundIdx] : null;
@@ -283,7 +284,6 @@ function tick() {
   else if (phase === 'over') shown = rounds.reduce((s, r) => s + (r ? r.seconds : 0), 0);
   else shown = ROUND_SECONDS;
   $('d-clock').textContent = fmt(shown);
-  $('d-clock-label').textContent = phase === 'over' ? 'total time' : phase === 'idle' ? 'per round' : `round ${roundIdx + 1}`;
   document.body.classList.toggle('urgent', urgent);
 }
 setInterval(tick, 100);
@@ -441,7 +441,7 @@ new ResizeObserver(() => { placeCursor(); if (arena) placeOverlays(); }).observe
 document.fonts && document.fonts.ready.then(placeCursor);
 
 // Scanline overlays for the screens.
-for (const el of document.querySelectorAll('#tab-darts .blk, #tab-darts .stage, header .plate, header .status')) { const d = document.createElement('div'); d.className = 'crt-lines'; d.setAttribute('aria-hidden', 'true'); el.appendChild(d); }
+for (const el of document.querySelectorAll('#tab-darts .blk, #tab-darts .stage, header .plate, header .roundplate')) { const d = document.createElement('div'); d.className = 'crt-lines'; d.setAttribute('aria-hidden', 'true'); el.appendChild(d); }
 
 // ---- Settings: CRT effects, the sweep, a ping sound ----
 const SETTINGS = { crt: true, sweep: true, sound: false };

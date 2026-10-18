@@ -123,7 +123,7 @@ body[data-theme="abyss"] {
 body[data-tab="darts"][data-family="console"] main { max-width: none; padding: 14px; height: 100vh; box-sizing: border-box; display: grid; gap: 14px; /* a fixed height: the fr rows split it and each screen scrolls inside */
   grid-template-columns: minmax(240px, 1fr) minmax(0, 2.4fr) minmax(330px, 1.1fr);
   grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;
-  grid-template-areas: "head head head" "category scope score" "timer scope axes" "log scope axes" "log scope manual" "log scope settings" "command command command"; padding-bottom: 44px; }
+  grid-template-areas: "head head round" "category scope score" "timer scope axes" "log scope axes" "log scope manual" "log scope settings" "command command command"; padding-bottom: 44px; }
 body[data-tab="darts"][data-family="console"] header, body[data-family="console"] #tab-darts, body[data-family="console"] .panel { display: contents; }
 body[data-family="console"] .actor, body[data-family="console"] .dart, body[data-family="console"] .mug, body[data-family="console"] .bottle { display: none !important; }
 /* The terminal line between rounds: the result and the prompt to go on; a tap on it goes on too. */
@@ -136,25 +136,25 @@ body[data-family="console"] .stage.reverse::before { box-shadow: var(--glass-sha
 body[data-family="console"] .cat-name.dim { color: var(--g2); }
 
 /* A screen: a hairline bezel (the element), the glass behind the content (::before), a dim label on the bezel (::after). */
-body[data-family="console"] .blk, body[data-family="console"] .stage, body[data-family="console"] .plate, body[data-family="console"] .sign .status {
+body[data-family="console"] .blk, body[data-family="console"] .stage, body[data-family="console"] .plate, body[data-family="console"] .roundplate {
   position: relative; border-radius: 3px; background: var(--panel); border: 1px solid var(--bz); box-shadow: var(--bezel-shadow);
   color: var(--g3); min-height: 0; min-width: 0; }
 body[data-family="console"] .blk { padding: 34px 20px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 18px; overflow: hidden; font-weight: var(--weight); }
 body[data-family="console"] .blk > * { position: relative; z-index: 1; min-height: 0; margin: 0; }
 body[data-family="console"] .blk > ol, body[data-family="console"] .blk > div, body[data-family="console"] .blk > details { overflow: auto; }
-body[data-family="console"] .blk::before, body[data-family="console"] .stage::before, body[data-family="console"] .plate::before, body[data-family="console"] .sign .status::before { content: ''; position: absolute; inset: 24px 8px 8px; border-radius: 10px / 14px; z-index: 0; background: var(--glass); box-shadow: var(--glass-shadow); display: block; top: 24px; left: 8px; width: auto; height: auto; }
+body[data-family="console"] .blk::before, body[data-family="console"] .stage::before, body[data-family="console"] .plate::before, body[data-family="console"] .roundplate::before { content: ''; position: absolute; inset: 24px 8px 8px; border-radius: 10px / 14px; z-index: 0; background: var(--glass); box-shadow: var(--glass-shadow); display: block; top: 24px; left: 8px; width: auto; height: auto; }
 body[data-family="console"] .stage::before { inset: 8px; border-radius: 16px / 18px; }
-body[data-family="console"] .plate::before, body[data-family="console"] .sign .status::before { inset: 6px; top: 6px; left: 6px; border-radius: 8px / 12px; }
+body[data-family="console"] .plate::before, body[data-family="console"] .roundplate::before { inset: 6px; top: 6px; left: 6px; border-radius: 8px / 12px; }
 body[data-family="console"] .plate > * { position: relative; z-index: 1; }
 /* CRT: curved glass (a bulge from the gloss and the heavier corner vignette), scanlines over the content, a slow flicker. */
-body[data-family="console"][data-crt="on"] .blk::before, body[data-family="console"][data-crt="on"] .stage::before, body[data-family="console"][data-crt="on"] .plate::before, body[data-family="console"][data-crt="on"] .sign .status::before {
+body[data-family="console"][data-crt="on"] .blk::before, body[data-family="console"][data-crt="on"] .stage::before, body[data-family="console"][data-crt="on"] .plate::before, body[data-family="console"][data-crt="on"] .roundplate::before {
   background: radial-gradient(ellipse 130% 60% at 50% -18%, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 45%, transparent 62%), var(--glass);
   box-shadow: var(--glass-shadow), inset 0 0 60px 18px rgba(0, 0, 0, 0.55); }
-body[data-family="console"][data-crt="on"] .blk .crt-lines, body[data-family="console"][data-crt="on"] .stage .crt-lines, body[data-family="console"][data-crt="on"] .plate .crt-lines, body[data-family="console"][data-crt="on"] .status .crt-lines { display: block; }
+body[data-family="console"][data-crt="on"] .blk .crt-lines, body[data-family="console"][data-crt="on"] .stage .crt-lines, body[data-family="console"][data-crt="on"] .plate .crt-lines, body[data-family="console"][data-crt="on"] .roundplate .crt-lines { display: block; }
 body[data-family="console"] .crt-lines { display: none; position: absolute; inset: 24px 8px 8px; border-radius: 10px / 14px; z-index: 3; pointer-events: none;
   background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.35) 100%); }
 body[data-family="console"] .stage .crt-lines { inset: 8px; border-radius: 16px / 18px; }
-body[data-family="console"] .plate .crt-lines, body[data-family="console"] .status .crt-lines { inset: 6px; border-radius: 8px / 12px; }
+body[data-family="console"] .plate .crt-lines, body[data-family="console"] .roundplate .crt-lines { inset: 6px; border-radius: 8px / 12px; }
 @keyframes flicker { 0%, 100% { opacity: 1; } 29% { opacity: 0.975; } 30% { opacity: 1; } 61% { opacity: 0.985; } 62% { opacity: 1; } 84% { opacity: 0.965; } 85% { opacity: 1; } }
 
 body[data-family="console"] .blk::after { content: attr(data-title); position: absolute; top: 7px; left: 10px; font: 10px/1 var(--label-font); letter-spacing: 0.26em; text-transform: uppercase; color: var(--lbl); z-index: 1; }
@@ -169,23 +169,23 @@ body.d-over[data-family="console"] .blk-score { display: flex; } body.d-over[dat
 /* Head strip: a flat bar with the game name, the day's line and, at the right, round and score. */
 body[data-family="console"] .sign { display: contents; }
 body[data-family="console"] .plate { grid-area: head; display: flex; align-items: center; gap: 24px; padding: 14px 26px; margin: 0; }
-body[data-family="console"] .plate .round { margin: 0 0 0 auto; font-size: 34px; line-height: 1; letter-spacing: 0.14em; text-transform: uppercase; color: #ffffff; text-shadow: 0 0 12px rgba(134, 216, 168, 0.6), 0 0 2px #fff; white-space: nowrap; }
-body[data-family="console"] .plate .round:empty { display: none; }
+
 body[data-family="console"] .sign h1 { font: 26px/1 var(--font); letter-spacing: 0.32em; text-transform: uppercase; color: var(--g4); text-shadow: 0 0 10px rgba(95, 191, 138, 0.35); margin: 0; display: flex; align-items: center; gap: 12px; }
 body[data-family="console"] .sign h1::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 8px var(--g3); animation: blink 2.4s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0.35; } }
 body[data-family="console"] .sign .sub { font: 17px/1.4 var(--font); letter-spacing: 0.12em; text-transform: uppercase; color: var(--g3); margin: 0; }
-body[data-family="console"] .sign .status { grid-area: status; margin: 0; padding: 16px 20px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 19px; line-height: 1.15; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g4); white-space: nowrap; }
-body[data-family="console"] .sign .status .crt-lines { z-index: 3; }
-body[data-family="console"] .sign .status > span { position: relative; z-index: 1; display: flex; gap: 18px; white-space: nowrap; }
-body[data-family="console"] .sign .status b { font-weight: normal; }
+body[data-family="console"] .roundplate { grid-area: round; margin: 0; padding: 14px 20px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 30px; line-height: 1.05; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff; text-shadow: 0 0 12px rgba(134, 216, 168, 0.6), 0 0 2px #fff; white-space: nowrap; }
+body[data-family="console"] .roundplate > span { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 2px; }
+body[data-family="console"] .roundplate b { font-weight: normal; display: block; }
+body[data-family="console"] .roundplate b:first-child { font-size: 0.62em; letter-spacing: 0.2em; color: var(--g3); text-shadow: none; }
+body[data-family="console"] .roundplate .crt-lines { z-index: 3; }
 /* Countdown in its last seconds: the Timer screen's content flashes red. */
 body.urgent[data-family="console"] .clock, body.urgent[data-family="console"] .clock-label { color: #ff4a3d; text-shadow: 0 0 12px rgba(255, 74, 61, 0.6); animation: urgent 0.5s steps(1) infinite; }
 @keyframes urgent { 50% { opacity: 0.25; } }
-body.urgent[data-family="console"] .blk::before, body.urgent[data-family="console"] .stage::before, body.urgent[data-family="console"] .plate::before, body.urgent[data-family="console"] .sign .status::before,
+body.urgent[data-family="console"] .blk::before, body.urgent[data-family="console"] .stage::before, body.urgent[data-family="console"] .plate::before, body.urgent[data-family="console"] .roundplate::before,
 body.urgent[data-family="console"] .blk-command::before { animation: danger 0.7s ease-in-out infinite alternate; }
 @keyframes danger { from { box-shadow: var(--glass-shadow), inset 0 0 30px 4px rgba(255, 60, 40, 0.08); } to { box-shadow: var(--glass-shadow), inset 0 0 90px 30px rgba(255, 60, 40, 0.5); } }
-body.urgent[data-family="console"] .blk, body.urgent[data-family="console"] .sign .status, body.urgent[data-family="console"] .plate { color: #ff8a7a; text-shadow: 0 0 6px rgba(255, 74, 61, 0.45); }
+body.urgent[data-family="console"] .blk, body.urgent[data-family="console"] .roundplate, body.urgent[data-family="console"] .plate { color: #ff8a7a; text-shadow: 0 0 6px rgba(255, 74, 61, 0.45); }
 body.urgent[data-family="console"] .blk::after { color: #c9533f; }
 body.urgent[data-family="console"] .stage svg { filter: drop-shadow(0 0 6px rgba(255, 74, 61, 0.55)); animation: dangerText 0.7s ease-in-out infinite alternate; }
 body.urgent[data-family="console"] #d-guess { color: #ffb0a4; text-shadow: 0 0 8px rgba(255, 74, 61, 0.6); }
@@ -253,7 +253,7 @@ body[data-family="console"] .readout .cur .w { color: var(--g3); } body[data-fam
 
 /* Timer, axis charts, manual, result. */
 body[data-family="console"] .blk-timer { padding-bottom: 14px; }
-body[data-family="console"] .timer { display: flex; flex-direction: column; gap: 2px; }
+body[data-family="console"] .timer { display: flex; }
 body[data-family="console"] .clock { font-size: 52px; font-weight: var(--clock-weight); letter-spacing: 0.06em; color: var(--g4); font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 10px rgba(95, 191, 138, 0.35); }
 body[data-family="console"] .clock-label { font: 11px/1 var(--label-font); letter-spacing: 0.22em; text-transform: uppercase; color: var(--g2); }
 body[data-family="console"] .times { list-style: none; margin: 8px 0 0; padding: 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -289,10 +289,10 @@ body[data-family="console"] details p { margin: 8px 0 0; }
 
 @media (max-width: 960px) {
   body[data-tab="darts"][data-family="console"] main { grid-template-columns: 1fr 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 12px; padding: 12px;
-    grid-template-areas: "head head" "category category" "timer score" "scope scope" "command command" "log log" "axes axes" "manual manual" "settings settings"; padding-bottom: 120px; }
+    grid-template-areas: "head round" "category category" "timer score" "scope scope" "command command" "log log" "axes axes" "manual manual" "settings settings"; padding-bottom: 120px; }
   /* The name plate and the round/score screen share the top row, each on two lines. */
-  body[data-family="console"] .plate { gap: 6px 16px; padding: 12px 16px; flex-wrap: wrap; }
-  body[data-family="console"] .plate .round { width: 100%; margin: 4px 0 0; font-size: 26px; white-space: normal; }
+  body[data-family="console"] .plate { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
+  body[data-family="console"] .roundplate { font-size: 22px; padding: 10px 12px; }
   body[data-family="console"] .plate h1 { font-size: 20px; letter-spacing: 0.28em; }
   body[data-family="console"] .plate .sub { font-size: 13px; letter-spacing: 0.04em; }
   body[data-family="console"] .blk-timer, body[data-family="console"] .blk-tally { min-height: 0 !important; }
