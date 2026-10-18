@@ -10,6 +10,7 @@ Two daily word games on one page, live at https://henri-cmd.github.io/spectrum/ 
 
 - `index.html` — both games and the tab switcher. No build step; serve the folder over http.
 - `game.js` — Spectrum. `darts.js` — Darts. Each loads the day's puzzle on its own and they share nothing but the data files.
+- `saloon.css`, `assets/` — the Darts tab's pixel-art saloon look. Every sprite is generated at native pixel size by a script in `art/` (`scene.py` the room, `thrower.py` the cowboy's six-frame throw and the darts, `chrome.py` the wood tiles, 9-slice panels and small props) and shown scaled with `image-rendering: pixelated`. `art/PALETTE.md` is the shared palette and style guide. Regenerate with `.venv/bin/python art/<script>.py` (needs Pillow: `.venv/bin/pip install pillow`).
 - `puzzles/src/categories.json` — each weekday's category, the seed words that define what fits it, and its bank of spectrums with anchor words.
 - `puzzles/src/puzzles.json` — the puzzles: an answer and four spectrums from the category's bank.
 - `build.py` — generates `puzzles/<id>/…` and `puzzles/index.json` (the day-by-day schedule).
