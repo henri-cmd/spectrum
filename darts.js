@@ -7,6 +7,8 @@
 // Everything lives in one closure so nothing collides with game.js.
 (() => {
 const ROUNDS = 4;
+const ROUND_SECONDS = 30;     // the countdown for each target; at zero the round is lost
+const URGENT_SECONDS = 5;     // the timer flashes red from here
 const SHARDS = 256;
 const FIT_THRESHOLD = 25;    // same leniency as Spectrum
 const RINGS = [[0.1, 50], [0.2, 25], [0.3, 10], [0.42, 5]]; // [radius in units, points], bull first
@@ -247,6 +249,7 @@ function render() {
   // Darts: the newest is tied to its target with a dashed line while it sits on it.
   const labels = [];
   throws.forEach((t, k) => {
+    if (t.missed) return; // nothing was thrown
     if (k === throws.length - 1 && throwing) return; // still in the air
     const x = sx(t.x), y = sy(t.y), last = k === throws.length - 1, tg = targets[k];
     if (last && awaiting) s += `<line x1="${x}" y1="${y}" x2="${sx(tg.x)}" y2="${sy(tg.y)}" stroke="${theme.leader}" stroke-width="2" stroke-dasharray="4 6"/>`;
@@ -406,15 +409,35 @@ for (const b of document.querySelectorAll('.themes button')) b.addEventListener(
 // ---- Round timer: a stopwatch per target, shown on the console's Timer screen ----
 const fmt = sec => { const m = Math.floor(sec / 60), s = sec - m * 60; return `${String(m).padStart(2, '0')}:${s.toFixed(1).padStart(4, '0')}`; };
 const running = () => started && !over && !awaiting && !throwing && roundStart > 0;
+const remaining = () => Math.max(0, ROUND_SECONDS - (Date.now() - roundStart) / 1000);
 function tick() {
   if (!theme.console || !puzzle) return;
   const idx = Math.min(round(), ROUNDS - 1);
-  $('d-clock').textContent = fmt(running() ? (Date.now() - roundStart) / 1000 : (times[idx] ?? 0));
-  $('d-clock-label').textContent = over ? `total ${fmt(times.reduce((a, b) => a + b, 0))}` : `round ${idx + 1}`;
+  let shown, urgent = false;
+  if (running()) { const rem = remaining(); if (rem <= 0) return timeOut(); shown = rem; urgent = rem <= URGENT_SECONDS; }
+  else if (over) shown = times.reduce((a, b) => a + b, 0);
+  else shown = Math.max(0, ROUND_SECONDS - (times[idx] ?? 0)); // what was left when the ping went out
+  $('d-clock').textContent = fmt(shown);
+  $('d-clock-label').textContent = over ? 'total time' : `round ${idx + 1}`;
+  document.querySelector('.blk-timer').classList.toggle('urgent', urgent);
+}
+// The countdown ran out: the round is logged as a miss and the next target waits for Enter.
+function timeOut() {
+  if (!started || over || awaiting || throwing) return;
+  const k = throws.length;
+  times[k] = ROUND_SECONDS;
+  throws.push({ word: 'no ping', missed: true, x: NaN, y: NaN, d: Infinity, score: 0 });
+  renderReadout();
+  if (throws.length === ROUNDS) return endGame();
+  awaiting = true;
+  msg(`Time's up. Press Enter for target ${throws.length + 1}.`);
+  render();
+  save();
 }
 setInterval(tick, 100);
 function renderTimes() {
   $('d-times').innerHTML = times.map((t, k) => `<li><span class="n">${k + 1}</span><span class="w">${esc(throws[k] ? throws[k].word : '')}</span><span class="t">${fmt(t)}</span></li>`).join('');
+  document.querySelector('.blk-timer').classList.toggle('urgent', false);
 }
 
 // ---- Readout ----
@@ -435,22 +458,24 @@ function renderReadout() {
     const cur = over ? -1 : round();
     $('d-readout').innerHTML = targets.map((tg, k) => {
       const t = throws[k];
+      if (t && t.missed) return `<li class="done missed"><span class="n">${k + 1}</span><span class="w">no ping</span><span class="s">0</span><span class="brg">time up · ${fmt(ROUND_SECONDS)}</span></li>`;
       if (t) return `<li class="done"><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}${times[k] !== undefined ? ` · ${fmt(times[k])}` : ''}</span><span class="hint">${hint(t, tg)}</span></li>`;
       if (k === cur) return `<li class="cur"><span class="n">${k + 1}</span><span class="w">tracking</span><span class="s"></span><span class="brg">${brgRng(tg)}</span></li>`;
       return '';
     }).join('');
     return;
   }
-  $('d-readout').innerHTML = throws.map((t, k) =>
-    `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}${times[k] !== undefined ? ` · ${fmt(times[k])}` : ''}</span><span class="hint">${hint(t, targets[k])}</span></li>`).join('');
+  $('d-readout').innerHTML = throws.map((t, k) => t.missed
+    ? `<li><span class="n">${k + 1}</span><span class="w">no throw</span><span class="s">0</span><span class="hint">time up</span></li>`
+    : `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}${times[k] !== undefined ? ` · ${fmt(times[k])}` : ''}</span><span class="hint">${hint(t, targets[k])}</span></li>`).join('');
 }
 
 // The console's other screens: the status strip in the head, and the analysis screen (latest return, axis bars).
 function renderSide() {
   if (!theme.console || !puzzle) return;
-  const cur = over ? -1 : round(), last = awaiting || over ? throws[throws.length - 1] : null, sum = total(throws);
+  const cur = over ? -1 : round(), lastT = awaiting || over ? throws[throws.length - 1] : null, last = lastT && !lastT.missed ? lastT : null, sum = total(throws);
   const st = $('d-status'); let stText = st.querySelector('span'); if (!stText) { stText = document.createElement('span'); st.prepend(stText); } // the overlay stays beside the text
-  stText.textContent = over ? `Final ${sum} / ${MAX_SCORE}` : `Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS} · Score ${sum} / ${MAX_SCORE}`;
+  stText.innerHTML = over ? `<b>Final</b><b>${sum} / ${MAX_SCORE}</b>` : `<b>Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS}</b><b>Score ${sum} / ${MAX_SCORE}</b>`;
   $('d-category').innerHTML = `<div class="cat-name">${esc(puzzle.category)}</div>`;
   const tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
   renderTimes();
@@ -566,6 +591,7 @@ function endGame() {
   $('d-nextp').hidden = true;
   msg('');
   const sum = total(throws), bulls = throws.filter(t => t.score === RINGS[0][1]).length;
+  if (theme.console) document.querySelector('.blk-timer').classList.remove('urgent');
   const clock = times.reduce((a, b) => a + b, 0);
   $('d-result').textContent = `Score ${sum} of ${MAX_SCORE}${bulls ? `, with ${bulls} bullseye${bulls > 1 ? 's' : ''}` : ''}${clock ? `, in ${fmt(clock)}` : ''}.`;
   $('d-share-text').textContent = `Darts #${puzzle.number} · ${sum}/${MAX_SCORE} · ${throws.map(t => t.score).join(' ')}`;
@@ -573,7 +599,7 @@ function endGame() {
   $('d-reveal').innerHTML = answers().map((a, k) => {
     const you = throws[k];
     const list = a.hits.length ? a.hits.map(h => `${esc(h.word)} <span class="s">${h.score}</span>`).join(', ') : 'no common word scores here';
-    return `<li><span class="n">${k + 1}</span><span class="hint">you threw <b>${esc(you.word)}</b> for ${you.score} · best: ${list}</span></li>`;
+    return `<li><span class="n">${k + 1}</span><span class="hint">${you.missed ? 'no throw' : `you threw <b>${esc(you.word)}</b> for ${you.score}`} · best: ${list}</span></li>`;
   }).join('');
   $('d-reveal-wrap').hidden = false;
   render();
@@ -596,7 +622,7 @@ function again() {
 const key = () => `darts:${puzzle.id}:${puzzle.date}`;
 function save() {
   if (practice) return;
-  try { localStorage.setItem(key(), JSON.stringify({ started, words: throws.map(t => t.word), awaiting, times, roundStart })); } catch {}
+  try { localStorage.setItem(key(), JSON.stringify({ started, words: throws.map(t => t.missed ? null : t.word), awaiting, times, roundStart })); } catch {}
 }
 async function restore() {
   let saved;
@@ -607,6 +633,7 @@ async function restore() {
   for (const [k, w] of saved.words.entries()) {
     if (over) break;
     if (awaiting) nextTarget();
+    if (w === null) { roundStart = Date.now() - ROUND_SECONDS * 1000 - 1; timeOut(); continue; }
     const entry = await lookup(w);
     if (entry) await addThrow(w, entry, false, savedTimes[k] ?? 0);
   }
