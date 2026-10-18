@@ -1,0 +1,1558 @@
+{
+ "_comment": "Per category: the weekday it runs (0 = Sunday), seed words that define what fits the category, and a bank of spectrums. Each spectrum has its two end words, optional synonyms for each end, and anchors: example words with a hand-placed position from -1 (low end) to 1 (high end). The build fits each spectrum to its anchors, so more and better anchors mean better placement of every other word.",
+ "categories": {
+  "food": {
+   "name": "Food",
+   "weekday": 0,
+   "seeds": [
+    "food",
+    "meal",
+    "dish",
+    "snack",
+    "fruit",
+    "vegetable",
+    "dessert",
+    "drink",
+    "cuisine",
+    "ingredient",
+    "breakfast",
+    "dinner"
+   ],
+   "spectrums": {
+    "healthy|indulgent": {
+     "lowSyn": [
+      "nutritious",
+      "wholesome"
+     ],
+     "highSyn": [
+      "greasy",
+      "junk"
+     ],
+     "anchors": {
+      "salad": -1.0,
+      "broccoli": -1.0,
+      "spinach": -1.0,
+      "kale": -1.0,
+      "quinoa": -1.0,
+      "lentils": -0.9,
+      "oats": -0.9,
+      "apple": -0.9,
+      "carrot": -0.9,
+      "banana": -0.8,
+      "fish": -0.7,
+      "yogurt": -0.6,
+      "chicken": -0.5,
+      "rice": -0.5,
+      "soup": -0.5,
+      "bread": -0.3,
+      "eggs": -0.3,
+      "sandwich": -0.1,
+      "pasta": 0.0,
+      "cheese": 0.3,
+      "steak": 0.3,
+      "pizza": 0.6,
+      "burger": 0.8,
+      "fries": 0.8,
+      "bacon": 0.8,
+      "nachos": 0.8,
+      "cake": 0.9,
+      "chocolate": 0.9,
+      "donut": 1.0,
+      "milkshake": 1.0,
+      "candy": 1.0
+     }
+    },
+    "sweet|savoury": {
+     "lowSyn": [
+      "sugary",
+      "dessert"
+     ],
+     "highSyn": [
+      "savory",
+      "salty"
+     ],
+     "anchors": {
+      "candy": -1.0,
+      "chocolate": -1.0,
+      "cake": -1.0,
+      "honey": -1.0,
+      "donut": -1.0,
+      "cookie": -0.9,
+      "jam": -0.9,
+      "banana": -0.7,
+      "pie": -0.7,
+      "fruit": -0.6,
+      "pancakes": -0.5,
+      "yogurt": -0.4,
+      "cereal": -0.3,
+      "bread": 0.2,
+      "rice": 0.4,
+      "pasta": 0.5,
+      "cheese": 0.6,
+      "sandwich": 0.6,
+      "pizza": 0.7,
+      "burger": 0.8,
+      "soup": 0.8,
+      "chicken": 0.8,
+      "fish": 0.8,
+      "bacon": 0.9,
+      "olives": 0.9,
+      "pickles": 0.9,
+      "steak": 1.0,
+      "curry": 1.0,
+      "sausage": 1.0
+     }
+    },
+    "cold|hot": {
+     "lowSyn": [
+      "chilled",
+      "frozen"
+     ],
+     "highSyn": [
+      "warm",
+      "cooked"
+     ],
+     "anchors": {
+      "sorbet": -1.0,
+      "milkshake": -1.0,
+      "lemonade": -1.0,
+      "smoothie": -1.0,
+      "salad": -0.9,
+      "sushi": -0.9,
+      "yogurt": -0.8,
+      "cereal": -0.6,
+      "fruit": -0.6,
+      "sandwich": -0.5,
+      "cheese": -0.3,
+      "cake": -0.3,
+      "chocolate": -0.2,
+      "bread": 0.0,
+      "burger": 0.5,
+      "pizza": 0.6,
+      "pasta": 0.6,
+      "fries": 0.6,
+      "toast": 0.6,
+      "steak": 0.7,
+      "coffee": 0.8,
+      "tea": 0.8,
+      "curry": 0.9,
+      "porridge": 0.9,
+      "chili": 0.9,
+      "soup": 1.0,
+      "stew": 1.0
+     }
+    },
+    "simple|fancy": {
+     "lowSyn": [
+      "plain",
+      "basic"
+     ],
+     "highSyn": [
+      "gourmet",
+      "luxurious"
+     ],
+     "anchors": {
+      "toast": -1.0,
+      "cereal": -1.0,
+      "porridge": -0.9,
+      "sandwich": -0.8,
+      "rice": -0.8,
+      "beans": -0.8,
+      "eggs": -0.7,
+      "noodles": -0.6,
+      "fries": -0.6,
+      "pasta": -0.4,
+      "pizza": -0.3,
+      "burger": -0.3,
+      "soup": -0.3,
+      "tacos": -0.3,
+      "curry": 0.0,
+      "salmon": 0.5,
+      "steak": 0.5,
+      "sushi": 0.6,
+      "risotto": 0.6,
+      "duck": 0.6,
+      "lobster": 0.9,
+      "oysters": 0.9,
+      "caviar": 1.0,
+      "truffle": 1.0,
+      "champagne": 1.0
+     }
+    },
+    "everyday|treat": {
+     "lowSyn": [
+      "staple",
+      "ordinary"
+     ],
+     "highSyn": [
+      "luxury",
+      "indulgence"
+     ],
+     "anchors": {
+      "bread": -1.0,
+      "rice": -1.0,
+      "potato": -1.0,
+      "milk": -1.0,
+      "toast": -0.9,
+      "cereal": -0.8,
+      "eggs": -0.7,
+      "apple": -0.7,
+      "sandwich": -0.6,
+      "pasta": -0.5,
+      "soup": -0.5,
+      "chicken": -0.4,
+      "pizza": 0.2,
+      "burger": 0.3,
+      "steak": 0.5,
+      "sushi": 0.6,
+      "cookies": 0.6,
+      "chocolate": 0.7,
+      "cake": 0.8,
+      "lobster": 0.9,
+      "champagne": 1.0,
+      "caviar": 1.0,
+      "truffle": 1.0
+     }
+    }
+   }
+  },
+  "object": {
+   "name": "Object",
+   "weekday": 1,
+   "seeds": [
+    "object",
+    "item",
+    "thing",
+    "tool",
+    "furniture",
+    "gadget",
+    "clothing",
+    "utensil",
+    "device",
+    "toy",
+    "household"
+   ],
+   "spectrums": {
+    "small|large": {
+     "lowSyn": [
+      "tiny",
+      "little"
+     ],
+     "highSyn": [
+      "big",
+      "huge"
+     ],
+     "anchors": {
+      "coin": -1.0,
+      "key": -1.0,
+      "ring": -1.0,
+      "button": -1.0,
+      "pin": -1.0,
+      "pen": -0.9,
+      "spoon": -0.9,
+      "watch": -0.9,
+      "phone": -0.8,
+      "wallet": -0.8,
+      "cup": -0.7,
+      "book": -0.6,
+      "hat": -0.5,
+      "shoe": -0.5,
+      "pillow": -0.3,
+      "lamp": -0.2,
+      "guitar": 0.2,
+      "chair": 0.2,
+      "suitcase": 0.2,
+      "television": 0.4,
+      "bicycle": 0.5,
+      "table": 0.5,
+      "sofa": 0.6,
+      "fridge": 0.7,
+      "wardrobe": 0.7,
+      "piano": 0.8,
+      "car": 0.9,
+      "boat": 0.9,
+      "bus": 1.0,
+      "house": 1.0,
+      "truck": 1.0
+     }
+    },
+    "soft|hard": {
+     "lowSyn": [
+      "squishy",
+      "cushioned"
+     ],
+     "highSyn": [
+      "solid",
+      "rigid"
+     ],
+     "anchors": {
+      "pillow": -1.0,
+      "blanket": -1.0,
+      "sponge": -1.0,
+      "cushion": -1.0,
+      "towel": -0.9,
+      "teddy": -0.9,
+      "scarf": -0.8,
+      "sweater": -0.8,
+      "sock": -0.8,
+      "mattress": -0.6,
+      "carpet": -0.6,
+      "sofa": -0.5,
+      "bread": -0.4,
+      "shoe": 0.0,
+      "bag": 0.0,
+      "book": 0.2,
+      "wallet": 0.2,
+      "table": 0.6,
+      "chair": 0.6,
+      "phone": 0.7,
+      "bottle": 0.7,
+      "key": 0.9,
+      "hammer": 1.0,
+      "rock": 1.0,
+      "knife": 1.0,
+      "brick": 1.0,
+      "anvil": 1.0,
+      "diamond": 1.0
+     }
+    },
+    "cheap|expensive": {
+     "lowSyn": [
+      "inexpensive",
+      "affordable"
+     ],
+     "highSyn": [
+      "luxury",
+      "costly"
+     ],
+     "anchors": {
+      "pencil": -1.0,
+      "spoon": -1.0,
+      "balloon": -1.0,
+      "candle": -0.9,
+      "sock": -0.9,
+      "cup": -0.8,
+      "mug": -0.8,
+      "towel": -0.7,
+      "umbrella": -0.6,
+      "book": -0.5,
+      "hat": -0.4,
+      "lamp": -0.3,
+      "chair": -0.2,
+      "shoes": 0.0,
+      "bicycle": 0.2,
+      "guitar": 0.3,
+      "watch": 0.4,
+      "phone": 0.5,
+      "television": 0.5,
+      "sofa": 0.5,
+      "laptop": 0.6,
+      "piano": 0.8,
+      "car": 0.9,
+      "diamond": 1.0,
+      "yacht": 1.0,
+      "mansion": 1.0,
+      "rolex": 1.0
+     }
+    },
+    "indoor|outdoor": {
+     "lowSyn": [
+      "indoors",
+      "household"
+     ],
+     "highSyn": [
+      "outdoors",
+      "garden"
+     ],
+     "anchors": {
+      "pillow": -1.0,
+      "sofa": -1.0,
+      "oven": -1.0,
+      "toothbrush": -1.0,
+      "bed": -1.0,
+      "carpet": -1.0,
+      "lamp": -0.8,
+      "television": -0.8,
+      "mug": -0.7,
+      "book": -0.6,
+      "cup": -0.6,
+      "laptop": -0.5,
+      "chair": -0.4,
+      "hat": 0.3,
+      "umbrella": 0.5,
+      "car": 0.7,
+      "bicycle": 0.8,
+      "bench": 0.8,
+      "shovel": 0.9,
+      "hose": 0.9,
+      "tent": 1.0,
+      "lawnmower": 1.0,
+      "kite": 1.0,
+      "fence": 1.0,
+      "boat": 1.0,
+      "surfboard": 1.0
+     }
+    },
+    "old-fashioned|modern": {
+     "lowSyn": [
+      "antique",
+      "vintage"
+     ],
+     "highSyn": [
+      "digital",
+      "electronic"
+     ],
+     "anchors": {
+      "typewriter": -1.0,
+      "quill": -1.0,
+      "abacus": -1.0,
+      "gramophone": -1.0,
+      "telegraph": -1.0,
+      "carriage": -1.0,
+      "candle": -0.9,
+      "lantern": -0.8,
+      "vinyl": -0.5,
+      "telephone": -0.3,
+      "piano": -0.3,
+      "radio": -0.2,
+      "book": -0.2,
+      "bicycle": -0.1,
+      "television": 0.3,
+      "camera": 0.3,
+      "microwave": 0.4,
+      "headphones": 0.7,
+      "laptop": 0.8,
+      "tablet": 0.9,
+      "smartphone": 1.0,
+      "drone": 1.0,
+      "robot": 1.0
+     }
+    }
+   }
+  },
+  "action": {
+   "name": "Action",
+   "weekday": 2,
+   "seeds": [
+    "action",
+    "activity",
+    "verb",
+    "exercise",
+    "movement",
+    "hobby",
+    "sport",
+    "gesture",
+    "chore",
+    "task"
+   ],
+   "spectrums": {
+    "calm|energetic": {
+     "lowSyn": [
+      "relaxing",
+      "restful"
+     ],
+     "highSyn": [
+      "active",
+      "vigorous"
+     ],
+     "anchors": {
+      "sleep": -1.0,
+      "meditate": -1.0,
+      "nap": -1.0,
+      "rest": -1.0,
+      "read": -0.9,
+      "sit": -0.9,
+      "bath": -0.9,
+      "knit": -0.8,
+      "listen": -0.8,
+      "pray": -0.8,
+      "write": -0.7,
+      "fish": -0.6,
+      "paint": -0.6,
+      "walk": -0.3,
+      "cook": 0.0,
+      "shop": 0.0,
+      "garden": 0.1,
+      "swim": 0.5,
+      "cycle": 0.6,
+      "hike": 0.6,
+      "dance": 0.8,
+      "jump": 0.8,
+      "run": 0.9,
+      "sprint": 1.0,
+      "box": 1.0,
+      "wrestle": 1.0
+     }
+    },
+    "solo|social": {
+     "lowSyn": [
+      "alone",
+      "solitary"
+     ],
+     "highSyn": [
+      "together",
+      "group"
+     ],
+     "anchors": {
+      "meditate": -1.0,
+      "read": -1.0,
+      "nap": -1.0,
+      "bath": -1.0,
+      "write": -0.9,
+      "paint": -0.7,
+      "knit": -0.7,
+      "jog": -0.6,
+      "fish": -0.6,
+      "study": -0.6,
+      "cook": -0.2,
+      "cycle": -0.2,
+      "swim": -0.1,
+      "shop": 0.0,
+      "sing": 0.4,
+      "play": 0.5,
+      "dance": 0.7,
+      "wrestle": 0.8,
+      "argue": 0.9,
+      "celebrate": 0.9,
+      "chat": 1.0,
+      "party": 1.0,
+      "hug": 1.0,
+      "kiss": 1.0,
+      "gossip": 1.0
+     }
+    },
+    "indoors|outdoors": {
+     "lowSyn": [
+      "inside",
+      "indoor"
+     ],
+     "highSyn": [
+      "outside",
+      "outdoor"
+     ],
+     "anchors": {
+      "sleep": -1.0,
+      "bake": -1.0,
+      "type": -1.0,
+      "shower": -1.0,
+      "knit": -0.9,
+      "cook": -0.8,
+      "study": -0.8,
+      "read": -0.7,
+      "paint": -0.5,
+      "shop": -0.4,
+      "dance": -0.3,
+      "sing": -0.3,
+      "swim": 0.4,
+      "walk": 0.5,
+      "run": 0.5,
+      "jog": 0.6,
+      "climb": 0.8,
+      "cycle": 0.8,
+      "garden": 0.9,
+      "fish": 0.9,
+      "hike": 1.0,
+      "surf": 1.0,
+      "ski": 1.0,
+      "camp": 1.0,
+      "sail": 1.0,
+      "hunt": 1.0
+     }
+    },
+    "easy|hard": {
+     "lowSyn": [
+      "simple",
+      "effortless"
+     ],
+     "highSyn": [
+      "difficult",
+      "challenging"
+     ],
+     "anchors": {
+      "sit": -1.0,
+      "nap": -1.0,
+      "eat": -1.0,
+      "watch": -1.0,
+      "breathe": -1.0,
+      "walk": -0.9,
+      "talk": -0.8,
+      "listen": -0.8,
+      "read": -0.6,
+      "cook": -0.2,
+      "write": -0.1,
+      "drive": 0.0,
+      "swim": 0.2,
+      "dance": 0.2,
+      "sing": 0.3,
+      "ski": 0.6,
+      "climb": 0.7,
+      "compose": 0.7,
+      "box": 0.7,
+      "juggle": 0.8,
+      "surf": 0.8,
+      "wrestle": 0.8,
+      "skydive": 0.9,
+      "marathon": 1.0
+     }
+    },
+    "everyday|rare": {
+     "lowSyn": [
+      "routine",
+      "daily"
+     ],
+     "highSyn": [
+      "unusual",
+      "once"
+     ],
+     "anchors": {
+      "sleep": -1.0,
+      "eat": -1.0,
+      "walk": -1.0,
+      "shower": -1.0,
+      "talk": -1.0,
+      "cook": -0.9,
+      "work": -0.9,
+      "drive": -0.8,
+      "shop": -0.7,
+      "read": -0.7,
+      "swim": 0.0,
+      "dance": 0.2,
+      "paint": 0.2,
+      "fish": 0.4,
+      "climb": 0.5,
+      "ski": 0.6,
+      "hunt": 0.6,
+      "sail": 0.7,
+      "surf": 0.7,
+      "marathon": 0.9,
+      "graduate": 0.9,
+      "skydive": 1.0,
+      "parachute": 1.0
+     }
+    }
+   }
+  },
+  "nature": {
+   "name": "Nature",
+   "weekday": 3,
+   "seeds": [
+    "animal",
+    "animals",
+    "creature",
+    "wildlife",
+    "mammal",
+    "bird",
+    "fish",
+    "insect",
+    "reptile",
+    "plant",
+    "tree",
+    "flower",
+    "weather"
+   ],
+   "spectrums": {
+    "tiny|huge": {
+     "lowSyn": [
+      "small",
+      "little"
+     ],
+     "highSyn": [
+      "enormous",
+      "giant"
+     ],
+     "anchors": {
+      "ant": -1.0,
+      "flea": -1.0,
+      "gnat": -1.0,
+      "bee": -0.9,
+      "fly": -0.9,
+      "spider": -0.9,
+      "beetle": -0.9,
+      "mouse": -0.8,
+      "hamster": -0.8,
+      "sparrow": -0.7,
+      "frog": -0.7,
+      "lizard": -0.6,
+      "squirrel": -0.5,
+      "rabbit": -0.4,
+      "cat": -0.3,
+      "chicken": -0.3,
+      "duck": -0.3,
+      "fox": -0.2,
+      "dog": 0.0,
+      "goat": 0.1,
+      "sheep": 0.2,
+      "pig": 0.3,
+      "deer": 0.3,
+      "wolf": 0.3,
+      "horse": 0.5,
+      "cow": 0.5,
+      "bear": 0.6,
+      "lion": 0.6,
+      "camel": 0.6,
+      "rhino": 0.8,
+      "giraffe": 0.8,
+      "hippo": 0.8,
+      "elephant": 0.9,
+      "whale": 1.0,
+      "dinosaur": 1.0
+     }
+    },
+    "slow|fast": {
+     "lowSyn": [
+      "sluggish",
+      "slowly"
+     ],
+     "highSyn": [
+      "quick",
+      "speedy"
+     ],
+     "anchors": {
+      "snail": -1.0,
+      "sloth": -1.0,
+      "tortoise": -0.9,
+      "slug": -0.9,
+      "turtle": -0.8,
+      "koala": -0.8,
+      "cow": -0.5,
+      "pig": -0.4,
+      "hippo": -0.4,
+      "sheep": -0.3,
+      "elephant": -0.3,
+      "chicken": -0.2,
+      "duck": -0.1,
+      "bear": 0.0,
+      "dog": 0.3,
+      "cat": 0.3,
+      "fox": 0.4,
+      "wolf": 0.5,
+      "deer": 0.6,
+      "kangaroo": 0.6,
+      "horse": 0.7,
+      "hare": 0.7,
+      "dolphin": 0.7,
+      "eagle": 0.8,
+      "greyhound": 0.9,
+      "cheetah": 1.0,
+      "falcon": 1.0
+     }
+    },
+    "cute|scary": {
+     "lowSyn": [
+      "adorable",
+      "fluffy"
+     ],
+     "highSyn": [
+      "frightening",
+      "fierce"
+     ],
+     "anchors": {
+      "kitten": -1.0,
+      "puppy": -1.0,
+      "duckling": -1.0,
+      "bunny": -0.9,
+      "hamster": -0.9,
+      "lamb": -0.9,
+      "panda": -0.8,
+      "koala": -0.8,
+      "penguin": -0.7,
+      "cat": -0.6,
+      "dolphin": -0.6,
+      "duck": -0.5,
+      "dog": -0.5,
+      "sheep": -0.4,
+      "deer": -0.4,
+      "fox": -0.2,
+      "cow": -0.2,
+      "pig": -0.1,
+      "goat": 0.0,
+      "crow": 0.3,
+      "rat": 0.4,
+      "bat": 0.4,
+      "wasp": 0.5,
+      "hyena": 0.6,
+      "bear": 0.6,
+      "snake": 0.7,
+      "wolf": 0.7,
+      "spider": 0.8,
+      "scorpion": 0.8,
+      "tiger": 0.8,
+      "crocodile": 0.9,
+      "shark": 1.0
+     }
+    },
+    "wild|tame": {
+     "lowSyn": [
+      "feral",
+      "untamed"
+     ],
+     "highSyn": [
+      "domestic",
+      "pet"
+     ],
+     "anchors": {
+      "wolf": -1.0,
+      "tiger": -1.0,
+      "lion": -1.0,
+      "shark": -1.0,
+      "crocodile": -1.0,
+      "bear": -0.9,
+      "eagle": -0.9,
+      "fox": -0.7,
+      "snake": -0.7,
+      "deer": -0.6,
+      "zebra": -0.6,
+      "elephant": -0.5,
+      "monkey": -0.4,
+      "pigeon": -0.2,
+      "duck": 0.0,
+      "parrot": 0.3,
+      "goat": 0.3,
+      "horse": 0.5,
+      "pig": 0.6,
+      "rabbit": 0.6,
+      "cow": 0.7,
+      "sheep": 0.7,
+      "chicken": 0.7,
+      "pony": 0.8,
+      "hamster": 0.9,
+      "goldfish": 0.9,
+      "cat": 0.9,
+      "dog": 1.0
+     }
+    },
+    "land|water": {
+     "lowSyn": [
+      "ground",
+      "desert"
+     ],
+     "highSyn": [
+      "sea",
+      "ocean"
+     ],
+     "anchors": {
+      "camel": -1.0,
+      "lizard": -1.0,
+      "giraffe": -1.0,
+      "ant": -1.0,
+      "sheep": -1.0,
+      "horse": -0.9,
+      "cat": -0.9,
+      "elephant": -0.9,
+      "fox": -0.9,
+      "snake": -0.7,
+      "frog": 0.2,
+      "beaver": 0.3,
+      "otter": 0.4,
+      "duck": 0.4,
+      "crocodile": 0.5,
+      "turtle": 0.5,
+      "penguin": 0.6,
+      "seal": 0.8,
+      "crab": 0.8,
+      "dolphin": 1.0,
+      "shark": 1.0,
+      "whale": 1.0,
+      "octopus": 1.0,
+      "salmon": 1.0,
+      "jellyfish": 1.0
+     }
+    },
+    "common|rare": {
+     "lowSyn": [
+      "everywhere",
+      "ordinary"
+     ],
+     "highSyn": [
+      "endangered",
+      "exotic"
+     ],
+     "anchors": {
+      "pigeon": -1.0,
+      "dog": -1.0,
+      "cat": -1.0,
+      "fly": -1.0,
+      "ant": -1.0,
+      "sparrow": -0.9,
+      "rat": -0.9,
+      "chicken": -0.9,
+      "cow": -0.8,
+      "sheep": -0.8,
+      "squirrel": -0.7,
+      "rabbit": -0.6,
+      "fox": -0.3,
+      "deer": -0.2,
+      "hawk": 0.2,
+      "eagle": 0.3,
+      "wolf": 0.4,
+      "dolphin": 0.4,
+      "bear": 0.4,
+      "lion": 0.6,
+      "gorilla": 0.8,
+      "tiger": 0.8,
+      "panda": 0.9,
+      "rhino": 0.9,
+      "platypus": 0.9,
+      "okapi": 1.0
+     }
+    }
+   }
+  },
+  "world": {
+   "name": "World",
+   "weekday": 4,
+   "seeds": [
+    "country",
+    "countries",
+    "nation",
+    "city",
+    "capital",
+    "continent",
+    "island",
+    "region",
+    "state",
+    "kingdom"
+   ],
+   "spectrums": {
+    "cold|hot": {
+     "lowSyn": [
+      "arctic",
+      "freezing"
+     ],
+     "highSyn": [
+      "tropical",
+      "scorching"
+     ],
+     "anchors": {
+      "iceland": -1.0,
+      "greenland": -1.0,
+      "antarctica": -1.0,
+      "siberia": -1.0,
+      "alaska": -1.0,
+      "canada": -0.9,
+      "norway": -0.9,
+      "finland": -0.9,
+      "sweden": -0.8,
+      "russia": -0.8,
+      "scotland": -0.6,
+      "denmark": -0.6,
+      "poland": -0.4,
+      "germany": -0.3,
+      "england": -0.3,
+      "france": -0.1,
+      "japan": 0.0,
+      "italy": 0.3,
+      "spain": 0.4,
+      "turkey": 0.4,
+      "mexico": 0.6,
+      "australia": 0.6,
+      "brazil": 0.7,
+      "kenya": 0.7,
+      "egypt": 0.8,
+      "india": 0.8,
+      "thailand": 0.8,
+      "dubai": 1.0,
+      "sahara": 1.0,
+      "sudan": 1.0
+     }
+    },
+    "small|vast": {
+     "lowSyn": [
+      "tiny",
+      "little"
+     ],
+     "highSyn": [
+      "huge",
+      "enormous"
+     ],
+     "anchors": {
+      "monaco": -1.0,
+      "malta": -1.0,
+      "singapore": -1.0,
+      "vatican": -1.0,
+      "luxembourg": -0.9,
+      "bahrain": -0.9,
+      "cyprus": -0.8,
+      "jamaica": -0.8,
+      "belgium": -0.6,
+      "netherlands": -0.6,
+      "switzerland": -0.6,
+      "denmark": -0.6,
+      "portugal": -0.4,
+      "greece": -0.3,
+      "england": -0.3,
+      "italy": 0.0,
+      "japan": 0.0,
+      "spain": 0.1,
+      "france": 0.2,
+      "turkey": 0.3,
+      "egypt": 0.4,
+      "mexico": 0.5,
+      "argentina": 0.6,
+      "india": 0.7,
+      "australia": 0.8,
+      "brazil": 0.8,
+      "china": 0.9,
+      "canada": 0.9,
+      "usa": 0.9,
+      "russia": 1.0
+     }
+    },
+    "ancient|new": {
+     "lowSyn": [
+      "historic",
+      "old"
+     ],
+     "highSyn": [
+      "modern",
+      "young"
+     ],
+     "anchors": {
+      "egypt": -1.0,
+      "greece": -1.0,
+      "iraq": -0.9,
+      "china": -0.8,
+      "italy": -0.8,
+      "iran": -0.8,
+      "india": -0.7,
+      "ethiopia": -0.7,
+      "israel": -0.6,
+      "turkey": -0.6,
+      "peru": -0.6,
+      "mexico": -0.5,
+      "japan": -0.5,
+      "england": -0.3,
+      "france": -0.3,
+      "spain": -0.3,
+      "germany": 0.0,
+      "poland": 0.0,
+      "brazil": 0.3,
+      "usa": 0.4,
+      "argentina": 0.4,
+      "canada": 0.5,
+      "australia": 0.6,
+      "singapore": 0.8,
+      "qatar": 0.9,
+      "dubai": 1.0
+     }
+    },
+    "rural|urban": {
+     "lowSyn": [
+      "countryside",
+      "wilderness"
+     ],
+     "highSyn": [
+      "city",
+      "metropolis"
+     ],
+     "anchors": {
+      "mongolia": -1.0,
+      "tibet": -1.0,
+      "bhutan": -1.0,
+      "wyoming": -1.0,
+      "montana": -0.9,
+      "iceland": -0.8,
+      "nepal": -0.8,
+      "wales": -0.7,
+      "scotland": -0.5,
+      "kenya": -0.5,
+      "ireland": -0.4,
+      "australia": -0.3,
+      "canada": -0.3,
+      "france": 0.0,
+      "italy": 0.1,
+      "germany": 0.2,
+      "england": 0.3,
+      "netherlands": 0.5,
+      "japan": 0.6,
+      "dubai": 0.8,
+      "paris": 0.9,
+      "singapore": 1.0,
+      "monaco": 1.0,
+      "tokyo": 1.0,
+      "london": 1.0,
+      "manhattan": 1.0,
+      "shanghai": 1.0
+     }
+    },
+    "poor|rich": {
+     "lowSyn": [
+      "poverty",
+      "developing"
+     ],
+     "highSyn": [
+      "wealthy",
+      "prosperous"
+     ],
+     "anchors": {
+      "haiti": -1.0,
+      "somalia": -1.0,
+      "sudan": -1.0,
+      "chad": -1.0,
+      "ethiopia": -0.9,
+      "afghanistan": -0.9,
+      "nepal": -0.8,
+      "bangladesh": -0.8,
+      "bolivia": -0.7,
+      "kenya": -0.7,
+      "egypt": -0.5,
+      "india": -0.4,
+      "vietnam": -0.4,
+      "mexico": -0.2,
+      "brazil": -0.2,
+      "china": -0.1,
+      "poland": 0.0,
+      "greece": 0.1,
+      "spain": 0.3,
+      "italy": 0.4,
+      "france": 0.5,
+      "japan": 0.6,
+      "germany": 0.7,
+      "canada": 0.7,
+      "usa": 0.8,
+      "norway": 0.9,
+      "switzerland": 1.0,
+      "luxembourg": 1.0,
+      "monaco": 1.0,
+      "qatar": 1.0
+     }
+    }
+   }
+  },
+  "person": {
+   "name": "Person",
+   "weekday": 5,
+   "seeds": [
+    "job",
+    "profession",
+    "occupation",
+    "worker",
+    "career",
+    "employee",
+    "person",
+    "trade",
+    "role"
+   ],
+   "spectrums": {
+    "desk|physical": {
+     "lowSyn": [
+      "office",
+      "paperwork"
+     ],
+     "highSyn": [
+      "manual",
+      "labour"
+     ],
+     "anchors": {
+      "accountant": -1.0,
+      "programmer": -1.0,
+      "writer": -1.0,
+      "lawyer": -0.9,
+      "banker": -0.9,
+      "clerk": -0.9,
+      "secretary": -0.9,
+      "editor": -0.9,
+      "architect": -0.7,
+      "designer": -0.7,
+      "scientist": -0.5,
+      "pharmacist": -0.4,
+      "teacher": -0.3,
+      "doctor": 0.0,
+      "dentist": 0.1,
+      "barber": 0.3,
+      "nurse": 0.4,
+      "chef": 0.6,
+      "waiter": 0.6,
+      "mechanic": 0.7,
+      "plumber": 0.8,
+      "farmer": 0.9,
+      "firefighter": 0.9,
+      "dancer": 0.9,
+      "soldier": 0.9,
+      "builder": 1.0,
+      "lumberjack": 1.0,
+      "athlete": 1.0,
+      "miner": 1.0
+     }
+    },
+    "safe|dangerous": {
+     "lowSyn": [
+      "secure",
+      "harmless"
+     ],
+     "highSyn": [
+      "risky",
+      "deadly"
+     ],
+     "anchors": {
+      "librarian": -1.0,
+      "accountant": -1.0,
+      "florist": -1.0,
+      "clerk": -0.9,
+      "writer": -0.9,
+      "programmer": -0.9,
+      "secretary": -0.9,
+      "teacher": -0.8,
+      "baker": -0.7,
+      "dentist": -0.6,
+      "chef": -0.3,
+      "nurse": -0.2,
+      "farmer": 0.1,
+      "mechanic": 0.2,
+      "electrician": 0.4,
+      "sailor": 0.5,
+      "pilot": 0.5,
+      "fisherman": 0.6,
+      "police": 0.7,
+      "boxer": 0.8,
+      "firefighter": 0.9,
+      "miner": 0.9,
+      "astronaut": 0.9,
+      "soldier": 1.0,
+      "stuntman": 1.0
+     }
+    },
+    "poor|rich": {
+     "lowSyn": [
+      "underpaid",
+      "humble"
+     ],
+     "highSyn": [
+      "wealthy",
+      "lucrative"
+     ],
+     "anchors": {
+      "cleaner": -1.0,
+      "waiter": -1.0,
+      "cashier": -1.0,
+      "janitor": -1.0,
+      "dishwasher": -1.0,
+      "farmer": -0.7,
+      "cook": -0.7,
+      "driver": -0.6,
+      "secretary": -0.5,
+      "teacher": -0.4,
+      "nurse": -0.4,
+      "chef": -0.2,
+      "mechanic": -0.2,
+      "plumber": 0.0,
+      "electrician": 0.1,
+      "accountant": 0.3,
+      "engineer": 0.4,
+      "pilot": 0.5,
+      "architect": 0.5,
+      "dentist": 0.7,
+      "lawyer": 0.8,
+      "broker": 0.8,
+      "surgeon": 0.9,
+      "banker": 1.0,
+      "ceo": 1.0
+     }
+    },
+    "solitary|social": {
+     "lowSyn": [
+      "alone",
+      "quiet"
+     ],
+     "highSyn": [
+      "people",
+      "talkative"
+     ],
+     "anchors": {
+      "writer": -1.0,
+      "author": -1.0,
+      "programmer": -0.9,
+      "painter": -0.9,
+      "astronomer": -0.9,
+      "fisherman": -0.8,
+      "trucker": -0.8,
+      "farmer": -0.6,
+      "accountant": -0.6,
+      "scientist": -0.4,
+      "mechanic": -0.3,
+      "librarian": -0.3,
+      "chef": 0.0,
+      "doctor": 0.3,
+      "lawyer": 0.3,
+      "nurse": 0.6,
+      "teacher": 0.8,
+      "waiter": 0.8,
+      "salesman": 0.9,
+      "receptionist": 0.9,
+      "bartender": 1.0,
+      "politician": 1.0,
+      "comedian": 1.0,
+      "host": 1.0
+     }
+    },
+    "creative|practical": {
+     "lowSyn": [
+      "artistic",
+      "imaginative"
+     ],
+     "highSyn": [
+      "technical",
+      "hands-on"
+     ],
+     "anchors": {
+      "artist": -1.0,
+      "painter": -1.0,
+      "musician": -1.0,
+      "poet": -1.0,
+      "composer": -1.0,
+      "novelist": -1.0,
+      "writer": -0.9,
+      "designer": -0.8,
+      "actor": -0.8,
+      "photographer": -0.6,
+      "chef": -0.4,
+      "journalist": -0.4,
+      "architect": -0.3,
+      "teacher": 0.2,
+      "doctor": 0.3,
+      "engineer": 0.4,
+      "nurse": 0.5,
+      "farmer": 0.7,
+      "mechanic": 0.8,
+      "electrician": 0.9,
+      "surveyor": 0.9,
+      "builder": 0.9,
+      "plumber": 1.0,
+      "accountant": 1.0
+     }
+    }
+   }
+  },
+  "random": {
+   "name": "Random",
+   "weekday": 6,
+   "seeds": [],
+   "spectrums": {
+    "small|big": {
+     "lowSyn": [
+      "tiny",
+      "little"
+     ],
+     "highSyn": [
+      "huge",
+      "giant"
+     ],
+     "anchors": {
+      "ant": -1.0,
+      "coin": -1.0,
+      "pebble": -1.0,
+      "atom": -1.0,
+      "seed": -1.0,
+      "button": -0.9,
+      "mouse": -0.8,
+      "cup": -0.7,
+      "apple": -0.7,
+      "book": -0.6,
+      "cat": -0.5,
+      "chair": -0.2,
+      "dog": -0.2,
+      "bicycle": 0.0,
+      "car": 0.4,
+      "tree": 0.5,
+      "elephant": 0.7,
+      "house": 0.7,
+      "whale": 0.8,
+      "airplane": 0.8,
+      "ship": 0.8,
+      "mountain": 1.0,
+      "planet": 1.0,
+      "ocean": 1.0,
+      "galaxy": 1.0,
+      "sun": 1.0
+     }
+    },
+    "sad|happy": {
+     "lowSyn": [
+      "gloomy",
+      "miserable"
+     ],
+     "highSyn": [
+      "joyful",
+      "cheerful"
+     ],
+     "anchors": {
+      "funeral": -1.0,
+      "grief": -1.0,
+      "war": -1.0,
+      "cancer": -1.0,
+      "famine": -1.0,
+      "prison": -0.9,
+      "divorce": -0.9,
+      "debt": -0.7,
+      "hospital": -0.6,
+      "exam": -0.4,
+      "monday": -0.4,
+      "homework": -0.4,
+      "traffic": -0.4,
+      "rain": -0.3,
+      "bread": 0.0,
+      "chair": 0.0,
+      "chocolate": 0.6,
+      "sunshine": 0.6,
+      "beach": 0.7,
+      "puppy": 0.8,
+      "holiday": 0.8,
+      "wedding": 0.8,
+      "kitten": 0.8,
+      "birthday": 0.9,
+      "party": 0.9,
+      "rainbow": 0.9,
+      "christmas": 0.9,
+      "laughter": 1.0
+     }
+    },
+    "natural|artificial": {
+     "lowSyn": [
+      "nature",
+      "organic"
+     ],
+     "highSyn": [
+      "synthetic",
+      "manufactured"
+     ],
+     "anchors": {
+      "river": -1.0,
+      "mountain": -1.0,
+      "tree": -1.0,
+      "flower": -1.0,
+      "rain": -1.0,
+      "ocean": -1.0,
+      "forest": -1.0,
+      "cloud": -1.0,
+      "lion": -0.9,
+      "honey": -0.7,
+      "cotton": -0.6,
+      "wood": -0.5,
+      "garden": -0.3,
+      "bread": 0.0,
+      "cheese": 0.1,
+      "road": 0.5,
+      "brick": 0.6,
+      "car": 0.8,
+      "phone": 0.9,
+      "neon": 0.9,
+      "skyscraper": 0.9,
+      "television": 0.9,
+      "concrete": 0.9,
+      "plastic": 1.0,
+      "robot": 1.0,
+      "computer": 1.0,
+      "nylon": 1.0
+     }
+    },
+    "quiet|loud": {
+     "lowSyn": [
+      "silent",
+      "hushed"
+     ],
+     "highSyn": [
+      "noisy",
+      "deafening"
+     ],
+     "anchors": {
+      "library": -1.0,
+      "snow": -1.0,
+      "whisper": -1.0,
+      "feather": -1.0,
+      "moon": -1.0,
+      "pillow": -0.9,
+      "book": -0.8,
+      "candle": -0.8,
+      "garden": -0.6,
+      "cat": -0.4,
+      "rain": -0.2,
+      "piano": 0.2,
+      "car": 0.4,
+      "dog": 0.4,
+      "school": 0.5,
+      "traffic": 0.7,
+      "drum": 0.9,
+      "motorbike": 0.9,
+      "trumpet": 0.9,
+      "concert": 1.0,
+      "thunder": 1.0,
+      "fireworks": 1.0,
+      "siren": 1.0,
+      "explosion": 1.0
+     }
+    },
+    "old|new": {
+     "lowSyn": [
+      "ancient",
+      "antique"
+     ],
+     "highSyn": [
+      "modern",
+      "latest"
+     ],
+     "anchors": {
+      "fossil": -1.0,
+      "castle": -1.0,
+      "dinosaur": -1.0,
+      "pyramid": -1.0,
+      "antique": -1.0,
+      "mummy": -1.0,
+      "parchment": -1.0,
+      "cathedral": -0.8,
+      "typewriter": -0.7,
+      "vinyl": -0.5,
+      "bicycle": -0.3,
+      "radio": -0.3,
+      "book": -0.2,
+      "television": 0.3,
+      "laptop": 0.7,
+      "robot": 0.8,
+      "app": 0.9,
+      "podcast": 0.9,
+      "smartphone": 1.0,
+      "drone": 1.0,
+      "bitcoin": 1.0,
+      "selfie": 1.0
+     }
+    },
+    "dull|colourful": {
+     "lowSyn": [
+      "grey",
+      "drab"
+     ],
+     "highSyn": [
+      "colorful",
+      "vibrant"
+     ],
+     "anchors": {
+      "concrete": -1.0,
+      "grey": -1.0,
+      "tax": -1.0,
+      "beige": -1.0,
+      "cement": -1.0,
+      "paperwork": -1.0,
+      "fog": -0.9,
+      "mud": -0.9,
+      "spreadsheet": -0.9,
+      "pavement": -0.9,
+      "rock": -0.6,
+      "rain": -0.5,
+      "bread": -0.3,
+      "garden": 0.5,
+      "sunset": 0.8,
+      "butterfly": 0.8,
+      "coral": 0.8,
+      "flamingo": 0.9,
+      "parrot": 1.0,
+      "rainbow": 1.0,
+      "fireworks": 1.0,
+      "carnival": 1.0,
+      "peacock": 1.0,
+      "kaleidoscope": 1.0,
+      "confetti": 1.0
+     }
+    }
+   }
+  }
+ }
+}

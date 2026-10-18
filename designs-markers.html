@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Spectrum — marker options</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 24px; color: #111; max-width: 1500px; }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  .intro { font-size: 14px; color: #333; max-width: 900px; margin: 0 0 12px; }
+  .controls { position: sticky; top: 0; background: #fff; padding: 12px 0; border-bottom: 1px solid #ddd;
+              display: flex; gap: 28px; align-items: center; flex-wrap: wrap; z-index: 1; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 36px 28px; margin-top: 24px; }
+  .card h2 { font-size: 17px; margin: 0 0 2px; }
+  .card .read { font-size: 14px; margin: 4px 0 8px; color: #222; }
+  .card ul { font-size: 13px; color: #444; padding-left: 18px; margin: 6px 0 0; }
+  .card ol { font-size: 13px; margin: 6px 0 0; padding-left: 22px; color: #333; }
+  .card ol b { color: #111; }
+  svg { display: block; width: 100%; height: auto; border: 1px solid #ddd; background: #fff; }
+  text { font-family: system-ui, sans-serif; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Spectrum — six ways to mark a guess</h1>
+<p class="intro">All on the same star: offset lines through the centre answer, the newest line turning upright after each guess. Same puzzle: <b>Animals</b>, answer <b>fox</b>, guesses <i>mouse, cheetah, bear, cat</i>, final <i>wolf</i> as one point. The rule in every panel: no word ever crosses a line or another word.</p>
+<div class="controls">
+  <label>After guess <input id="n" type="range" min="0" max="5" value="5"> <b id="nLabel">5</b></label>
+</div>
+<div class="grid" id="grid"></div>
+
+<script>
+// ---- Shared sample data ----
+const ANS = [-0.3, 0.4, -0.3, -0.6];
+const SP = [['tiny', 'huge'], ['slow', 'fast'], ['cute', 'scary'], ['wild', 'tame']];
+const G = [['mouse', [-0.85, 0.1, -0.7, -0.2]], ['cheetah', [0.2, 1, 0.5, -1]], ['bear', [0.5, 0.3, 0.9, -1]],
+           ['cat', [-0.5, 0.4, -0.5, 0.9]], ['wolf', [-0.1, 0.6, 0.7, -0.9]]];
+const ANG = [0, 45, 90, 135];
+const C = 200;
+let n = 5;
+const revealed = () => Math.min(n + 1, 4);
+const cur = () => Math.min(n, 3);
+const guesses = () => G.slice(0, n).map(([word, pos], k) => ({ word, pos, k, final: k === 4, gap: pos.map((p, i) => p - ANS[i]) }));
+const pt = (deg, t) => { const a = deg * Math.PI / 180; return [C + t * Math.sin(a), C - t * Math.cos(a)]; };
+const dir = deg => { const a = deg * Math.PI / 180; return [Math.sin(a), -Math.cos(a)]; };
+const centre = (r = 6) => `<circle cx="${C}" cy="${C}" r="${r}" fill="#111"/>`;
+const text = (x, y, t, o = {}) => `<text x="${x}" y="${y + 4}" text-anchor="${o.anchor || 'middle'}" font-weight="${o.bold ? 700 : 400}" fill="${o.fill || '#111'}" font-size="${o.size || 12}">${t}</text>`;
+const ends = (i, R) => [(-1 - ANS[i]) * R, (1 - ANS[i]) * R];
+// The star: offset lines, rotated so the current line is upright, end words on a ring.
+function star(R, rot, ring = 178, lineStyle = () => ({})) {
+  let s = '';
+  for (let i = 0; i < revealed(); i++) {
+    const deg = ANG[i] - rot, [lo, hi] = ends(i, R), [x1, y1] = pt(deg, lo), [x2, y2] = pt(deg, hi), st = lineStyle(i);
+    s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${st.stroke || '#111'}" stroke-width="${st.width || (i === cur() ? 2.4 : 1.2)}"/>`;
+    const [hx, hy] = pt(deg, ring), [lx, ly] = pt(deg, -ring);
+    s += text(hx, hy, SP[i][1], { bold: i === cur(), fill: st.words }) + text(lx, ly, SP[i][0], { bold: i === cur(), fill: st.words });
+  }
+  return s;
+}
+// Every guess's screen position: single-spectrum guesses on their line, the final guess as one point.
+function places(R, rot) {
+  return guesses().map(g => {
+    if (!g.final) { const deg = ANG[g.k] - rot, [x, y] = pt(deg, g.gap[g.k] * R); return { g, x, y, deg, t: g.gap[g.k] * R }; }
+    let px = 0, py = 0;
+    ANG.forEach((a, i) => { const [ux, uy] = dir(a - rot); px += 0.5 * g.gap[i] * R * ux; py += 0.5 * g.gap[i] * R * uy; });
+    return { g, x: C + px, y: C + py, deg: null, t: null };
+  });
+}
+const drops = (x, y, rot) => ANG.slice(0, revealed()).map(a => { const [ux, uy] = dir(a - rot), t = (x - C) * ux + (y - C) * uy;
+  return `<line x1="${x}" y1="${y}" x2="${C + t * ux}" y2="${C + t * uy}" stroke="#aaa" stroke-width="1" stroke-dasharray="2 3"/>`; }).join('');
+// Distance from a point to line i (every line passes through the centre; the offset is along it).
+const lineDist = (x, y, i, rot) => { const [ux, uy] = dir(ANG[i] - rot); return Math.abs((x - C) * uy - (y - C) * ux); };
+// Place a word beside a marker: try both sides of its line, keep the side furthest from other lines,
+// then push any overlapping words apart. Returns [{x, y, word, anchor}].
+function layoutWords(items, rot, gap = 14) {
+  const out = [];
+  for (const it of items) {
+    const cands = [];
+    // Candidate directions: both sides of the line, the diagonals, and outward along the line itself.
+    const away = it.deg === null ? [] : [it.t >= 0 ? it.deg : it.deg + 180];
+    const perps = it.deg === null ? [0, 45, 90, 135, 180, 225, 270, 315]
+      : [it.deg + 90, it.deg - 90, it.deg + 45, it.deg - 45, it.deg + 135, it.deg - 135, ...away];
+    const wd = it.g.word.length * 6.8;
+    for (const pd of perps) for (const k of [1, 1.9]) {
+      const [ux, uy] = dir(pd), x = it.x + gap * k * ux, y = it.y + gap * k * uy;
+      const anchor = ux > 0.3 ? 'start' : ux < -0.3 ? 'end' : 'middle';
+      const x0 = anchor === 'start' ? x : anchor === 'end' ? x - wd : x - wd / 2;
+      // Clearance of the whole word box (corners and middle) from every other line.
+      let clear = Infinity;
+      const box = [[x0, y - 6], [x0 + wd, y - 6], [x0, y + 6], [x0 + wd, y + 6], [x0 + wd / 2, y]];
+      for (let i = 0; i < revealed(); i++) {
+        if (i !== it.g.k || it.deg === null) for (const [bx, by] of box) clear = Math.min(clear, lineDist(bx, by, i, rot));
+        // Keep away from the end words on the ring too.
+        for (const r of [178, -178]) { const [ex, ey] = pt(ANG[i] - rot, r); for (const [bx, by] of box) clear = Math.min(clear, Math.hypot(bx - ex, by - ey) - 14); }
+      }
+      cands.push({ x, y, clear, anchor, far: k > 1 });
+    }
+    // Nearest placement that clears the lines; otherwise the clearest one.
+    const ok = cands.filter(c => c.clear >= 8).sort((a, b) => (a.far - b.far) || (b.clear - a.clear));
+    cands.sort((a, b) => b.clear - a.clear);
+    out.push({ ...(ok[0] || cands[0]), word: it.g.word });
+  }
+  // Resolve overlaps: approximate each word as a box and push later ones down.
+  const w = s => s.length * 6.8;
+  for (let pass = 0; pass < 4; pass++) for (let a = 0; a < out.length; a++) for (let b = a + 1; b < out.length; b++) {
+    const A = out[a], B = out[b];
+    const ax0 = A.anchor === 'start' ? A.x : A.anchor === 'end' ? A.x - w(A.word) : A.x - w(A.word) / 2;
+    const bx0 = B.anchor === 'start' ? B.x : B.anchor === 'end' ? B.x - w(B.word) : B.x - w(B.word) / 2;
+    if (ax0 < bx0 + w(B.word) && bx0 < ax0 + w(A.word) && Math.abs(A.y - B.y) < 13) B.y = A.y + 13;
+  }
+  return out;
+}
+const wrap = (inner, h = 400) => `<svg viewBox="0 0 400 ${h}">${inner}</svg>`;
+const list = () => `<ol>${guesses().map(g => `<li><b>${g.word}</b>${g.final ? ' (final)' : ''}</li>`).join('')}</ol>`;
+const D = [];
+
+D.push({ title: '1. Words beside dots',
+  read: 'A plain dot on the line and the word next to it, pushed to whichever side of the line is clearest and shoved apart from other words. The final guess is a filled dot with its word.',
+  pros: ['Everything is read on the chart; no list needed.', 'Looks like a normal labelled chart.'],
+  cons: ['Needs real collision handling to keep its promise.', 'Long words near the centre crowd the crossing point.'],
+  view: 0, target: 0,
+  render(d) { const R = 78, rot = d.view; let s = star(R, rot); const ps = places(R, rot);
+    for (const p of ps) s += (p.deg === null ? drops(p.x, p.y, rot) : '') + `<circle cx="${p.x}" cy="${p.y}" r="5" fill="${p.deg === null ? '#111' : '#fff'}" stroke="#111" stroke-width="1.6"/>`;
+    for (const l of layoutWords(ps, rot)) s += text(l.x, l.y, l.word, { anchor: l.anchor, size: 12 });
+    return wrap(s + centre()); }, below: list });
+
+D.push({ title: '2. Dots only, words in the list',
+  read: 'Nothing but small dots on the chart; the words live in the numbered list underneath, in the order they were played. You match a dot to a word by which line it is on (each line has exactly one guess) and the final dot is the filled one.',
+  pros: ['The cleanest chart possible.', 'Since each line carries one guess, there is no real ambiguity.'],
+  cons: ['Eyes travel between chart and list.', 'The final dot is the only one that needs explaining.'],
+  view: 0, target: 0,
+  render(d) { const R = 78, rot = d.view; let s = star(R, rot);
+    for (const p of places(R, rot)) s += (p.deg === null ? drops(p.x, p.y, rot) : '') + `<circle cx="${p.x}" cy="${p.y}" r="5" fill="${p.deg === null ? '#111' : '#fff'}" stroke="#111" stroke-width="1.6"/>`;
+    return wrap(s + centre()); }, below: list });
+
+D.push({ title: '3. Ticks on the line',
+  read: 'A guess is a short bar across its line, like a mark on a ruler, with the word just off the end of the bar on the clearer side. Reads as a measurement rather than a blob; the final guess is a small cross with its word.',
+  pros: ['Light and precise; the line stays the hero.', 'Ticks never hide the line under them.'],
+  cons: ['Ticks are easy to confuse with line ends or the answer.', 'Harder to tap on a phone.'],
+  view: 0, target: 0,
+  render(d) { const R = 78, rot = d.view; let s = star(R, rot); const ps = places(R, rot);
+    for (const p of ps) {
+      if (p.deg === null) { s += drops(p.x, p.y, rot) + `<line x1="${p.x - 5}" y1="${p.y - 5}" x2="${p.x + 5}" y2="${p.y + 5}" stroke="#111" stroke-width="2"/><line x1="${p.x - 5}" y1="${p.y + 5}" x2="${p.x + 5}" y2="${p.y - 5}" stroke="#111" stroke-width="2"/>`; continue; }
+      const [ux, uy] = dir(p.deg + 90); s += `<line x1="${p.x - 8 * ux}" y1="${p.y - 8 * uy}" x2="${p.x + 8 * ux}" y2="${p.y + 8 * uy}" stroke="#111" stroke-width="3" stroke-linecap="round"/>`; }
+    for (const l of layoutWords(ps, rot, 16)) s += text(l.x, l.y, l.word, { anchor: l.anchor });
+    return wrap(s + centre()); }, below: list });
+
+D.push({ title: '4. Words at the rim, leader lines in',
+  read: 'The chart’s middle stays empty of text. Each guess is a tick on its line, and its word sits out near the edge in line with its direction, joined by a thin leader. Lines are shorter to make room.',
+  pros: ['The crossing point is always clean.', 'Words are big and never near each other.'],
+  cons: ['Leader lines are more ink.', 'Two guesses on the same side of one line have to stack at the rim.'],
+  view: 0, target: 0,
+  render(d) { const R = 52, rot = d.view; let s = star(R, rot, 190); const ps = places(R, rot); const used = {};
+    for (const p of ps) {
+      if (p.deg === null) { s += drops(p.x, p.y, rot) + `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#111"/>`; for (const l of layoutWords([p], rot, 16)) s += text(l.x, l.y, l.word, { anchor: l.anchor }); continue; }
+      const [ux, uy] = dir(p.deg + 90); s += `<line x1="${p.x - 7 * ux}" y1="${p.y - 7 * uy}" x2="${p.x + 7 * ux}" y2="${p.y + 7 * uy}" stroke="#111" stroke-width="3" stroke-linecap="round"/>`;
+      const side = Math.sign(p.t) || 1, key = p.g.k + ':' + side, stack = used[key] = (used[key] || 0) + 1;
+      const [tx, ty] = pt(p.deg, side * 142), [sx, sy] = dir(p.deg + 90), ox = (stack - 1) * 16 * sx, oy = (stack - 1) * 16 * sy;
+      s += `<line x1="${p.x}" y1="${p.y}" x2="${tx + ox}" y2="${ty + oy}" stroke="#aaa"/>` + `<rect x="${tx + ox - p.g.word.length * 3.6 - 3}" y="${ty + oy - 8}" width="${p.g.word.length * 7.2 + 6}" height="16" fill="#fff"/>` + text(tx + ox, ty + oy, p.g.word);
+    }
+    return wrap(s + centre()); }, below: list });
+
+D.push({ title: '5. Fade by age',
+  read: 'Words beside dots as in 1, but every earlier guess is drawn lighter, so the newest guess is black and the oldest is pale grey. The chart always tells you what just happened.',
+  pros: ['Emphasis for free; the current clue pops.', 'Old clutter recedes without disappearing.'],
+  cons: ['Pale text can fail on phones in sunlight.', 'Past guesses are still useful and now harder to read.'],
+  view: 0, target: 0,
+  render(d) { const R = 78, rot = d.view; let s = star(R, rot); const ps = places(R, rot); const shade = k => ['#b8b8b8', '#9a9a9a', '#777', '#444', '#111'][Math.min(4, k + (5 - n))];
+    for (const p of ps) s += (p.deg === null ? drops(p.x, p.y, rot) : '') + `<circle cx="${p.x}" cy="${p.y}" r="5" fill="${p.deg === null ? shade(p.g.k) : '#fff'}" stroke="${shade(p.g.k)}" stroke-width="1.6"/>`;
+    layoutWords(ps, rot).forEach((l, j) => { s += text(l.x, l.y, l.word, { anchor: l.anchor, fill: shade(ps[j].g.k) }); });
+    return wrap(s + centre()); }, below: list });
+
+D.push({ title: '6. Size by closeness',
+  read: 'Dots and words as in 1, but a dot’s size grows as its miss shrinks: the biggest dot on the chart is your best guess. The final point follows the same rule using its distance from the centre.',
+  pros: ['Your best clue is the loudest thing on the chart.', 'Closeness is visible without measuring.'],
+  cons: ['Big dots near the centre crowd the answer.', 'Size differences are hard to judge precisely.'],
+  view: 0, target: 0,
+  render(d) { const R = 78, rot = d.view; let s = star(R, rot); const ps = places(R, rot);
+    const size = p => { const miss = p.deg === null ? Math.hypot(p.x - C, p.y - C) / R : Math.abs(p.g.gap[p.g.k]); return 3 + 8 * Math.max(0, 1 - Math.min(1, miss)); };
+    for (const p of ps) s += (p.deg === null ? drops(p.x, p.y, rot) : '') + `<circle cx="${p.x}" cy="${p.y}" r="${size(p)}" fill="${p.deg === null ? '#111' : '#fff'}" stroke="#111" stroke-width="1.6"/>`;
+    for (const l of layoutWords(ps, rot, 18)) s += text(l.x, l.y, l.word, { anchor: l.anchor });
+    return wrap(s + centre()); }, below: list });
+
+// ---- Page wiring ----
+const grid = document.getElementById('grid');
+for (const d of D) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<h2>${d.title}</h2><p class="read">${d.read}</p><div class="fig"></div><div class="list"></div>
+    <ul>${d.pros.map(p => `<li>＋ ${p}</li>`).join('')}${d.cons.map(c => `<li>－ ${c}</li>`).join('')}</ul>`;
+  grid.appendChild(card);
+  d.fig = card.querySelector('.fig'); d.listEl = card.querySelector('.list');
+}
+function draw() { for (const d of D) { d.target = ANG[cur()]; d.fig.innerHTML = d.render(d); d.listEl.innerHTML = d.below ? d.below() : ''; } }
+function tick() { for (const d of D) if (Math.abs(d.target - d.view) > 0.1) { d.view += (d.target - d.view) * 0.15; d.fig.innerHTML = d.render(d); } requestAnimationFrame(tick); }
+document.getElementById('n').addEventListener('input', e => { n = +e.target.value; document.getElementById('nLabel').textContent = n; draw(); });
+draw(); tick();
+</script>
+</body>
+</html>

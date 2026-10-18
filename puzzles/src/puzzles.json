@@ -1,0 +1,19 @@
+{
+  "_comment": "One entry per puzzle. 'spectrums' name entries in categories.json as 'low|high'. The weekday schedule is in categories.json; puzzles of a category are used in order, one per week.",
+  "puzzles": [
+    { "id": "object-1", "category": "object", "answer": "umbrella", "spectrums": ["small|large", "soft|hard", "cheap|expensive", "indoor|outdoor"] },
+    { "id": "object-2", "category": "object", "answer": "piano",    "spectrums": ["small|large", "old-fashioned|modern", "cheap|expensive", "soft|hard"] },
+    { "id": "action-1", "category": "action", "answer": "swim",     "spectrums": ["calm|energetic", "solo|social", "indoors|outdoors", "easy|hard"] },
+    { "id": "action-2", "category": "action", "answer": "knit",     "spectrums": ["calm|energetic", "everyday|rare", "indoors|outdoors", "solo|social"] },
+    { "id": "nature-1", "category": "nature", "answer": "fox",      "spectrums": ["tiny|huge", "slow|fast", "cute|scary", "wild|tame"] },
+    { "id": "nature-2", "category": "nature", "answer": "penguin",  "spectrums": ["tiny|huge", "land|water", "cute|scary", "common|rare"] },
+    { "id": "world-1",  "category": "world",  "answer": "japan",    "spectrums": ["cold|hot", "small|vast", "ancient|new", "rural|urban"] },
+    { "id": "world-2",  "category": "world",  "answer": "iceland",  "spectrums": ["cold|hot", "small|vast", "poor|rich", "rural|urban"] },
+    { "id": "person-1", "category": "person", "answer": "chef",     "spectrums": ["desk|physical", "safe|dangerous", "poor|rich", "solitary|social"] },
+    { "id": "person-2", "category": "person", "answer": "pilot",    "spectrums": ["desk|physical", "safe|dangerous", "creative|practical", "poor|rich"] },
+    { "id": "random-1", "category": "random", "answer": "rainbow",  "spectrums": ["small|big", "sad|happy", "natural|artificial", "dull|colourful"] },
+    { "id": "random-2", "category": "random", "answer": "thunder",  "spectrums": ["quiet|loud", "natural|artificial", "sad|happy", "old|new"] },
+    { "id": "food-1",   "category": "food",   "answer": "pizza",    "spectrums": ["healthy|indulgent", "sweet|savoury", "cold|hot", "simple|fancy"] },
+    { "id": "food-2",   "category": "food",   "answer": "sushi",    "spectrums": ["cold|hot", "simple|fancy", "everyday|treat", "healthy|indulgent"] }
+  ]
+}

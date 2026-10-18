@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spectrum</title>
+<style>
+  :root { color-scheme: light; }
+  [hidden] { display: none !important; }
+  body { font-family: system-ui, -apple-system, sans-serif; color: #111; background: #fff; margin: 0; }
+  main { max-width: 640px; margin: 0 auto; padding: 16px 16px 48px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  h1 { font-size: 26px; margin: 0; letter-spacing: 0.02em; }
+  #sub { font-size: 14px; color: #555; margin: 2px 0 10px; }
+  .views { display: inline-flex; border: 1px solid #111; border-radius: 6px; overflow: hidden; }
+  .views button { font: inherit; font-size: 13px; padding: 4px 12px; border: 0; background: #fff; cursor: pointer; }
+  .views button[aria-pressed="true"] { background: #111; color: #fff; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font-family: system-ui, -apple-system, sans-serif; }
+  .end { font-size: 15px; cursor: pointer; }
+  .end.cur { font-weight: 700; }
+  .tag { font-size: 13px; }
+  #legend { font-size: 13px; color: #555; margin: 4px 0 10px; }
+  form { display: flex; gap: 8px; margin: 12px 0 6px; }
+  input { flex: 1; font: inherit; font-size: 17px; padding: 8px 10px; border: 1px solid #111; border-radius: 6px; }
+  button.go, form button { font: inherit; font-size: 16px; padding: 8px 18px; border: 1px solid #111; border-radius: 6px; background: #111; color: #fff; cursor: pointer; }
+  button:disabled { opacity: 0.4; cursor: default; }
+  #message { min-height: 1.4em; font-size: 14px; color: #a00; margin: 0 0 8px; }
+  #readout { list-style: none; padding: 0; margin: 8px 0; font-size: 15px; }
+  #readout li { display: flex; gap: 10px; padding: 5px 0; border-top: 1px solid #eee; }
+  #readout .n { color: #999; width: 1.2em; }
+  #readout .w { font-weight: 600; min-width: 7em; }
+  #readout .hint { color: #555; }
+  #result { font-size: 17px; margin: 14px 0 6px; }
+  #share { display: flex; gap: 8px; align-items: center; }
+  #share code { font-size: 16px; background: #f3f3f3; padding: 6px 10px; border-radius: 6px; }
+  #share button { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid #111; border-radius: 6px; background: #fff; cursor: pointer; }
+  details { font-size: 14px; color: #444; margin-top: 24px; }
+  summary { cursor: pointer; color: #111; }
+  details p { margin: 6px 0; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Spectrum</h1>
+  </header>
+  <p id="sub">Loading…</p>
+  <svg id="chart" viewBox="0 0 600 600" aria-label="Spectrum chart"></svg>
+  <p id="legend"></p>
+  <p id="start"><button class="go" id="go" disabled>Go</button></p>
+  <form id="guess-form" hidden>
+    <input id="guess" placeholder="Type any word…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button id="submit">Guess</button>
+  </form>
+  <p id="message"></p>
+  <ol id="readout"></ol>
+  <p id="result"></p>
+  <p id="share" hidden><code id="share-text"></code><button id="copy">Copy</button></p>
+  <details>
+    <summary>How to play</summary>
+    <p>Each day there's a category and a hidden answer word. A spectrum appears, like <i>tiny ↔ huge</i>. Guess any word in the category: it's marked on the spectrum by where it sits compared with the answer.</p>
+    <p>Each guess reveals the next spectrum. After four, you make a final guess with all four showing. Five guesses in all; an exact hit ends the game straight away.</p>
+    <p>The answer is the centre dot and every line passes through it, shifted so the answer sits where it truly belongs on that spectrum. A guess's distance from the dot is how far off it was, and the side it's on says which end word it was closer to. The chart turns so the newest line is upright; the arrow keys or a click on a line turn it back.</p>
+  </details>
+</main>
+<script src="game.js"></script>
+</body>
+</html>

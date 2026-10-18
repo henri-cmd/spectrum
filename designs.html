@@ -1,0 +1,332 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Spectrum — 7 ways to show the game</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 24px; color: #111; max-width: 1500px; }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  .intro { font-size: 14px; color: #333; max-width: 900px; margin: 0 0 12px; }
+  .controls { position: sticky; top: 0; background: #fff; padding: 12px 0; border-bottom: 1px solid #ddd;
+              display: flex; gap: 28px; align-items: center; flex-wrap: wrap; z-index: 1; font-size: 14px; }
+  .controls label { display: flex; gap: 8px; align-items: center; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 36px 28px; margin-top: 24px; }
+  .card h2 { font-size: 17px; margin: 0 0 2px; }
+  .card .read { font-size: 14px; margin: 4px 0 8px; color: #222; }
+  .card ul { font-size: 13px; color: #444; padding-left: 18px; margin: 6px 0 0; }
+  svg { display: block; width: 100%; height: auto; border: 1px solid #ddd; background: #fff; }
+  text { font-family: system-ui, sans-serif; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Spectrum — 7 ways to show the same game</h1>
+<p class="intro">Every panel shows the same puzzle: category <b>Animals</b>, answer <b>fox</b>, four spectrums, guesses <i>mouse, cheetah, bear, cat</i>, then the final guess <i>wolf</i>.
+Use the slider to step through the game and compare how each design builds up its clues. The guess-marking rule is independent of the design, so you can switch it for all panels.</p>
+<div class="controls">
+  <label>After guess <input id="n" type="range" min="0" max="5" value="5"> <b id="nLabel">5</b></label>
+  <label><input type="radio" name="rule" value="own" checked> Mark each guess on its own spectrum only (final guess on all)</label>
+  <label><input type="radio" name="rule" value="all"> Mark every guess on every revealed spectrum</label>
+</div>
+<div class="grid" id="grid"></div>
+
+<script>
+// ---- Shared sample data ----
+const P = {
+  answer: { word: 'fox', pos: [-0.3, 0.4, -0.3, -0.6] },
+  spectrums: [['tiny', 'huge'], ['slow', 'fast'], ['cute', 'scary'], ['wild', 'tame']],
+  guesses: [['mouse', [-0.85, 0.1, -0.7, -0.2]], ['cheetah', [0.2, 1, 0.5, -1]], ['bear', [0.5, 0.3, 0.9, -1]],
+            ['cat', [-0.5, 0.4, -0.5, 0.9]], ['wolf', [-0.1, 0.6, 0.7, -0.9]]],
+};
+const ANG = [0, 45, 90, 135];
+let n = 5, rule = 'own';
+const revealed = () => Math.min(n + 1, 4);
+const shown = () => P.guesses.slice(0, n).map(([word, pos], k) => ({ word, pos, k }));
+// Which spectrums guess k is marked on under the current rule.
+const marks = k => rule === 'all' || k === 4 ? [...Array(revealed()).keys()] : [k];
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const pt = (cx, cy, deg, t) => { const a = deg * Math.PI / 180; return [cx + t * Math.sin(a), cy - t * Math.cos(a)]; };
+const dot = (x, y, word, dx = 7, dy = -5) =>
+  `<circle cx="${x}" cy="${y}" r="3.5" fill="#fff" stroke="#111" stroke-width="1.5"/>` +
+  (word ? `<text x="${x + dx}" y="${y + dy}" font-size="11">${esc(word)}</text>` : '');
+const ansDot = (x, y) => `<circle cx="${x}" cy="${y}" r="5" fill="#111"/>`;
+// Spread stacked labels apart vertically so they never overlap.
+function spreadY(items, gap = 13) {
+  items.sort((a, b) => a.y - b.y);
+  let last = -Infinity;
+  for (const it of items) { it.ly = Math.max(it.y, last + gap); last = it.ly; }
+  return items;
+}
+
+// ---- The designs ----
+const DESIGNS = [];
+
+// 1. Star — the original brief: answer fixed at the centre, every line passes through it.
+DESIGNS.push({
+  title: '1. Star — answer at the centre, lines pass through it',
+  read: 'The dot is the answer. Each line is shifted so the answer sits exactly where it belongs on that spectrum. A guess above the dot is more like the top word; its distance from the dot is how far off it is. Chart rotates so the newest line is vertical; rotate back to read older ones.',
+  pros: ['Distance from the centre dot is literally “how close am I”.', 'Dramatic star builds up round the answer.'],
+  cons: ['Lines are different lengths and lopsided, so the shape looks uneven.', 'Rotation moves every word; only one spectrum is easy to read at a time.', 'The line’s offset gives away the answer’s position on each spectrum from the start.'],
+  view: 0, target: 0,
+  render(d) {
+    const C = 200, R = 90, RING = 170;
+    const cur = Math.min(n, 3);
+    // Rotate the chart so the current line is vertical (animated).
+    d.target = ANG[cur];
+    const v = d.view;
+    let s = '';
+    for (let i = 0; i < revealed(); i++) {
+      const a = P.answer.pos[i], deg = ANG[i] - v;
+      const [x1, y1] = pt(C, C, deg, (-1 - a) * R), [x2, y2] = pt(C, C, deg, (1 - a) * R);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111" stroke-width="${i === cur ? 2 : 1}"/>`;
+      // End words on a ring, so they never collide with the line ends.
+      const [hx, hy] = pt(C, C, deg, RING), [lx, ly] = pt(C, C, deg, -RING);
+      s += `<text x="${hx}" y="${hy + 4}" text-anchor="middle" font-weight="${i === cur ? 700 : 400}">${P.spectrums[i][1]}</text>`;
+      s += `<text x="${lx}" y="${ly + 4}" text-anchor="middle" font-weight="${i === cur ? 700 : 400}">${P.spectrums[i][0]}</text>`;
+    }
+    const labels = [];
+    for (const g of shown()) for (const i of marks(g.k)) {
+      const [x, y] = pt(C, C, ANG[i] - v, (g.pos[i] - P.answer.pos[i]) * R);
+      s += dot(x, y);
+      if (i === cur) labels.push({ x, y, word: g.word });
+    }
+    for (const l of spreadY(labels)) s += `<text x="${l.x + 8}" y="${l.ly + 4}" font-size="11">${l.word}</text>`;
+    s += ansDot(C, C) + `<text x="${C - 9}" y="${C + 18}" text-anchor="end" font-weight="700">fox</text>`;
+    return `<svg viewBox="0 0 400 400">${s}</svg>`;
+  },
+});
+
+// 2. Wheel — even spokes, centre is neutral, the answer is a notch on each spoke.
+DESIGNS.push({
+  title: '2. Wheel — even spokes, answer marked as a notch on each',
+  read: 'Each spectrum is a full diameter of the same length, so the four lines make a tidy 8-point wheel that never rotates. The centre is simply “neutral”. The answer is the short black bar across each spoke; guesses are circles. Read along a spoke: which side of the bar is your guess on, and how far?',
+  pros: ['Symmetric and calm; words stay in the same place for the whole game.', 'Every spectrum is readable at once, no rotation needed.', 'Still shows the answer’s true position on each spectrum (the bar).'],
+  cons: ['“How close am I” is distance to a bar, not to one obvious point.', 'Labels for guesses on diagonal spokes need care.'],
+  render() {
+    const C = 200, R = 112, RING = 172;
+    let s = '';
+    for (let i = 0; i < 4; i++) {
+      const on = i < revealed(), deg = ANG[i];
+      const [x1, y1] = pt(C, C, deg, -R), [x2, y2] = pt(C, C, deg, R);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${on ? '#111' : '#ddd'}" stroke-width="1"/>`;
+      if (!on) continue;
+      const [hx, hy] = pt(C, C, deg, RING), [lx, ly] = pt(C, C, deg, -RING);
+      s += `<text x="${hx}" y="${hy + 4}" text-anchor="middle">${P.spectrums[i][1]}</text>`;
+      s += `<text x="${lx}" y="${ly + 4}" text-anchor="middle">${P.spectrums[i][0]}</text>`;
+      // Answer notch: a short bar perpendicular to the spoke.
+      const [ax, ay] = pt(C, C, deg, P.answer.pos[i] * R);
+      const [nx, ny] = pt(0, 0, deg + 90, 7);
+      s += `<line x1="${ax - nx}" y1="${ay - ny}" x2="${ax + nx}" y2="${ay + ny}" stroke="#111" stroke-width="4"/>`;
+    }
+    s += `<circle cx="${C}" cy="${C}" r="2" fill="#999"/>`;
+    const labels = [];
+    for (const g of shown()) for (const i of marks(g.k)) {
+      const [x, y] = pt(C, C, ANG[i], g.pos[i] * R);
+      s += dot(x, y);
+      labels.push({ x, y, word: g.word, i });
+    }
+    // Put labels on the side of each spoke that points away from the centre horizontally.
+    for (const l of spreadY(labels, 12)) {
+      const right = l.i === 0 || l.i === 1 ? l.x >= C : l.x > C;
+      s += `<text x="${l.x + (right ? 7 : -7)}" y="${l.ly + 4}" font-size="11" text-anchor="${right ? 'start' : 'end'}">${l.word}</text>`;
+    }
+    return `<svg viewBox="0 0 400 400">${s}</svg>`;
+  },
+});
+
+// 3. Rows — stacked sliders, one per spectrum.
+DESIGNS.push({
+  title: '3. Rows — one slider per spectrum, stacked',
+  read: 'Each spectrum is a horizontal bar, low word on the left, high word on the right. The thick black tick is the answer; circles are guesses. A new row appears for each spectrum. Reads like a form: no rotation, no angles.',
+  pros: ['The clearest to read; left/right is instantly understood.', 'Room for words on every row, so nothing overlaps.', 'Works on a phone without shrinking.'],
+  cons: ['Least distinctive; less of a “picture” to share.', 'Closeness is spread over several rows rather than one spot.'],
+  render() {
+    const L = 70, W = 260, rowH = 80;
+    let s = '';
+    for (let i = 0; i < revealed(); i++) {
+      const y = 50 + i * rowH;
+      s += `<line x1="${L}" y1="${y}" x2="${L + W}" y2="${y}" stroke="#111"/>`;
+      s += `<line x1="${L + W / 2}" y1="${y - 4}" x2="${L + W / 2}" y2="${y + 4}" stroke="#bbb"/>`;
+      s += `<text x="${L - 8}" y="${y + 4}" text-anchor="end">${P.spectrums[i][0]}</text>`;
+      s += `<text x="${L + W + 8}" y="${y + 4}">${P.spectrums[i][1]}</text>`;
+      const ax = L + (P.answer.pos[i] + 1) / 2 * W;
+      s += `<line x1="${ax}" y1="${y - 12}" x2="${ax}" y2="${y + 12}" stroke="#111" stroke-width="4"/>`;
+      s += `<text x="${ax}" y="${y + 26}" text-anchor="middle" font-weight="700">fox</text>`;
+      const gs = shown().filter(g => marks(g.k).includes(i));
+      gs.forEach((g, j) => {
+        const x = L + (g.pos[i] + 1) / 2 * W;
+        s += dot(x, y) + `<text x="${x}" y="${y - 9 - (j % 2) * 12}" text-anchor="middle" font-size="11">${g.word}</text>`;
+      });
+    }
+    return `<svg viewBox="0 0 400 ${40 + revealed() * rowH}">${s}</svg>`;
+  },
+});
+
+// 4. Threads — parallel coordinates: each word is a line across the axes.
+DESIGNS.push({
+  title: '4. Threads — each word is a line across all spectrums',
+  read: 'Spectrums are vertical axes side by side (low at the bottom, high at the top). The answer is the thick black thread through its position on each axis; every guess is a thin thread. The closer a guess’s thread hugs the answer’s, the closer the word. Really needs “mark every guess on every spectrum”.',
+  pros: ['Shows the whole shape of a word at a glance; you compare lines, not points.', 'Good for seeing which spectrum you are furthest off on.'],
+  cons: ['Unfamiliar to most players at first.', 'With single-spectrum marking it collapses to dots.'],
+  render() {
+    const top = 40, bot = 300, gapX = 90, L = 60;
+    const xOf = i => L + i * gapX, yOf = p => bot - (p + 1) / 2 * (bot - top);
+    let s = '';
+    for (let i = 0; i < revealed(); i++) {
+      s += `<line x1="${xOf(i)}" y1="${top}" x2="${xOf(i)}" y2="${bot}" stroke="#111"/>`;
+      s += `<text x="${xOf(i)}" y="${top - 10}" text-anchor="middle">${P.spectrums[i][1]}</text>`;
+      s += `<text x="${xOf(i)}" y="${bot + 18}" text-anchor="middle">${P.spectrums[i][0]}</text>`;
+    }
+    const thread = (pos, idx, stroke, width, dash) => idx.length < 2 ? '' :
+      `<polyline points="${idx.map(i => xOf(i) + ',' + yOf(pos[i])).join(' ')}" fill="none" stroke="${stroke}" stroke-width="${width}" ${dash ? 'stroke-dasharray="4 3"' : ''}/>`;
+    s += thread(P.answer.pos, [...Array(revealed()).keys()], '#111', 4);
+    const labels = [];
+    for (const g of shown()) {
+      const idx = marks(g.k);
+      s += thread(g.pos, idx, '#111', 1, true);
+      for (const i of idx) s += dot(xOf(i), yOf(g.pos[i]));
+      const last = idx[idx.length - 1];
+      labels.push({ x: xOf(last), y: yOf(g.pos[last]), word: g.word });
+    }
+    for (const l of spreadY(labels)) s += `<text x="${l.x + 8}" y="${l.ly + 4}" font-size="11">${l.word}</text>`;
+    for (let i = 0; i < revealed(); i++) s += ansDot(xOf(i), yOf(P.answer.pos[i]));
+    s += `<text x="${xOf(revealed() - 1) + 8}" y="${yOf(P.answer.pos[revealed() - 1]) + 4}" font-weight="700">fox</text>`;
+    return `<svg viewBox="0 0 400 340">${s}</svg>`;
+  },
+});
+
+// 5. Twin maps — two 2D maps, each pairing two spectrums.
+DESIGNS.push({
+  title: '5. Twin maps — pairs of spectrums as a 2D map',
+  read: 'Spectrums 1 and 2 become the x and y axes of a map; 3 and 4 make a second map. The answer is the crosshair; each guess is a point. “The answer is up and to the left of your guess” is a very natural thing to read. Until the second axis of a map is revealed, points sit on a single line.',
+  pros: ['People read maps instantly; direction and distance are both obvious.', 'Two spectrums at once per panel, so you see interactions (huge AND fast).'],
+  cons: ['Four spectrums need two maps; the eye has to combine them.', 'Needs every guess marked on both axes of a map to form a point.'],
+  render() {
+    const S = 140, pad = 44;
+    let s = '';
+    for (let m = 0; m < 2; m++) {
+      const xi = m * 2, yi = m * 2 + 1;
+      if (xi >= revealed()) continue;
+      const ox = pad + m * (S + 92), oy = 30;
+      const hasY = yi < revealed();
+      const X = p => ox + (p + 1) / 2 * S, Y = p => hasY ? oy + S - (p + 1) / 2 * S : oy + S / 2;
+      s += `<rect x="${ox}" y="${oy}" width="${S}" height="${S}" fill="none" stroke="${hasY ? '#111' : '#ddd'}"/>`;
+      if (!hasY) s += `<line x1="${ox}" y1="${oy + S / 2}" x2="${ox + S}" y2="${oy + S / 2}" stroke="#111"/>`;
+      s += `<text x="${ox - 6}" y="${oy + S / 2 + 4}" text-anchor="end">${P.spectrums[xi][0]}</text>`;
+      s += `<text x="${ox + S + 6}" y="${oy + S / 2 + 4}">${P.spectrums[xi][1]}</text>`;
+      if (hasY) {
+        s += `<text x="${ox + S / 2}" y="${oy - 8}" text-anchor="middle">${P.spectrums[yi][1]}</text>`;
+        s += `<text x="${ox + S / 2}" y="${oy + S + 16}" text-anchor="middle">${P.spectrums[yi][0]}</text>`;
+      }
+      const ax = X(P.answer.pos[xi]), ay = Y(P.answer.pos[yi]);
+      s += `<line x1="${ax - 10}" y1="${ay}" x2="${ax + 10}" y2="${ay}" stroke="#111" stroke-width="2"/><line x1="${ax}" y1="${ay - 10}" x2="${ax}" y2="${ay + 10}" stroke="#111" stroke-width="2"/>`;
+      const labels = [];
+      for (const g of shown()) {
+        const idx = marks(g.k);
+        if (!idx.includes(xi)) continue;
+        const x = X(g.pos[xi]), y = hasY && idx.includes(yi) ? Y(g.pos[yi]) : oy + S / 2;
+        s += dot(x, y);
+        labels.push({ x, y, word: g.word });
+      }
+      for (const l of spreadY(labels, 12)) s += `<text x="${l.x + 7}" y="${l.ly + 4}" font-size="11">${l.word}</text>`;
+      s += `<text x="${ax + 8}" y="${ay + 18}" font-weight="700">fox</text>`;
+    }
+    return `<svg viewBox="0 0 470 240">${s}</svg>`;
+  },
+});
+
+// 6. Grid — a Wordle-style table of nudges: for each guess, how far and which way on each spectrum.
+DESIGNS.push({
+  title: '6. Nudge grid — a Wordle-style table of “go this way”',
+  read: 'Rows are guesses, columns are spectrums. Each cell is a bar from the answer (centre line) to where the guess landed; the word under it says which way to move next (“more tame”). Short bar = close. An empty bar is a perfect hit on that spectrum.',
+  pros: ['Directly actionable: tells you what to change, not just that you were wrong.', 'Compact, shareable as an emoji grid, and no geometry to decode.'],
+  cons: ['No sense of the word “landscape”; it is a report, not a picture.', 'Less fun to watch build up.'],
+  render() {
+    const cellW = 80, cellH = 46, L = 64, T = 30;
+    let s = '';
+    for (let i = 0; i < revealed(); i++) {
+      const x = L + i * cellW + cellW / 2;
+      s += `<text x="${x}" y="${T - 10}" text-anchor="middle" font-size="11">${P.spectrums[i][0]} ↔ ${P.spectrums[i][1]}</text>`;
+    }
+    shown().forEach((g, r) => {
+      const y = T + r * cellH;
+      s += `<text x="${L - 10}" y="${y + 20}" text-anchor="end">${g.word}</text>`;
+      for (let i = 0; i < revealed(); i++) {
+        const x0 = L + i * cellW, mid = x0 + cellW / 2;
+        s += `<rect x="${x0 + 2}" y="${y + 2}" width="${cellW - 4}" height="${cellH - 4}" fill="none" stroke="#ddd"/>`;
+        s += `<line x1="${mid}" y1="${y + 6}" x2="${mid}" y2="${y + 26}" stroke="#111" stroke-width="2"/>`;
+        if (!marks(g.k).includes(i)) continue;
+        const gap = g.pos[i] - P.answer.pos[i]; // positive = guess was too far toward the high word
+        const len = gap * (cellW / 2 - 6) / 2;
+        s += `<line x1="${mid}" y1="${y + 16}" x2="${mid + len}" y2="${y + 16}" stroke="#111" stroke-width="6"/>`;
+        const hint = Math.abs(gap) < 0.1 ? 'spot on' : `more ${P.spectrums[i][gap > 0 ? 0 : 1]}`;
+        s += `<text x="${mid}" y="${y + 39}" text-anchor="middle" font-size="10" fill="#444">${hint}</text>`;
+      }
+    });
+    return `<svg viewBox="0 0 400 ${T + Math.max(1, n) * cellH + 10}">${s}</svg>`;
+  },
+});
+
+// 7. Shapes — the wheel, but each word is drawn as its outline (polygon through its 4 points).
+DESIGNS.push({
+  title: '7. Shapes — match the answer’s silhouette',
+  read: 'Same even wheel as design 2, but the answer’s four positions are joined into a solid outline and each guess becomes a dashed outline. You are trying to guess the word whose shape fits the black one. Needs “mark every guess on every spectrum”.',
+  pros: ['Turns four numbers into one gestalt shape; near misses look near.', 'Striking end-of-game picture to share.'],
+  cons: ['Hard to read which single spectrum is wrong.', 'Overlapping outlines get busy with five guesses.'],
+  render() {
+    const C = 200, R = 112, RING = 172;
+    let s = '';
+    for (let i = 0; i < 4; i++) {
+      const on = i < revealed(), deg = ANG[i];
+      const [x1, y1] = pt(C, C, deg, -R), [x2, y2] = pt(C, C, deg, R);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${on ? '#888' : '#ddd'}"/>`;
+      if (!on) continue;
+      const [hx, hy] = pt(C, C, deg, RING), [lx, ly] = pt(C, C, deg, -RING);
+      s += `<text x="${hx}" y="${hy + 4}" text-anchor="middle">${P.spectrums[i][1]}</text>`;
+      s += `<text x="${lx}" y="${ly + 4}" text-anchor="middle">${P.spectrums[i][0]}</text>`;
+    }
+    // Outline through a word's points on the revealed spokes, closed when all four are present.
+    const outline = (pos, idx, dash) => {
+      const pts = idx.map(i => pt(C, C, ANG[i], pos[i] * R));
+      const el = pts.length === 4 ? 'polygon' : 'polyline';
+      return pts.length < 2 ? '' : `<${el} points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="#111" stroke-width="${dash ? 1 : 3}" ${dash ? 'stroke-dasharray="4 3"' : ''}/>`;
+    };
+    s += outline(P.answer.pos, [...Array(revealed()).keys()], false);
+    const labels = [];
+    for (const g of shown()) {
+      const idx = marks(g.k);
+      s += outline(g.pos, idx, true);
+      for (const i of idx) s += dot(pt(C, C, ANG[i], g.pos[i] * R)[0], pt(C, C, ANG[i], g.pos[i] * R)[1]);
+      const i = idx[0];
+      const [x, y] = pt(C, C, ANG[i], g.pos[i] * R);
+      labels.push({ x, y, word: g.word });
+    }
+    for (const l of spreadY(labels, 12)) s += `<text x="${l.x + 7}" y="${l.ly + 4}" font-size="11">${l.word}</text>`;
+    for (let i = 0; i < revealed(); i++) { const [x, y] = pt(C, C, ANG[i], P.answer.pos[i] * R); s += ansDot(x, y); }
+    return `<svg viewBox="0 0 400 400">${s}</svg>`;
+  },
+});
+
+// ---- Page wiring ----
+const grid = document.getElementById('grid');
+for (const [i, d] of DESIGNS.entries()) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<h2>${d.title}</h2><p class="read">${d.read}</p><div class="fig"></div>
+    <ul>${d.pros.map(p => `<li>＋ ${p}</li>`).join('')}${d.cons.map(c => `<li>－ ${c}</li>`).join('')}</ul>`;
+  grid.appendChild(card);
+  d.fig = card.querySelector('.fig');
+}
+function draw() { for (const d of DESIGNS) d.fig.innerHTML = d.render(d); }
+// Design 1 animates its rotation towards the newest line.
+function tick() {
+  const d = DESIGNS[0];
+  if (Math.abs(d.target - d.view) > 0.1) { d.view += (d.target - d.view) * 0.15; d.fig.innerHTML = d.render(d); }
+  requestAnimationFrame(tick);
+}
+document.getElementById('n').addEventListener('input', e => { n = +e.target.value; document.getElementById('nLabel').textContent = n; draw(); });
+for (const r of document.querySelectorAll('input[name=rule]')) r.addEventListener('change', e => { rule = e.target.value; draw(); });
+draw();
+tick();
+</script>
+</body>
+</html>

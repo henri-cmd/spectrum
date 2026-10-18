@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Spectrum — 10 offset stars</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 24px; color: #111; max-width: 1500px; }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  .intro { font-size: 14px; color: #333; max-width: 900px; margin: 0 0 12px; }
+  .controls { position: sticky; top: 0; background: #fff; padding: 12px 0; border-bottom: 1px solid #ddd;
+              display: flex; gap: 28px; align-items: center; flex-wrap: wrap; z-index: 1; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 36px 28px; margin-top: 24px; }
+  .card h2 { font-size: 17px; margin: 0 0 2px; }
+  .card .read { font-size: 14px; margin: 4px 0 8px; color: #222; }
+  .card ul { font-size: 13px; color: #444; padding-left: 18px; margin: 6px 0 0; }
+  svg { display: block; width: 100%; height: auto; border: 1px solid #ddd; background: #fff; }
+  text { font-family: system-ui, sans-serif; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Spectrum — 10 stars with offset lines</h1>
+<p class="intro">In every panel the answer is the centre dot and each line is shifted so the answer sits exactly where it belongs on that spectrum. Same puzzle throughout: <b>Animals</b>, answer <b>fox</b>, guesses <i>① mouse, ② cheetah, ③ bear, ④ cat</i>, final <i>⑤ wolf</i> as one point. Step through with the slider.</p>
+<div class="controls">
+  <label>After guess <input id="n" type="range" min="0" max="5" value="5"> <b id="nLabel">5</b></label>
+</div>
+<div class="grid" id="grid"></div>
+
+<script>
+// ---- Shared sample data ----
+const ANS = [-0.3, 0.4, -0.3, -0.6];
+const SP = [['tiny', 'huge'], ['slow', 'fast'], ['cute', 'scary'], ['wild', 'tame']];
+const G = [['mouse', [-0.85, 0.1, -0.7, -0.2]], ['cheetah', [0.2, 1, 0.5, -1]], ['bear', [0.5, 0.3, 0.9, -1]],
+           ['cat', [-0.5, 0.4, -0.5, 0.9]], ['wolf', [-0.1, 0.6, 0.7, -0.9]]];
+const ANG = [0, 45, 90, 135];
+const C = 200;
+let n = 5;
+const revealed = () => Math.min(n + 1, 4);
+const cur = () => Math.min(n, 3);
+const guesses = () => G.slice(0, n).map(([word, pos], k) => ({ word, pos, k, final: k === 4, gap: pos.map((p, i) => p - ANS[i]) }));
+const pt = (deg, t) => { const a = deg * Math.PI / 180; return [C + t * Math.sin(a), C - t * Math.cos(a)]; };
+const dir = deg => { const a = deg * Math.PI / 180; return [Math.sin(a), -Math.cos(a)]; };
+const marker = (x, y, k, r = 10) =>
+  `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="#111" stroke-width="1.6"/><text x="${x}" y="${y + 4}" text-anchor="middle" font-size="11" font-weight="700">${k}</text>`;
+const centre = (r = 6) => `<circle cx="${C}" cy="${C}" r="${r}" fill="#111"/>`;
+const word = (x, y, t, bold, anchor = 'middle', fill = '#111') => `<text x="${x}" y="${y + 4}" text-anchor="${anchor}" font-weight="${bold ? 700 : 400}" fill="${fill}">${t}</text>`;
+// End words on a ring at a fixed radius, in line with their line.
+const ringWords = (i, deg, ring, bold, fill) => { const [hx, hy] = pt(deg, ring), [lx, ly] = pt(deg, -ring); return word(hx, hy, SP[i][1], bold, 'middle', fill) + word(lx, ly, SP[i][0], bold, 'middle', fill); };
+// One offset line: from (-1 - a)R to (1 - a)R along its direction.
+const ends = (i, R) => [(-1 - ANS[i]) * R, (1 - ANS[i]) * R];
+function offsetLine(i, deg, R, { stroke = '#111', width = 1.2, dash = '' } = {}) {
+  const [lo, hi] = ends(i, R), [x1, y1] = pt(deg, lo), [x2, y2] = pt(deg, hi);
+  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${width}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
+}
+// Markers: a guess sits at its miss along its own line (the line is shifted, so miss = distance from the dot).
+function spokeMarks(R, rot = 0, extra = () => '', only = null) {
+  let s = '';
+  for (const g of guesses()) if (!g.final && (only === null || only.includes(g.k))) {
+    const deg = ANG[g.k] - rot, t = g.gap[g.k] * R, [x, y] = pt(deg, t);
+    s += extra(g, x, y, deg, t) + marker(x, y, g.k + 1);
+  }
+  return s;
+}
+function finalPoint(g, rot, R) {
+  let px = 0, py = 0;
+  ANG.forEach((a, i) => { const [ux, uy] = dir(a - rot); px += 0.5 * g.gap[i] * R * ux; py += 0.5 * g.gap[i] * R * uy; });
+  return [C + px, C + py];
+}
+const drops = (x, y, rot) => ANG.slice(0, revealed()).map(a => { const [ux, uy] = dir(a - rot), t = (x - C) * ux + (y - C) * uy;
+  return `<line x1="${x}" y1="${y}" x2="${C + t * ux}" y2="${C + t * uy}" stroke="#aaa" stroke-width="1" stroke-dasharray="2 3"/>`; }).join('');
+const finalMark = (R, rot = 0, withDrops = true) => { const g = guesses().find(g => g.final); if (!g) return ''; const [x, y] = finalPoint(g, rot, R); return (withDrops ? drops(x, y, rot) : '') + marker(x, y, 5); };
+const wrap = (inner, h = 400) => `<svg viewBox="0 0 400 ${h}">${inner}</svg>`;
+const D = [];
+
+D.push({ title: '1. Classic — newest line turns upright',
+  read: 'The chart rotates the shortest way so the line you are guessing on is vertical; end words sit on a ring and turn with it. What you have now.',
+  pros: ['One clear vertical line to read each turn.', 'Rotation is a satisfying beat after each guess.'],
+  cons: ['Words move every turn.', 'Lopsided lines and crossings pile up.'],
+  view: 0, target: 0,
+  render(d) { const R = 78; d.target = ANG[cur()]; const rot = d.view; let s = '';
+    for (let i = 0; i < revealed(); i++) s += offsetLine(i, ANG[i] - rot, R, { width: i === cur() ? 2.4 : 1.2 }) + ringWords(i, ANG[i] - rot, 178, i === cur());
+    return wrap(s + spokeMarks(R, rot) + finalMark(R, rot) + centre()); } });
+
+D.push({ title: '2. Fixed — words at the line tips',
+  read: 'No rotation ever. Each line stays at its own angle and its end words sit at its actual ends, so the offset is visible in the words too: a word close to the centre means the answer is near that end.',
+  pros: ['Nothing moves; you learn where each spectrum lives.', 'The word positions themselves are a clue.'],
+  cons: ['Words at different distances look irregular.', 'Diagonal lines are harder to read than a vertical one.'],
+  render() { const R = 78; let s = '';
+    for (let i = 0; i < revealed(); i++) { const deg = ANG[i], [lo, hi] = ends(i, R), [hx, hy] = pt(deg, hi + 18), [lx, ly] = pt(deg, lo - 18);
+      s += offsetLine(i, deg, R, { width: i === cur() ? 2.4 : 1.2 }) + word(hx, hy, SP[i][1], i === cur()) + word(lx, ly, SP[i][0], i === cur()); }
+    return wrap(s + spokeMarks(R) + finalMark(R) + centre()); } });
+
+D.push({ title: '3. Edge to edge — lines run to a frame, ends shown as caps',
+  read: 'Every line is drawn right across a circular frame so the star looks perfectly even; the real ends of each spectrum are small caps on the line. Words live on the frame. The offset is still there, carried by the caps.',
+  pros: ['Even, calm star; words always at the same distance.', 'The caps show exactly how far each end is from the answer.'],
+  cons: ['Two things to read on each line (caps and markers).', 'Subtle: the caps are easy to miss at first.'],
+  render() { const R = 66, F = 150; let s = `<circle cx="${C}" cy="${C}" r="${F}" fill="none" stroke="#ddd"/>`;
+    for (let i = 0; i < revealed(); i++) { const deg = ANG[i], [x1, y1] = pt(deg, -F), [x2, y2] = pt(deg, F), [ux, uy] = dir(deg + 90);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${i === cur() ? '#111' : '#999'}" stroke-width="${i === cur() ? 2 : 1}"/>`;
+      for (const t of ends(i, R)) { const [x, y] = pt(deg, t); s += `<line x1="${x - 7 * ux}" y1="${y - 7 * uy}" x2="${x + 7 * ux}" y2="${y + 7 * uy}" stroke="#111" stroke-width="3"/>`; }
+      s += ringWords(i, deg, 172, i === cur()); }
+    return wrap(s + spokeMarks(R) + finalMark(R) + centre()); } });
+
+D.push({ title: '4. Ruler — tick marks along every line',
+  read: 'Fixed offset lines with quarter ticks, like a ruler laid through the answer. You can read a marker’s miss against the ticks, and the ticks show how much of the spectrum lies on each side of the answer.',
+  pros: ['Positions become readable numbers without labels.', 'The asymmetry of each line is explained by the ticks.'],
+  cons: ['Busier lines.', 'Ticks on diagonals are fiddly to draw and read.'],
+  render() { const R = 78; let s = '';
+    for (let i = 0; i < revealed(); i++) { const deg = ANG[i], [ux, uy] = dir(deg + 90), [lo, hi] = ends(i, R);
+      s += offsetLine(i, deg, R, { width: i === cur() ? 2.4 : 1.2 }) + ringWords(i, deg, 178, i === cur());
+      for (let q = -1; q <= 1.001; q += 0.25) { const t = (q - ANS[i]) * R, [x, y] = pt(deg, t), len = Math.abs(q) === 1 ? 6 : q === 0 ? 4 : 2.5;
+        s += `<line x1="${x - len * ux}" y1="${y - len * uy}" x2="${x + len * ux}" y2="${y + len * uy}" stroke="#111" stroke-width="1"/>`; } }
+    return wrap(s + spokeMarks(R) + finalMark(R) + centre()); } });
+
+D.push({ title: '5. Stems — each miss is a bar from the centre',
+  read: 'Fixed offset lines, and each guess grows a thick stem from the answer out to its marker along its line. The miss becomes a bar you can compare across guesses at a glance; short stems are good.',
+  pros: ['Misses are bars, the most comparable shape there is.', 'Draws the eye to the centre.'],
+  cons: ['Stems overlap the line they sit on, so the line’s far side is faint by comparison.', 'Big misses look heavy.'],
+  render() { const R = 78; let s = '';
+    for (let i = 0; i < revealed(); i++) s += offsetLine(i, ANG[i], R, { stroke: '#bbb', width: 1.2 }) + ringWords(i, ANG[i], 178, i === cur());
+    const stem = (g, x, y) => `<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" stroke="#111" stroke-width="5" stroke-linecap="round"/>`;
+    return wrap(s + spokeMarks(R, 0, stem) + finalMark(R, 0, false) + centre(7)); } });
+
+D.push({ title: '6. Rings — distance rings around the answer',
+  read: 'Fixed offset lines over faint rings at a miss of ¼, ½, ¾ and 1. The rings turn “how far from the dot” into a dartboard reading, while the lines still say which spectrum and which way.',
+  pros: ['Closeness is instant: which ring is it in?', 'Rings work for the final ⑤ point too.'],
+  cons: ['Rings behind lopsided lines can look cluttered.', 'The outer parts of long lines fall outside the rings.'],
+  render() { const R = 78; let s = '';
+    for (const f of [0.25, 0.5, 0.75, 1]) s += `<circle cx="${C}" cy="${C}" r="${f * R}" fill="none" stroke="${f === 1 ? '#999' : '#ddd'}"/>`;
+    for (let i = 0; i < revealed(); i++) s += offsetLine(i, ANG[i], R, { stroke: i === cur() ? '#111' : '#777', width: i === cur() ? 2 : 1 }) + ringWords(i, ANG[i], 178, i === cur());
+    return wrap(s + spokeMarks(R) + finalMark(R, 0, false) + centre()); } });
+
+D.push({ title: '7. Focus — older lines fade',
+  read: 'Fixed offset lines, but only the current line is black with its words; earlier lines and their words fade to grey and stay as a memory. The chart always says “read this one”.',
+  pros: ['Cuts the clutter of four crossing lines to one that matters.', 'Older clues are still there when you want them.'],
+  cons: ['Grey words are harder to read on a phone.', 'The final guess needs all four lines back at full strength.'],
+  render() { const R = 78; let s = ''; const final = n >= 4;
+    for (let i = 0; i < revealed(); i++) { const on = final || i === cur();
+      s += offsetLine(i, ANG[i], R, { stroke: on ? '#111' : '#c8c8c8', width: on && i === cur() ? 2.4 : 1.2 }) + ringWords(i, ANG[i], 178, i === cur(), on ? '#111' : '#aaa'); }
+    return wrap(s + spokeMarks(R) + finalMark(R) + centre()); } });
+
+D.push({ title: '8. Spin — the star keeps turning one way',
+  read: 'Like the classic, but every new line arrives at the top and the whole chart turns 45° the same way each guess, so older lines fan out clockwise in order. After four guesses the star has turned a full half-circle.',
+  pros: ['Rotation has a rhythm; the order of guesses is the order round the star.', 'The newest line is always at the top.'],
+  cons: ['Words can arrive upside down relative to where you first read them.', 'Same clutter as the classic at the end.'],
+  view: 0, target: 0,
+  render(d) { const R = 78; d.target = -45 * cur(); const rot = d.view; let s = '';
+    for (let i = 0; i < revealed(); i++) s += offsetLine(i, ANG[i] - rot, R, { width: i === cur() ? 2.4 : 1.2 }) + ringWords(i, ANG[i] - rot, 178, i === cur());
+    return wrap(s + spokeMarks(R, rot) + finalMark(R, rot) + centre()); } });
+
+D.push({ title: '9. Halo — your best miss as a disc',
+  read: 'Fixed offset lines plus a grey disc round the answer whose radius is your closest miss so far. It shrinks with every better guess, and at the end its size is your score.',
+  pros: ['One shape tells the story of the game.', 'Rewards improvement visibly.'],
+  cons: ['A large early disc hides line detail near the centre.', 'Only the best guess changes it.'],
+  render() { const R = 78; const gs = guesses();
+    const best = gs.length ? Math.min(...gs.map(g => g.final ? Math.hypot(...finalPoint(g, 0, R).map(v => v - C)) : Math.abs(g.gap[g.k]) * R)) : R;
+    let s = `<circle cx="${C}" cy="${C}" r="${best}" fill="#eaeaea"/>`;
+    for (let i = 0; i < revealed(); i++) s += offsetLine(i, ANG[i], R, { width: i === cur() ? 2.4 : 1.2 }) + ringWords(i, ANG[i], 178, i === cur());
+    return wrap(s + spokeMarks(R) + finalMark(R, 0, false) + centre()); } });
+
+D.push({ title: '10. Inset — one big line, the star in the corner',
+  read: 'The current spectrum is drawn alone, large and vertical through the answer, with its words at top and bottom. The full star with every earlier line and marker lives in a small inset; on the final guess the inset becomes the main view.',
+  pros: ['The thing you are reading is huge and uncluttered.', 'The star is still there as a growing summary.'],
+  cons: ['Two charts to look at.', 'The inset is tiny on a phone.'],
+  render() { const final = n >= 4;
+    if (final) { const R = 78; let s = ''; for (let i = 0; i < 4; i++) s += offsetLine(i, ANG[i], R) + ringWords(i, ANG[i], 178, false); return wrap(s + spokeMarks(R) + finalMark(R) + centre()); }
+    const R = 85, i = cur(), [lo, hi] = ends(i, R), [x1, y1] = pt(0, lo), [x2, y2] = pt(0, hi);
+    let s = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111" stroke-width="2.4"/>` + word(C, 22, SP[i][1], true) + word(C, 384, SP[i][0], true) + spokeMarks(R, 0, () => '', [i]) + centre(7);
+    // Inset: the whole star so far, small, top-right.
+    const r = 22, ox = 335, oy = 65; let ins = `<rect x="${ox - 55}" y="${oy - 55}" width="110" height="110" fill="#fff" stroke="#ddd"/>`;
+    for (let j = 0; j < revealed(); j++) { const [lo2, hi2] = ends(j, r), [ux, uy] = dir(ANG[j]);
+      ins += `<line x1="${ox + lo2 * ux}" y1="${oy + lo2 * uy}" x2="${ox + hi2 * ux}" y2="${oy + hi2 * uy}" stroke="${j === i ? '#111' : '#999'}" stroke-width="${j === i ? 1.6 : 1}"/>`; }
+    for (const g of guesses()) if (!g.final) { const [ux, uy] = dir(ANG[g.k]); ins += marker(ox + g.gap[g.k] * r * ux, oy + g.gap[g.k] * r * uy, g.k + 1, 6); }
+    ins += `<circle cx="${ox}" cy="${oy}" r="3" fill="#111"/>`;
+    return wrap(s + ins); } });
+
+// ---- Page wiring ----
+const grid = document.getElementById('grid');
+for (const d of D) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<h2>${d.title}</h2><p class="read">${d.read}</p><div class="fig"></div>
+    <ul>${d.pros.map(p => `<li>＋ ${p}</li>`).join('')}${d.cons.map(c => `<li>－ ${c}</li>`).join('')}</ul>`;
+  grid.appendChild(card);
+  d.fig = card.querySelector('.fig');
+}
+function draw() { for (const d of D) d.fig.innerHTML = d.render(d); }
+function tick() { for (const d of D) if ('view' in d && Math.abs(d.target - d.view) > 0.1) { d.view += (d.target - d.view) * 0.15; d.fig.innerHTML = d.render(d); } requestAnimationFrame(tick); }
+document.getElementById('n').addEventListener('input', e => { n = +e.target.value; document.getElementById('nLabel').textContent = n; draw(); });
+draw(); tick();
+</script>
+</body>
+</html>
