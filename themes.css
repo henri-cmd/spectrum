@@ -277,14 +277,14 @@ body[data-family="console"] details p { margin: 8px 0 0; }
   body[data-family="console"] .blk-timer .clock { font-size: 36px; }
   body[data-family="console"] .blk-timer .times { display: none; }
   /* The word input is a short chin fixed to the bottom of the screen. */
-  body[data-family="console"] .blk-command { position: fixed; left: 8px; right: 8px; bottom: 8px; padding: 14px 18px; z-index: 30; min-height: 0; }
-  body[data-family="console"] .blk-command::before { inset: 6px; border-radius: 8px / 12px; }
-  body[data-family="console"] .blk-command .crt-lines { inset: 6px; border-radius: 8px / 12px; }
+  body[data-family="console"] .blk-command { position: fixed; left: 0; right: 0; bottom: 0; padding: 14px 18px calc(14px + env(safe-area-inset-bottom)); z-index: 30; min-height: 0; border-radius: 0; border-left: 0; border-right: 0; border-bottom: 0; box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5); }
+  body[data-family="console"] .blk-command::before { inset: 6px 6px 0; border-radius: 8px 8px 0 0; }
+  body[data-family="console"] .blk-command .crt-lines { inset: 6px 6px 0; border-radius: 8px 8px 0 0; }
   body[data-family="console"] #d-guess { font-size: 28px; padding: 2px 0; }
   body[data-family="console"] .blk-timer, body[data-family="console"] .blk-command, body[data-family="console"] .blk-category { min-height: 0 !important; }
   body[data-family="console"] .blk-category { padding: 26px 16px 10px; } body[data-family="console"] .cat-name { font-size: 28px; }
   body[data-family="console"] .blk-axes { min-height: 420px; }
-  body[data-family="console"] .stage { width: min(100%, calc(100vh - 400px)); min-width: 220px; height: auto; aspect-ratio: 1; margin: 0 auto; }
+  body[data-family="console"] .stage { width: 100%; height: auto; aspect-ratio: 1; margin: 0; }
   body[data-family="console"] .blk { min-height: 130px; }
   body[data-family="console"] .plate { flex-wrap: wrap; gap: 8px 20px; }
   body[data-family="console"] .sign .status { white-space: normal; font-size: 18px; }
