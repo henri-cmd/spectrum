@@ -6,7 +6,7 @@
 <title>Spectrum</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="themes.css">
 <style>
   :root { color-scheme: light; }
@@ -93,27 +93,46 @@
       <div class="flash" id="d-flash" aria-hidden="true"></div>
     </div>
     <div class="panel">
-      <p id="d-legend" class="legend"></p>
-      <p id="d-start"><button class="go" id="d-go" disabled>Throw</button></p>
-      <form id="d-form" hidden>
-        <input id="d-guess" placeholder="Type any word…" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button id="d-submit">Throw</button>
-      </form>
-      <p id="d-message" class="message"></p>
-      <p id="d-nextp" hidden><button class="go" id="d-next">Next target</button></p>
-      <ol id="d-readout" class="readout"></ol>
-      <p id="d-result" class="result"></p>
-      <p id="d-share" class="share" hidden><code id="d-share-text"></code><button id="d-copy">Copy</button><button class="again" id="d-again">New targets</button></p>
-      <div id="d-reveal-wrap" hidden>
-        <p class="legend">What would have hit each target:</p>
-        <ol id="d-reveal" class="readout"></ol>
+      <div class="blk blk-command" data-title="Command">
+        <p id="d-legend" class="legend"></p>
+        <p id="d-start"><button class="go" id="d-go" disabled>Throw</button></p>
+        <form id="d-form" hidden>
+          <span class="prompt" aria-hidden="true">&gt;</span>
+          <input id="d-guess" placeholder="Type any word…" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <button id="d-submit">Throw</button>
+        </form>
+        <p id="d-message" class="message"></p>
+        <p id="d-nextp" hidden><button class="go" id="d-next">Next target</button></p>
       </div>
-      <details>
-        <summary>How to play</summary>
-        <p>The board is a grid of two spectrums from today's category, chosen because they're the least alike: one runs left to right, the other bottom to top.</p>
-        <p>Each round sets a target somewhere new on the board. Throw a word at it: the word lands where it truly sits on both spectrums, and scores the ring it lands in — 50 for the bull, then 25, 10 and 5. When you've seen where it landed, click on to the next target. Four rounds, four targets, 200 points at most. The last target is always the bull at the very centre of the board: the word that sits dead in the middle of both spectrums.</p>
-        <p>The readout says which way each dart missed. At the end, the words that would have scored most on each target are revealed.</p>
-      </details>
+      <div class="blk blk-contacts" data-title="Contact list">
+        <ol id="d-readout" class="readout"></ol>
+      </div>
+      <div class="blk blk-details" data-title="Contact details">
+        <div id="d-detail" class="detail"></div>
+        <div id="d-reveal-wrap" hidden>
+          <p class="legend">What would have hit each target:</p>
+          <ol id="d-reveal" class="readout"></ol>
+        </div>
+      </div>
+      <div class="blk blk-axes sonar-only" data-title="Axis analysis">
+        <svg id="d-axes" viewBox="0 0 300 120" aria-label="Where the latest word sat on each spectrum"></svg>
+      </div>
+      <div class="blk blk-rounds sonar-only" data-title="Contacts">
+        <ol id="d-rounds" class="rounds"></ol>
+      </div>
+      <div class="blk blk-score" data-title="Score">
+        <dl id="d-score" class="score sonar-only"></dl>
+        <p id="d-result" class="result"></p>
+        <p id="d-share" class="share" hidden><code id="d-share-text"></code><button id="d-copy">Copy</button><button class="again" id="d-again">New targets</button></p>
+      </div>
+      <div class="blk blk-manual" data-title="Manual">
+        <details>
+          <summary>How to play</summary>
+          <p>The board is a grid of two spectrums from today's category, chosen because they're the least alike: one runs left to right, the other bottom to top.</p>
+          <p>Each round sets a target somewhere new on the board. Throw a word at it: the word lands where it truly sits on both spectrums, and scores the ring it lands in — 50 for the bull, then 25, 10 and 5. When you've seen where it landed, click on to the next target. Four rounds, four targets, 200 points at most. The last target is always the bull at the very centre of the board: the word that sits dead in the middle of both spectrums.</p>
+          <p>The readout says which way each dart missed. At the end, the words that would have scored most on each target are revealed.</p>
+        </details>
+      </div>
       <div class="mug" aria-hidden="true"></div><div class="bottle" aria-hidden="true"></div>
     </div>
   </section>

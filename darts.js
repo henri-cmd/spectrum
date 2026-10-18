@@ -32,12 +32,12 @@ const THEMES = {
     past: '#5a2a3a', pastText: '#c9a46a', answer: '#ffb347', leader: '#f3e2b4', ink: '#15090a',
     actor: { frames: 6, frameMs: 70 }, animate: (...a) => animateDart(...a),
   },
-  sonar: {
-    title: 'Sonar', go: 'Ping', next: 'Next contact', again: 'New contacts', target: 'contact', miss: 'No contact.', landed: 'where your word echoed',
-    assets: 'assets/sonar', marker: 'blip.png', sweep: true, shots: 'pings',
-    disc: '#0c2a1c', grid: '#145c35', axis: '#27a85e', rings: ['#ffd36b', '#f0a030', '#9a5a12', '#145c35'], ringEdge: '#0a0e12', ringText: '#c8ffd9', ringTextBull: '#0a0e12',
-    past: '#3e5266', pastText: '#8da2b5', answer: '#ffd36b', leader: '#6cf29b', ink: '#0a0e12',
-    actor: { frames: 6, frameMs: 90 }, animate: (...a) => animatePing(...a),
+  sonar: { // a full-screen command console; the board is a scope, pings instead of darts, no character
+    title: 'Sonar', go: 'Ping', next: 'Next contact', again: 'New contacts', target: 'contact', miss: 'No return.', landed: 'return plotted',
+    assets: null, marker: null, sweep: true, console: true, shots: 'pings',
+    disc: '#061a10', grid: '#0b3a22', axis: '#1f8a4d', rings: ['#c8ffd9', '#5ff29a', '#1f8a4d', '#0b3a22'], ringEdge: '#04110a', ringText: '#c8ffd9', ringTextBull: '#04110a',
+    past: '#1f8a4d', pastText: '#5ff29a', answer: '#ffb84a', leader: '#5ff29a', ink: '#04110a',
+    actor: null, animate: (...a) => animatePing(...a),
   },
 };
 let theme = THEMES.saloon;
@@ -65,6 +65,9 @@ const normalise = s => s.trim().toLowerCase().replace(/[^a-z\s-]/g, '').replace(
 const sx = x => C + x * R, sy = y => C - y * R;   // units → SVG
 const round = () => throws.length - (awaiting || throwing ? 1 : 0); // index of the target on the board
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+const bearing = p => String(Math.round(((Math.atan2(p.x, p.y) * 180 / Math.PI) + 360) % 360)).padStart(3, '0') + '°'; // 0 = up, clockwise
+const range = p => Math.hypot(p.x, p.y).toFixed(2);
+const brgRng = p => `BRG ${bearing(p)} RNG ${range(p)}`;
 
 // ---- Seeded random: everyone gets the same targets on the same day ----
 function fnv1a(s) {
@@ -145,8 +148,28 @@ function targetSvg(t, n, live) {
 
 // A dart stuck in the board (or a blip on the scope): the theme's pixel sprite, drawn to scale.
 function stuckDart(x, y, faded) {
+  if (!theme.marker) { // a sonar return: a bright dot in a thin ring
+    return `<g opacity="${faded ? 0.6 : 1}"><circle cx="${x}" cy="${y}" r="11" fill="none" stroke="#5ff29a" stroke-width="1.5"/>` +
+           `<circle cx="${x}" cy="${y}" r="4.5" fill="#c8ffd9"/></g>`;
+  }
   const w = 12 * svgPerArt;
   return `<image href="${theme.assets}/${theme.marker}" x="${x - w / 2}" y="${y - w / 2}" width="${w}" height="${w}" style="image-rendering:pixelated" opacity="${faded ? 0.55 : 1}"/>`;
+}
+
+// The console scope's furniture: a bearing ring with ticks and headings, and readouts in the corners.
+function consoleSvg() {
+  let s = `<circle cx="${C}" cy="${C}" r="${R + 3}" fill="none" stroke="#1f8a4d" stroke-width="1.5"/>`;
+  for (let d = 0; d < 360; d += 5) {
+    const a = d * Math.PI / 180, major = d % 30 === 0, len = major ? 14 : d % 10 === 0 ? 9 : 5;
+    s += `<line x1="${C + (R + 6) * Math.sin(a)}" y1="${C - (R + 6) * Math.cos(a)}" x2="${C + (R + 6 + len) * Math.sin(a)}" y2="${C - (R + 6 + len) * Math.cos(a)}" stroke="${major ? '#5ff29a' : '#1f8a4d'}" stroke-width="${major ? 2 : 1}"/>`;
+    if (major) s += `<text class="bearing" x="${C + (R + 36) * Math.sin(a)}" y="${C - (R + 36) * Math.cos(a) + 5}" text-anchor="middle">${String(d).padStart(3, '0')}</text>`;
+  }
+  const tg = targets[Math.min(round(), ROUNDS - 1)], sum = total(throws);
+  s += `<text class="corner" x="14" y="26">${over ? 'All contacts resolved' : 'Active sonar'}</text><text class="corner" x="14" y="48">Rng scale 1.00</text>`;
+  s += `<text class="corner" x="586" y="26" text-anchor="end">${over ? 'Standby' : `Contact ${round() + 1}`}</text><text class="corner" x="586" y="48" text-anchor="end">${over ? '' : brgRng(tg)}</text>`;
+  s += `<text class="corner" x="14" y="586">Round ${Math.min(round() + 1, ROUNDS)}/${ROUNDS}</text>`;
+  s += `<text class="corner" x="586" y="586" text-anchor="end">Score ${sum}/${MAX_SCORE}</text>`;
+  return s;
 }
 
 // The sonar sweep: a fading wedge that the stylesheet spins around the scope.
@@ -163,8 +186,10 @@ function sweepSvg() {
 function render() {
   if (!puzzle) return;
   const [X, Y] = axes.map(i => puzzle.spectrums[i]);
-  let s = `<defs><clipPath id="d-clip"><circle cx="${C}" cy="${C}" r="${R}"/></clipPath></defs>`;
-  s += `<circle cx="${C}" cy="${C}" r="${R}" fill="${theme.disc}"/>`;
+  let s = `<defs><clipPath id="d-clip"><circle cx="${C}" cy="${C}" r="${R}"/></clipPath>` +
+          `<radialGradient id="d-glass"><stop offset="0" stop-color="#0d3a22"/><stop offset="0.7" stop-color="${theme.disc}"/><stop offset="1" stop-color="#030b07"/></radialGradient></defs>`;
+  s += `<circle cx="${C}" cy="${C}" r="${R}" fill="${theme.console ? 'url(#d-glass)' : theme.disc}"/>`;
+  if (theme.console) s += consoleSvg();
   // The matrix: grid lines every GRID units, clipped to the board; the two axes through the centre stand out.
   s += '<g clip-path="url(#d-clip)">';
   if (theme.sweep) { // range rings behind everything, then the sweep
@@ -186,7 +211,7 @@ function render() {
   s += `<text class="axis" x="${C}" y="${sy(1) + 42}" text-anchor="middle">${esc(Y.high)}</text>`;
   s += `<text class="axis" x="${C}" y="${sy(-1) - 28}" text-anchor="middle">${esc(Y.low)}</text>`;
   s += '</g>';
-  if (!started) { svg.innerHTML = s; return; }
+  if (!started) { svg.innerHTML = s; renderSide(); return; }
   // Darts: the newest is tied to its target with a dashed line while it sits on it.
   const labels = [];
   throws.forEach((t, k) => {
@@ -211,6 +236,7 @@ function render() {
   }
   for (const l of labels) s += `<text class="${l.cls}" x="${l.tx}" y="${l.ty}" text-anchor="${l.anchor}">${esc(l.word)}</text>`;
   svg.innerHTML = s;
+  renderSide();
   $('d-legend').textContent = over
     ? `Your ${theme.shots}, and the words that would have scored most on each ${theme.target}${practice ? ' · practice' : ''}`
     : awaiting ? `Round ${round() + 1} of ${ROUNDS} · ${theme.landed}${practice ? ' · practice' : ''}`
@@ -226,7 +252,7 @@ new ResizeObserver(fitStage).observe(stage);
 fitStage();
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-function setFrame(i) { actor.style.backgroundPosition = `calc(var(--px) * ${-i * THROWER.w}px) 0`; }
+function setFrame(i) { if (theme.actor) actor.style.backgroundPosition = `calc(var(--px) * ${-i * THROWER.w}px) 0`; }
 const landingPx = (landing, k) => [(SCENE.cx + landing.x * unitPx) * k, (SCENE.cy - landing.y * unitPx) * k];
 
 async function animateDart(landing) { // landing in board units
@@ -252,10 +278,10 @@ async function animateDart(landing) { // landing in board units
 }
 
 async function animatePing(landing) {
-  const k = pxScale(), ms = theme.actor.frameMs;
-  for (let f = 0; f <= 2; f++) { setFrame(f); await sleep(ms); } // reach for the button and press it
-  setFrame(3);
-  const cx = SCENE.cx * k, cy = SCENE.cy * k, rim = SCENE.r * k;
+  // On the console the scope fills the stage: its centre is the stage's centre and the disc spans R of the 600 box.
+  const sw = stage.clientWidth, cx = sw / 2, cy = sw / 2, rim = sw * R / 600;
+  msg('Pinging…', '#5ff29a');
+  await sleep(120);
   const reach = Math.min(1.45, Math.max(0.15, Math.hypot(landing.x, landing.y))); // the pulse runs out to the word, at least a little way
   const dur = 350 + 450 * reach;
   ping.style.display = 'block';
@@ -263,17 +289,16 @@ async function animatePing(landing) {
     { left: `${cx}px`, top: `${cy}px`, width: '0px', height: '0px', opacity: 1 },
     { left: `${cx - rim * reach}px`, top: `${cy - rim * reach}px`, width: `${2 * rim * reach}px`, height: `${2 * rim * reach}px`, opacity: 0.15 },
   ], { duration: dur, easing: 'linear', fill: 'forwards' });
-  const rest = (async () => { await sleep(ms * 2); setFrame(4); await sleep(ms * 2); setFrame(5); await sleep(ms * 2); setFrame(0); })();
   await pulse.finished;
   ping.style.display = 'none';
-  const [lx, ly] = landingPx(landing, k), fs = 26 * k; // the echo: a flash where the word is
+  const lx = cx + landing.x * rim, ly = cy - landing.y * rim, fs = sw * 0.06; // the echo: a flash where the word is
   flash.style.display = 'block';
   await flash.animate([
     { left: `${lx - fs / 2}px`, top: `${ly - fs / 2}px`, width: `${fs}px`, height: `${fs}px`, opacity: 1 },
     { left: `${lx - fs / 8}px`, top: `${ly - fs / 8}px`, width: `${fs / 4}px`, height: `${fs / 4}px`, opacity: 0 },
   ], { duration: 320, easing: 'ease-out', fill: 'forwards' }).finished;
   flash.style.display = 'none';
-  await rest;
+  msg('');
 }
 
 // ---- Theme switch ----
@@ -310,7 +335,43 @@ function hint(t, tg) {
 }
 function renderReadout() {
   $('d-readout').innerHTML = throws.map((t, k) =>
-    `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="hint">${hint(t, targets[k])}</span></li>`).join('');
+    `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}</span><span class="hint">${hint(t, targets[k])}</span></li>`).join('');
+}
+
+// The console's side screens: contacts (rounds), score, the latest return's details, and the axis analysis.
+function renderSide() {
+  if (!theme.console || !puzzle) return;
+  const cur = over ? -1 : round();
+  $('d-rounds').innerHTML = targets.map((tg, k) => {
+    const t = throws[k], cls = k === cur ? 'cur' : t ? 'done' : '';
+    const status = t ? `${esc(t.word)} · ${t.score} pts` : k === cur ? (awaiting ? 'plotted' : 'tracking') : 'standby';
+    return `<li class="${cls}"><span>Contact ${k + 1}${k === ROUNDS - 1 ? ' · centre' : ''}</span><span>${status}</span></li>`;
+  }).join('');
+  const best = throws.reduce((a, b) => !a || b.score > a.score ? b : a, null);
+  $('d-score').innerHTML = `<dt>Round</dt><dd>${Math.min((over ? ROUNDS : round() + 1), ROUNDS)}/${ROUNDS}</dd><dt>Score</dt><dd>${total(throws)}/${MAX_SCORE}</dd>` +
+    `<dt>Bullseyes</dt><dd>${throws.filter(t => t.score === RINGS[0][1]).length}</dd><dt>Best return</dt><dd>${best ? `${esc(best.word)} ${best.score}` : '—'}</dd>`;
+  const last = throws[throws.length - 1], tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
+  $('d-detail').innerHTML = !started ? `Awaiting first ping.\nContact 1 bearing ${bearing(targets[0])}, range ${range(targets[0])}.`
+    : over ? `All ${ROUNDS} contacts resolved. Final score <b>${total(throws)}</b> of ${MAX_SCORE}.`
+    : awaiting ? `Contact ${throws.length}\nPing: <b>${esc(last.word)}</b>\n${brgRng(last)}\nResult: <b>${last.score} pts</b>\nCorrection: ${hint(last, targets[throws.length - 1])}`
+    : `Contact ${cur + 1} designated.\n${brgRng(tg)}${last ? `\nLast ping: <b>${esc(last.word)}</b> · ${last.score} pts` : '\nNo pings yet.'}`;
+  // Axis analysis: each spectrum as a bar, the target hollow, the latest word solid.
+  const W = 300, L = 70, Rr = 230, rows = axes.map((i, k) => {
+    const sp = puzzle.spectrums[i], y = 34 + k * 50, px = v => L + (v + 1) / 2 * (Rr - L);
+    const tv = k === 0 ? tg.x : tg.y, wv = last ? (k === 0 ? last.x : last.y) : null;
+    let r = `<text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#5ff29a">${esc(sp.low.toUpperCase())}</text>` +
+            `<text x="${Rr + 8}" y="${y + 4}" font-size="11" fill="#5ff29a">${esc(sp.high.toUpperCase())}</text>` +
+            `<line x1="${L}" y1="${y}" x2="${Rr}" y2="${y}" stroke="#1f8a4d" stroke-width="1"/>`;
+    for (const v of [-1, -0.5, 0, 0.5, 1]) r += `<line x1="${px(v)}" y1="${y - 4}" x2="${px(v)}" y2="${y + 4}" stroke="#1f8a4d"/>`;
+    r += `<circle cx="${px(tv)}" cy="${y}" r="6" fill="none" stroke="#c8ffd9" stroke-width="1.5"/>`;
+    if (wv !== null) {
+      const cl = Math.max(-1.1, Math.min(1.1, wv));
+      r += `<circle cx="${px(cl)}" cy="${y}" r="4" fill="#5ff29a"/>` +
+           `<text x="${(px(tv) + px(cl)) / 2}" y="${y + 20}" text-anchor="middle" font-size="11" fill="#ffb84a">${Math.abs(wv - tv) < 0.12 ? 'ON' : `${wv > tv ? '+' : '−'}${Math.abs(wv - tv).toFixed(2)}`}</text>`;
+    }
+    return r;
+  });
+  $('d-axes').innerHTML = rows.join('') + `<text x="${W / 2}" y="${114}" text-anchor="middle" font-size="10" fill="#1f8a4d">○ CONTACT   ● LAST PING</text>`;
 }
 
 // For each round: the common words that would have scored, best first (at most four shown).

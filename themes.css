@@ -13,92 +13,205 @@ body[data-theme="saloon"] {
   --a-mug: url(assets/saloon/mug.png); --a-bottle: url(assets/saloon/bottle.png);
   --star: '\2605'; --glow: none;
 }
-/* ---- Sonar: a submarine control room, the board a sonar scope, an operator pinging ---- */
-body[data-theme="sonar"] {
-  --ink: #0a0e12; --bg: #121a22; --fg: #c8ffd9; --accent: #ffd36b; --muted: #8da2b5; --line: #2b3a4a; --code-bg: #0c2a1c;
-  --title-font: 'Pixelify Sans', sans-serif; --body-font: 'VT323', monospace;
-  --a-wall: url(assets/sonar/wall-tile.png); --a-scene: url(assets/sonar/scene-bg.png); --a-actor: url(assets/sonar/operator.png);
-  --a-dart: none; --a-sign: url(assets/sonar/sign-9slice.png); --a-panel: url(assets/sonar/panel-9slice.png);
-  --a-button: url(assets/sonar/button-9slice.png); --a-button-active: url(assets/sonar/button-active-9slice.png); --a-input: url(assets/sonar/input-9slice.png);
-  --a-mug: url(assets/sonar/mug.png); --a-bottle: url(assets/sonar/bottle.png);
-  --star: '\25C9'; --glow: 0 0 6px rgba(108, 242, 155, 0.6);
-}
-
-body[data-tab="darts"] { background: var(--bg) var(--a-wall) repeat; background-size: calc(var(--px) * 48px); color: var(--fg); }
-body[data-tab="darts"] main { padding-top: 10px; }
-body[data-tab="darts"] .px { image-rendering: pixelated; image-rendering: crisp-edges; }
+body[data-tab="darts"][data-theme="saloon"] { background: var(--bg) var(--a-wall) repeat; background-size: calc(var(--px) * 48px); color: var(--fg); }
+body[data-tab="darts"][data-theme="saloon"] main { padding-top: 10px; }
+body[data-tab="darts"][data-theme="saloon"] .px { image-rendering: pixelated; image-rendering: crisp-edges; }
 
 /* Header: a hanging sign and the game toggle as a panel. */
-body[data-tab="darts"] header { align-items: stretch; gap: 12px; margin-bottom: 6px; }
-body[data-tab="darts"] .sign { position: relative; flex: 1; padding: 12px 18px 10px; border: calc(var(--px) * 12px) solid transparent;
+body[data-tab="darts"][data-theme="saloon"] header { align-items: stretch; gap: 12px; margin-bottom: 6px; }
+body[data-tab="darts"][data-theme="saloon"] .sign { position: relative; flex: 1; padding: 12px 18px 10px; border: calc(var(--px) * 12px) solid transparent;
   border-image: var(--a-sign) 12 fill stretch; border-image-width: calc(var(--px) * 12px); image-rendering: pixelated; margin-top: 8px; }
-body[data-tab="darts"] .sign::before, body[data-tab="darts"] .sign::after { content: ''; position: absolute; top: calc(-8px - var(--px) * 12px); width: 3px; height: 8px; background: var(--ink); }
-body[data-tab="darts"] .sign::before { left: 14%; } body[data-tab="darts"] .sign::after { right: 14%; }
-body[data-tab="darts"] .sign h1 { font-family: var(--title-font); font-weight: 700; font-size: 34px; letter-spacing: 0.06em; color: var(--fg); margin: -6px 0 0;
+body[data-tab="darts"][data-theme="saloon"] .sign::before, body[data-tab="darts"][data-theme="saloon"] .sign::after { content: ''; position: absolute; top: calc(-8px - var(--px) * 12px); width: 3px; height: 8px; background: var(--ink); }
+body[data-tab="darts"][data-theme="saloon"] .sign::before { left: 14%; } body[data-tab="darts"][data-theme="saloon"] .sign::after { right: 14%; }
+body[data-tab="darts"][data-theme="saloon"] .sign h1 { font-family: var(--title-font); font-weight: 700; font-size: 34px; letter-spacing: 0.06em; color: var(--fg); margin: -6px 0 0;
   text-shadow: 2px 2px 0 var(--ink), var(--glow); display: flex; align-items: center; gap: 10px; }
-body[data-tab="darts"] .sign h1::before, body[data-tab="darts"] .sign h1::after { content: var(--star); color: var(--accent); font-size: 22px; text-shadow: 1px 1px 0 var(--ink); }
-body[data-tab="darts"] .sign .sub { font-family: var(--body-font); font-size: 20px; color: var(--accent); margin: 0; letter-spacing: 0.04em; text-transform: uppercase; }
-body[data-tab="darts"] .views, body[data-tab="darts"] .themes { display: inline-flex; border-radius: 0; overflow: visible; align-self: flex-start; padding: 6px; gap: 6px;
+body[data-tab="darts"][data-theme="saloon"] .sign h1::before, body[data-tab="darts"][data-theme="saloon"] .sign h1::after { content: var(--star); color: var(--accent); font-size: 22px; text-shadow: 1px 1px 0 var(--ink); }
+body[data-tab="darts"][data-theme="saloon"] .sign .sub { font-family: var(--body-font); font-size: 20px; color: var(--accent); margin: 0; letter-spacing: 0.04em; text-transform: uppercase; }
+body[data-tab="darts"][data-theme="saloon"] .views, body[data-tab="darts"][data-theme="saloon"] .themes { display: inline-flex; border-radius: 0; overflow: visible; align-self: flex-start; padding: 6px; gap: 6px;
   border: calc(var(--px) * 12px) solid transparent; border-image: var(--a-panel) 12 fill stretch; border-image-width: calc(var(--px) * 8px); }
-body[data-tab="darts"] .views { margin-top: 8px; }
-body[data-tab="darts"] .views button, body[data-tab="darts"] .themes button { font-family: var(--title-font); font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+body[data-tab="darts"][data-theme="saloon"] .views { margin-top: 8px; }
+body[data-tab="darts"][data-theme="saloon"] .views button, body[data-tab="darts"][data-theme="saloon"] .themes button { font-family: var(--title-font); font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
   background: transparent; border: calc(var(--px) * 8px) solid transparent; border-image: var(--a-button) 8 fill stretch; border-image-width: calc(var(--px) * 4px); padding: 4px 8px; cursor: pointer; }
-body[data-tab="darts"] .views button[aria-pressed="true"], body[data-tab="darts"] .themes button[aria-pressed="true"] { color: var(--ink); border-image-source: var(--a-button-active); }
+body[data-tab="darts"][data-theme="saloon"] .views button[aria-pressed="true"], body[data-tab="darts"][data-theme="saloon"] .themes button[aria-pressed="true"] { color: var(--ink); border-image-source: var(--a-button-active); }
 body:not([data-tab="darts"]) .themes { display: none; }
-#tab-darts .themes { display: flex; width: max-content; margin: 0 0 8px auto; padding: 3px; border-width: calc(var(--px) * 6px); border-image-width: calc(var(--px) * 6px); }
-#tab-darts .themes button { font-size: 11px; padding: 2px 6px; border-width: calc(var(--px) * 4px); border-image-width: calc(var(--px) * 3px); }
+body[data-theme="saloon"] #tab-darts .themes { display: flex; width: max-content; margin: 0 0 8px auto; padding: 3px; border-width: calc(var(--px) * 6px); border-image-width: calc(var(--px) * 6px); }
+body[data-theme="saloon"] #tab-darts .themes button { font-size: 11px; padding: 2px 6px; border-width: calc(var(--px) * 4px); border-image-width: calc(var(--px) * 3px); }
 
 /* The stage: the scene with the board, the actor in front, and a projectile in flight. */
-#tab-darts .stage { position: relative; width: 100%; aspect-ratio: 240 / 300; background: var(--a-scene) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; overflow: hidden;
+body[data-theme="saloon"] #tab-darts .stage { position: relative; width: 100%; aspect-ratio: 240 / 300; background: var(--a-scene) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; overflow: hidden;
   border: calc(var(--px) * 1px) solid var(--ink); box-shadow: 0 0 0 calc(var(--px) * 1px) var(--line); }
-#tab-darts .stage svg { position: absolute; overflow: visible; shape-rendering: crispEdges;
+body[data-theme="saloon"] #tab-darts .stage svg { position: absolute; overflow: visible; shape-rendering: crispEdges;
   /* board disc radius 70 art px centred at (120,128) in a 240x300 scene; the SVG's board radius is 215 of its 600 box */
   --d: calc(140 / 240 * 600 / 430 * 100%); width: var(--d); height: auto; left: calc(50% - var(--d) / 2); top: calc(128 / 300 * 100% - var(--d) * 0.4); }
-#tab-darts .stage svg text { shape-rendering: auto; font-family: var(--body-font); }
-#tab-darts .stage svg .axis { font-size: 27px; fill: var(--fg); paint-order: stroke; stroke: var(--ink); stroke-width: 4px; letter-spacing: 0.02em; }
-#tab-darts .stage svg .tag { font-size: 24px; fill: var(--fg); paint-order: stroke; stroke: var(--ink); stroke-width: 4px; }
-#tab-darts .stage svg .tag.ans { fill: var(--accent); }
-#tab-darts .stage svg .sweep { transform-origin: 300px 300px; animation: sweep 5s linear infinite; }
+body[data-theme="saloon"] #tab-darts .stage svg text { shape-rendering: auto; font-family: var(--body-font); }
+body[data-theme="saloon"] #tab-darts .stage svg .axis { font-size: 27px; fill: var(--fg); paint-order: stroke; stroke: var(--ink); stroke-width: 4px; letter-spacing: 0.02em; }
+body[data-theme="saloon"] #tab-darts .stage svg .tag { font-size: 24px; fill: var(--fg); paint-order: stroke; stroke: var(--ink); stroke-width: 4px; }
+body[data-theme="saloon"] #tab-darts .stage svg .tag.ans { fill: var(--accent); }
+body[data-theme="saloon"] #tab-darts .stage svg .sweep { transform-origin: 300px 300px; animation: sweep 5s linear infinite; }
 @keyframes sweep { to { transform: rotate(360deg); } }
-#tab-darts .actor { position: absolute; left: 0; bottom: 0; width: calc(var(--px) * 96px); height: calc(var(--px) * 110px);
+body[data-theme="saloon"] #tab-darts .actor { position: absolute; left: 0; bottom: 0; width: calc(var(--px) * 96px); height: calc(var(--px) * 110px);
   background: var(--a-actor) 0 0 / calc(var(--px) * 576px) calc(var(--px) * 110px) no-repeat; image-rendering: pixelated; pointer-events: none; }
-#tab-darts .dart { position: absolute; left: 0; top: 0; width: calc(var(--px) * 16px); height: calc(var(--px) * 16px); background: var(--a-dart) 0 0 / 100% 100% no-repeat;
+body[data-theme="saloon"] #tab-darts .dart { position: absolute; left: 0; top: 0; width: calc(var(--px) * 16px); height: calc(var(--px) * 16px); background: var(--a-dart) 0 0 / 100% 100% no-repeat;
   image-rendering: pixelated; display: none; pointer-events: none; transform-origin: 50% 50%; }
-#tab-darts .ping, #tab-darts .flash { position: absolute; border-radius: 50%; pointer-events: none; display: none; }
-#tab-darts .ping { border: calc(var(--px) * 1px) solid #6cf29b; box-shadow: 0 0 calc(var(--px) * 3px) #27a85e; }
-#tab-darts .flash { background: #c8ffd9; box-shadow: 0 0 calc(var(--px) * 4px) #6cf29b; }
-#tab-darts .stage.thunk svg { animation: thunk 180ms steps(2) 1; }
+#tab-darts .ping, #tab-darts .flash { position: absolute; border-radius: 50%; pointer-events: none; display: none; z-index: 2; }
+body[data-theme="saloon"] #tab-darts .ping { border: calc(var(--px) * 1px) solid #6cf29b; box-shadow: 0 0 calc(var(--px) * 3px) #27a85e; }
+body[data-theme="saloon"] #tab-darts .flash { background: #c8ffd9; box-shadow: 0 0 calc(var(--px) * 4px) #6cf29b; }
+body[data-theme="saloon"] body[data-theme="saloon"] #tab-darts .stage.thunk svg { animation: thunk 180ms steps(2) 1; }
 @keyframes thunk { 0% { transform: translate(0, 0); } 50% { transform: translate(1px, 2px); } 100% { transform: translate(0, 0); } }
 
-/* The control panel under the stage. */
-#tab-darts .panel { position: relative; margin-top: 10px; padding: 10px 14px 12px; border: calc(var(--px) * 12px) solid transparent;
+/* The control panel under the stage. Sonar-only screens and the terminal prompt stay hidden here. */
+body[data-theme="saloon"] .sonar-only, body[data-theme="saloon"] .prompt, body[data-theme="saloon"] #d-detail, body[data-theme="saloon"] .readout .brg { display: none; }
+body[data-theme="saloon"] #tab-darts .panel { position: relative; margin-top: 10px; padding: 10px 14px 12px; border: calc(var(--px) * 12px) solid transparent;
   border-image: var(--a-panel) 12 fill stretch; border-image-width: calc(var(--px) * 8px); font-family: var(--body-font); font-size: 21px; color: var(--fg); }
-#tab-darts .panel .legend { color: var(--accent); font-family: var(--title-font); font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 10px; }
-#tab-darts .panel form { margin: 0 0 6px; gap: 10px; }
-#tab-darts .panel input { font-family: var(--body-font); font-size: 24px; color: var(--fg); background: transparent; border: calc(var(--px) * 8px) solid transparent;
+body[data-theme="saloon"] #tab-darts .panel .legend { color: var(--accent); font-family: var(--title-font); font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 10px; }
+body[data-theme="saloon"] #tab-darts .panel form { margin: 0 0 6px; gap: 10px; }
+body[data-theme="saloon"] #tab-darts .panel input { font-family: var(--body-font); font-size: 24px; color: var(--fg); background: transparent; border: calc(var(--px) * 8px) solid transparent;
   border-image: var(--a-input) 8 fill stretch; border-image-width: calc(var(--px) * 3px); border-radius: 0; padding: 4px 8px; min-width: 0; text-shadow: var(--glow); }
-#tab-darts .panel input::placeholder { color: var(--muted); opacity: 0.8; }
-#tab-darts .panel button.go, #tab-darts .panel form button, #tab-darts .panel .share button, #tab-darts .panel button.again {
+body[data-theme="saloon"] #tab-darts .panel input::placeholder { color: var(--muted); opacity: 0.8; }
+body[data-theme="saloon"] #tab-darts .panel button.go, body[data-theme="saloon"] #tab-darts .panel form button, body[data-theme="saloon"] #tab-darts .panel .share button, body[data-theme="saloon"] #tab-darts .panel button.again {
   font-family: var(--title-font); font-weight: 700; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: transparent;
   border: calc(var(--px) * 8px) solid transparent; border-image: var(--a-button) 8 fill stretch; border-image-width: calc(var(--px) * 4px); border-radius: 0; padding: 6px 14px; cursor: pointer; }
-#tab-darts .panel button:active { color: var(--ink); border-image-source: var(--a-button-active); }
-#tab-darts .panel .message { color: var(--accent); font-size: 20px; min-height: 1.2em; margin: 2px 0 6px; }
-#tab-darts .panel .readout { font-size: 20px; margin: 4px 0; }
-#tab-darts .panel .readout li { border-top: 1px solid var(--line); padding: 4px 0; }
-#tab-darts .panel .readout .n { color: var(--muted); } #tab-darts .panel .readout .w { color: var(--fg); } #tab-darts .panel .readout .s { color: var(--accent); } #tab-darts .panel .readout .hint { color: var(--muted); }
-#tab-darts .panel .result { font-family: var(--title-font); font-size: 20px; color: var(--accent); margin: 10px 0 6px; }
-#tab-darts .panel .share code { font-family: var(--body-font); font-size: 20px; background: var(--code-bg); color: var(--fg); border-radius: 0; }
-#tab-darts .panel details { color: var(--muted); font-size: 19px; margin-top: 14px; }
-#tab-darts .panel summary { font-family: var(--title-font); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-#tab-darts .panel summary::marker { color: var(--accent); }
-#tab-darts .panel details p { margin: 6px 0; }
-#tab-darts .panel .mug, #tab-darts .panel .bottle { position: absolute; pointer-events: none; image-rendering: pixelated; background-size: 100% 100%; background-repeat: no-repeat; }
-#tab-darts .panel .mug { right: 24px; bottom: -4px; width: calc(var(--px) * 20px); height: calc(var(--px) * 26px); background-image: var(--a-mug); }
-#tab-darts .panel .bottle { right: 0; bottom: 6px; width: calc(var(--px) * 12px); height: calc(var(--px) * 30px); background-image: var(--a-bottle); }
-#tab-darts .panel b { color: var(--fg); }
+body[data-theme="saloon"] #tab-darts .panel button:active { color: var(--ink); border-image-source: var(--a-button-active); }
+body[data-theme="saloon"] #tab-darts .panel .message { color: var(--accent); font-size: 20px; min-height: 1.2em; margin: 2px 0 6px; }
+body[data-theme="saloon"] #tab-darts .panel .readout { font-size: 20px; margin: 4px 0; }
+body[data-theme="saloon"] #tab-darts .panel .readout li { border-top: 1px solid var(--line); padding: 4px 0; }
+body[data-theme="saloon"] #tab-darts .panel .readout .n { color: var(--muted); } body[data-theme="saloon"] #tab-darts .panel .readout .w { color: var(--fg); } body[data-theme="saloon"] #tab-darts .panel .readout .s { color: var(--accent); } body[data-theme="saloon"] #tab-darts .panel .readout .hint { color: var(--muted); }
+body[data-theme="saloon"] #tab-darts .panel .result { font-family: var(--title-font); font-size: 20px; color: var(--accent); margin: 10px 0 6px; }
+body[data-theme="saloon"] #tab-darts .panel .share code { font-family: var(--body-font); font-size: 20px; background: var(--code-bg); color: var(--fg); border-radius: 0; }
+body[data-theme="saloon"] #tab-darts .panel details { color: var(--muted); font-size: 19px; margin-top: 14px; }
+body[data-theme="saloon"] #tab-darts .panel summary { font-family: var(--title-font); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+body[data-theme="saloon"] #tab-darts .panel summary::marker { color: var(--accent); }
+body[data-theme="saloon"] #tab-darts .panel details p { margin: 6px 0; }
+body[data-theme="saloon"] #tab-darts .panel .mug, body[data-theme="saloon"] #tab-darts .panel .bottle { position: absolute; pointer-events: none; image-rendering: pixelated; background-size: 100% 100%; background-repeat: no-repeat; }
+body[data-theme="saloon"] #tab-darts .panel .mug { right: 24px; bottom: -4px; width: calc(var(--px) * 20px); height: calc(var(--px) * 26px); background-image: var(--a-mug); }
+body[data-theme="saloon"] #tab-darts .panel .bottle { right: 0; bottom: 6px; width: calc(var(--px) * 12px); height: calc(var(--px) * 30px); background-image: var(--a-bottle); }
+body[data-theme="saloon"] #tab-darts .panel b { color: var(--fg); }
 
 @media (max-width: 480px) {
-  body[data-tab="darts"] .sign h1 { font-size: 26px; }
-  #tab-darts .panel { font-size: 19px; }
-  #tab-darts .panel .mug, #tab-darts .panel .bottle { display: none; }
+  body[data-tab="darts"][data-theme="saloon"] .sign h1 { font-size: 26px; }
+  body[data-theme="saloon"] #tab-darts .panel { font-size: 19px; }
+  body[data-theme="saloon"] #tab-darts .panel .mug, body[data-theme="saloon"] #tab-darts .panel .bottle { display: none; }
+}
+
+
+/* ============================================================================================
+   Sonar: a full-screen submarine command console. No scene and no character: every part of the
+   game lives on one of the CRT screens around the scope. Built from CSS and SVG, no sprites.
+   ============================================================================================ */
+body[data-theme="sonar"] {
+  --ink: #05090b; --steel: #262c33; --steel-d: #171b20; --steel-l: #3a434b; --steel-x: #4c565f;
+  --g0: #04110a; --g1: #0b3a22; --g2: #1f8a4d; --g3: #5ff29a; --g4: #c8ffd9; --amber: #ffb84a; --red: #ff4a3d;
+  --font: 'Share Tech Mono', monospace;
+  --screen-bg: radial-gradient(ellipse at 50% 35%, #0b2f1c 0%, #071f13 55%, var(--g0) 100%);
+  --screen-frame: inset 0 0 28px rgba(0, 0, 0, 0.75), 0 0 0 5px var(--steel), 0 0 0 7px var(--ink), 0 0 0 9px var(--steel-l), 0 6px 18px rgba(0, 0, 0, 0.6);
+  background: #14181d radial-gradient(ellipse at 50% 0%, #1c2228 0%, #14181d 60%, #0d1013 100%);
+  color: var(--g3); font-family: var(--font);
+}
+body[data-tab="darts"][data-theme="sonar"] main { max-width: none; padding: 14px; height: 100vh; box-sizing: border-box; display: grid; gap: 22px; /* a fixed height: the fr rows split it and each screen scrolls inside */
+  grid-template-columns: minmax(240px, 1fr) minmax(0, 2.1fr) minmax(240px, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-areas: "head head head" "contacts scope axes" "details scope command" "rounds scope score" "views themes manual"; }
+body[data-tab="darts"][data-theme="sonar"] header, body[data-theme="sonar"] #tab-darts, body[data-theme="sonar"] .panel { display: contents; }
+body[data-theme="sonar"] .actor, body[data-theme="sonar"] .dart, body[data-theme="sonar"] .mug, body[data-theme="sonar"] .bottle { display: none !important; }
+
+/* Every screen: phosphor glass in a steel bezel, with a title etched top-left and scanlines over it. */
+body[data-theme="sonar"] .blk, body[data-theme="sonar"] .sign, body[data-theme="sonar"] .views, body[data-theme="sonar"] .themes, body[data-theme="sonar"] .stage {
+  position: relative; background: var(--screen-bg); border: 2px solid var(--ink); border-radius: 7px; box-shadow: var(--screen-frame);
+  color: var(--g3); text-shadow: 0 0 5px rgba(95, 242, 154, 0.45); min-height: 0; min-width: 0; }
+body[data-theme="sonar"] .blk { padding: 28px 14px 12px; overflow: auto; font-size: 15px; }
+body[data-theme="sonar"] .blk::before { content: attr(data-title); position: absolute; top: 7px; left: 13px; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g4); }
+body[data-theme="sonar"] .blk::after, body[data-theme="sonar"] .stage::after, body[data-theme="sonar"] .sign::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: 5px;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px); }
+body[data-theme="sonar"] .blk-contacts { grid-area: contacts; } body[data-theme="sonar"] .blk-details { grid-area: details; }
+body[data-theme="sonar"] .blk-rounds { grid-area: rounds; } body[data-theme="sonar"] .blk-axes { grid-area: axes; }
+body[data-theme="sonar"] .blk-command { grid-area: command; } body[data-theme="sonar"] .blk-score { grid-area: score; }
+body[data-theme="sonar"] .blk-manual { grid-area: manual; }
+
+/* Head strip: the game name and the day's line, like a status readout. */
+body[data-theme="sonar"] .sign { grid-area: head; display: flex; align-items: baseline; gap: 26px; padding: 10px 18px; margin: 0; }
+body[data-theme="sonar"] .sign::before { display: none; }
+body[data-theme="sonar"] .sign h1 { font: 20px/1 var(--font); letter-spacing: 0.26em; text-transform: uppercase; color: var(--g4); margin: 0; display: flex; align-items: center; gap: 12px; }
+body[data-theme="sonar"] .sign h1::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 10px var(--g3); animation: blink 2.4s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0.35; } }
+body[data-theme="sonar"] .sign .sub { font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g3); margin: 0; }
+
+/* The scope: a square CRT; the SVG draws the round display, bearing ring and corner readouts. */
+body[data-theme="sonar"] .stage { grid-area: scope; aspect-ratio: 1; width: min(100%, calc(100vh - 204px)); margin: auto; overflow: hidden; /* 204 = padding, gaps, head strip and key row */
+  background: radial-gradient(circle at 50% 50%, #0d3a22 0%, #082216 48%, #04110a 72%, #030b07 100%); }
+body[data-theme="sonar"] .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; shape-rendering: geometricPrecision; filter: drop-shadow(0 0 3px rgba(95, 242, 154, 0.35)); }
+body[data-theme="sonar"] .stage svg text { font-family: var(--font); }
+body[data-theme="sonar"] .stage svg .axis { font-size: 22px; fill: var(--g4); letter-spacing: 0.1em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
+body[data-theme="sonar"] .stage svg .tag { font-size: 19px; fill: var(--g4); letter-spacing: 0.06em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
+body[data-theme="sonar"] .stage svg .tag.ans { fill: var(--amber); }
+body[data-theme="sonar"] .stage svg .bearing { font-size: 15px; fill: var(--g2); letter-spacing: 0.08em; }
+body[data-theme="sonar"] .stage svg .corner { font-size: 15px; fill: var(--g3); letter-spacing: 0.12em; text-transform: uppercase; }
+body[data-theme="sonar"] .stage svg .sweep { transform-origin: 300px 300px; animation: sweep 6s linear infinite; }
+body[data-theme="sonar"] .ping { border: 2px solid var(--g3); box-shadow: 0 0 14px var(--g2), inset 0 0 10px rgba(95, 242, 154, 0.3); }
+body[data-theme="sonar"] .flash { background: var(--g4); box-shadow: 0 0 22px var(--g3); }
+body[data-theme="sonar"] .stage.thunk svg { animation: none; }
+
+/* Buttons and switch banks: dark keys with an LED. */
+body[data-theme="sonar"] .views, body[data-theme="sonar"] .themes { display: flex; align-items: center; gap: 10px; padding: 12px 14px; margin: 0; }
+body[data-theme="sonar"] .views { grid-area: views; } body[data-theme="sonar"] .themes { grid-area: themes; }
+body[data-theme="sonar"] button { font-family: var(--font); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g3); background: linear-gradient(#1b2025, #0f1316);
+  border: 1px solid var(--steel-x); border-radius: 3px; box-shadow: inset 0 1px 0 #3a434b, 0 3px 0 var(--ink); padding: 8px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-shadow: none; }
+body[data-theme="sonar"] button::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #2a3138; box-shadow: inset 0 0 2px #000; flex: none; }
+body[data-theme="sonar"] button:hover { color: var(--g4); }
+body[data-theme="sonar"] button:active { transform: translateY(2px); box-shadow: inset 0 1px 0 #3a434b, 0 1px 0 var(--ink); }
+body[data-theme="sonar"] button[aria-pressed="true"], body[data-theme="sonar"] button.go, body[data-theme="sonar"] form button { color: var(--g4); }
+body[data-theme="sonar"] button[aria-pressed="true"]::before, body[data-theme="sonar"] button.go::before, body[data-theme="sonar"] form button::before { background: var(--g3); box-shadow: 0 0 8px var(--g3); }
+body[data-theme="sonar"] button:disabled { opacity: 0.5; }
+
+/* Command terminal. */
+body[data-theme="sonar"] .blk-command { display: flex; flex-direction: column; gap: 8px; }
+body[data-theme="sonar"] .legend { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--g4); margin: 0; }
+body[data-theme="sonar"] .legend::before { content: '// '; color: var(--g2); }
+body[data-theme="sonar"] form { display: flex; align-items: center; gap: 10px; margin: 0; }
+body[data-theme="sonar"] .prompt { color: var(--g4); font-size: 20px; }
+body[data-theme="sonar"] input { flex: 1; min-width: 0; background: transparent; border: 0; border-bottom: 1px solid var(--g2); border-radius: 0; color: var(--g4); font: 19px var(--font); text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 4px; caret-color: var(--g3); outline: none; }
+body[data-theme="sonar"] input::placeholder { color: var(--g2); text-transform: none; letter-spacing: 0; }
+body[data-theme="sonar"] .message { color: var(--amber); font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; min-height: 1.2em; margin: 0; }
+body[data-theme="sonar"] .message::before { content: '> '; }
+body[data-theme="sonar"] .message:empty::before { content: ''; }
+body[data-theme="sonar"] #d-start, body[data-theme="sonar"] #d-nextp { margin: 0; }
+
+/* Contact list: one row per ping, with the course correction under it. */
+body[data-theme="sonar"] .readout { list-style: none; margin: 0; padding: 0; font-size: 14px; text-transform: uppercase; }
+body[data-theme="sonar"] .readout li { display: grid; grid-template-columns: 2.2em 1fr auto; gap: 2px 10px; padding: 6px 0; border-top: 1px dashed var(--g1); align-items: baseline; }
+body[data-theme="sonar"] .readout li:first-child { border-top: 0; }
+body[data-theme="sonar"] .readout .n { color: var(--g2); } body[data-theme="sonar"] .readout .w { color: var(--g4); font-weight: normal; letter-spacing: 0.08em; }
+body[data-theme="sonar"] .readout .s { color: var(--g4); text-align: right; min-width: 0; }
+body[data-theme="sonar"] .readout .s::after { content: ' pts'; color: var(--g2); }
+body[data-theme="sonar"] .readout .brg { grid-column: 2; color: var(--g2); font-size: 12px; letter-spacing: 0.08em; }
+body[data-theme="sonar"] .readout .hint { grid-column: 2 / -1; color: var(--g3); font-size: 12px; letter-spacing: 0.04em; }
+body[data-theme="sonar"] .readout:empty::before { content: 'No contacts logged.'; color: var(--g2); font-size: 13px; letter-spacing: 0.1em; }
+
+/* Contact details, axis analysis, rounds, score. */
+body[data-theme="sonar"] .detail { font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.55; white-space: pre-line; }
+body[data-theme="sonar"] .detail b { color: var(--g4); font-weight: normal; }
+body[data-theme="sonar"] .detail .amber, body[data-theme="sonar"] .readout .amber { color: var(--amber); }
+body[data-theme="sonar"] #d-reveal-wrap .legend { margin: 10px 0 4px; }
+body[data-theme="sonar"] #d-reveal li { grid-template-columns: 2.2em 1fr; }
+body[data-theme="sonar"] #d-axes { width: 100%; height: auto; display: block; }
+body[data-theme="sonar"] .rounds { list-style: none; margin: 0; padding: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; }
+body[data-theme="sonar"] .rounds li { display: grid; grid-template-columns: 14px 1fr auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px dashed var(--g1); color: var(--g2); }
+body[data-theme="sonar"] .rounds li:first-child { border-top: 0; }
+body[data-theme="sonar"] .rounds li::before { content: ''; width: 10px; height: 10px; border: 1px solid var(--g2); border-radius: 2px; }
+body[data-theme="sonar"] .rounds li.cur { color: var(--g4); } body[data-theme="sonar"] .rounds li.cur::before { background: var(--g3); box-shadow: 0 0 8px var(--g3); border-color: var(--g3); }
+body[data-theme="sonar"] .rounds li.done { color: var(--g3); } body[data-theme="sonar"] .rounds li.done::before { background: var(--g1); border-color: var(--g2); }
+body[data-theme="sonar"] .score { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; margin: 0 0 8px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.1em; }
+body[data-theme="sonar"] .score dt { color: var(--g2); } body[data-theme="sonar"] .score dd { margin: 0; color: var(--g4); text-align: right; }
+body[data-theme="sonar"] .result { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--g4); margin: 6px 0; }
+body[data-theme="sonar"] .share { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+body[data-theme="sonar"] .share code { font-family: var(--font); font-size: 14px; background: var(--g0); color: var(--g3); padding: 6px 8px; border: 1px solid var(--g1); }
+body[data-theme="sonar"] details { font-size: 14px; color: var(--g3); margin: 0; line-height: 1.5; }
+body[data-theme="sonar"] summary { color: var(--g4); letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; font-size: 13px; }
+body[data-theme="sonar"] details p { margin: 8px 0 0; }
+
+@media (max-width: 960px) {
+  body[data-tab="darts"][data-theme="sonar"] main { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 20px; padding: 12px;
+    grid-template-areas: "head" "scope" "command" "score" "contacts" "details" "axes" "rounds" "views" "themes" "manual"; }
+  body[data-theme="sonar"] .stage { width: 100%; }
+  body[data-theme="sonar"] .sign { flex-wrap: wrap; gap: 6px 20px; }
 }
