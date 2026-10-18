@@ -190,6 +190,44 @@ def main():
             json.dump(shard, open(os.path.join(out, 'w', f'{n:02x}.json'), 'w'), separators=(',', ':'))
         print(f'wrote {out}: answer {p["answer"]} at {q[ans].tolist()}')
 
+    # Arena (the Darts console game): rounds change category but the two axes stay fixed, so the axes
+    # are the general spectrums of the 'random' bank. One shard set carries every word's position on
+    # all six of them plus its fit for each seeded category; arena.json carries the spectrum and
+    # category names, the least correlated axis pairs, and each category's curated words with their
+    # positions (for reachable targets, the reverse round's word and the end-of-game reveal).
+    gkeys = list(cats['random']['spectrums'].keys())
+    gcols = np.stack([axes[('random', k)] for k in gkeys], axis=1)
+    gq = np.rint(gcols * 100).astype(np.int16)
+    gcorr = np.corrcoef(gcols[:50000].T)
+    pairs = sorted(((i, j) for i in range(len(gkeys)) for j in range(i + 1, len(gkeys))), key=lambda ij: abs(gcorr[ij]))
+    pairs = [list(ij) for ij in pairs if abs(gcorr[ij]) <= 0.3] or [list(pairs[0])]
+    catids = [cid for cid, cat in cats.items() if cat['seeds']]
+    curated = {}
+    for cid in catids:
+        words_c = set(cats[cid]['seeds'])
+        for spec in cats[cid]['spectrums'].values():
+            words_c |= set(spec.get('anchors', {}))
+        curated[cid] = {w: [int(v) for v in gq[index[w]]] for w in sorted(words_c) if w in index}
+    out = os.path.join('puzzles', 'arena')
+    shutil.rmtree(out, ignore_errors=True)
+    os.makedirs(os.path.join(out, 'w'))
+    # A word counts as the category if its fit clears a threshold set from the category's own curated
+    # words (80% of their 10th percentile): a fixed cut-off refused real words in the weaker categories.
+    thresholds = {cid: int(round(0.8 * np.percentile([fits[cid][index[w]] for w in curated[cid]], 10))) for cid in catids}
+    json.dump({
+        'spectrums': [dict(zip(('low', 'high'), k.split('|'))) for k in gkeys],
+        'categories': [{'id': cid, 'name': cats[cid]['name'], 'threshold': thresholds[cid]} for cid in catids],
+        'pairs': pairs, 'curated': curated, 'launch': args.launch,
+    }, open(os.path.join(out, 'arena.json'), 'w'))
+    shards = [{} for _ in range(SHARDS)]
+    catfits = [fits[cid] for cid in catids]
+    for i, w in enumerate(words):
+        shards[fnv1a(w) % SHARDS][w] = [int(v) for v in gq[i]] + [int(f[i]) for f in catfits]
+    for n, shard in enumerate(shards):
+        json.dump(shard, open(os.path.join(out, 'w', f'{n:02x}.json'), 'w'), separators=(',', ':'))
+    print(f'arena: axes {gkeys}; pairs {[(gkeys[i], gkeys[j], round(float(gcorr[i, j]), 2)) for i, j in pairs]}; '
+          f'curated {[(cid, len(curated[cid])) for cid in catids]}')
+
     # Schedule: each weekday has a category; that category's puzzles are used in turn, one per week.
     by_cat = {}
     for p in puzzles:
