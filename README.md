@@ -1,12 +1,17 @@
 # Spectrum
 
-A daily word game. Each day has a category and a hidden answer. Four spectrums (like *tiny ↔ huge*) are revealed one at a time; each guess is marked on its spectrum by where it sits compared with the answer. After four guesses comes a final guess with all four showing. Any word the game knows (200,000 of them) can be guessed.
+Two daily word games on one page, live at https://henri-cmd.github.io/spectrum/ (the Darts tab is https://henri-cmd.github.io/spectrum/#darts).
+
+**Spectrum** is a daily word game. Each day has a category and a hidden answer. Four spectrums (like *tiny ↔ huge*) are revealed one at a time; each guess is marked on its spectrum by where it sits compared with the answer. After four guesses comes a final guess with all four showing. Any word the game knows (200,000 of them) can be guessed.
+
+**Darts** is the comparison game, built on the same data. Two of the day's spectrums become the axes of a dartboard with a grid over it, and a target is set at a random point (seeded by the date, so everyone gets the same one). Each word thrown lands where it sits on both spectrums and scores by its distance from the target: 100 for a bullseye, falling to 0 one unit away. Five darts, best dart counts. After the daily game, "New target" gives unseeded practice targets on the same board.
 
 The site is completely static, so it can be hosted anywhere for free (GitHub Pages, Netlify, …). All the word understanding happens in `build.py`, which pre-scores the whole vocabulary for every puzzle and splits it into 256 small files per puzzle. A guess fetches only the few-KB file its word lives in.
 
 ## Files
 
-- `index.html`, `game.js` — the game. No build step; serve the folder over http.
+- `index.html` — both games and the tab switcher. No build step; serve the folder over http.
+- `game.js` — Spectrum. `darts.js` — Darts. Each loads the day's puzzle on its own and they share nothing but the data files.
 - `puzzles/src/categories.json` — each weekday's category, the seed words that define what fits it, and its bank of spectrums with anchor words.
 - `puzzles/src/puzzles.json` — the puzzles: an answer and four spectrums from the category's bank.
 - `build.py` — generates `puzzles/<id>/…` and `puzzles/index.json` (the day-by-day schedule).
@@ -37,4 +42,6 @@ Add an entry to `puzzles/src/puzzles.json` (answer must be a single word the vec
 
 ## Scoring
 
-`scoreGame()` at the top of `game.js` is the one place the rule lives: the closest guess's mean gap from the answer across the revealed spectrums, mapped to 0–100. Only the exact answer scores 100.
+Spectrum: `scoreGame()` at the top of `game.js` is the one place the rule lives: the closest guess's mean gap from the answer across the revealed spectrums, mapped to 0–100. Only the exact answer scores 100.
+
+Darts: `scoreDart()` at the top of `darts.js`, with the bull radius, target radius and grid spacing as constants beside it.
