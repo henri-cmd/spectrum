@@ -260,7 +260,20 @@ body[data-family="console"] details p { margin: 8px 0 0; }
 
 @media (max-width: 960px) {
   body[data-tab="darts"][data-family="console"] main { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 14px; padding: 12px;
-    grid-template-areas: "head" "status" "scope" "command" "timer" "category" "log" "axes" "manual" "settings"; padding-bottom: 56px; }
+    grid-template-areas: "head" "status" "timer" "scope" "command" "category" "log" "axes" "manual" "settings"; padding-bottom: 120px; }
+  /* The timer pins under the header as the page scrolls, as one short line. */
+  body[data-family="console"] .blk-timer { position: sticky; top: 6px; z-index: 20; padding: 24px 16px 10px; }
+  body[data-family="console"] .blk-timer .timer { flex-direction: row; align-items: baseline; gap: 14px; }
+  body[data-family="console"] .blk-timer .clock { font-size: 36px; }
+  body[data-family="console"] .blk-timer .times { display: none; }
+  /* The word input is a short chin fixed to the bottom of the screen. */
+  body[data-family="console"] .blk-command { position: fixed; left: 8px; right: 8px; bottom: 8px; padding: 14px 18px; z-index: 30; min-height: 0; }
+  body[data-family="console"] .blk-command::before { inset: 6px; border-radius: 8px / 12px; }
+  body[data-family="console"] .blk-command .crt-lines { inset: 6px; border-radius: 8px / 12px; }
+  body[data-family="console"] #d-guess { font-size: 28px; padding: 2px 0; }
+  body[data-family="console"] .views, body[data-family="console"] .themes { bottom: 86px; }
+  body[data-family="console"] .blk-timer, body[data-family="console"] .blk-command, body[data-family="console"] .blk-category { min-height: 0 !important; }
+  body[data-family="console"] .blk-category { padding: 26px 16px 10px; } body[data-family="console"] .cat-name { font-size: 28px; }
   body[data-family="console"] .blk-axes { min-height: 420px; }
   body[data-family="console"] .stage { width: 100%; height: auto; aspect-ratio: 1; }
   body[data-family="console"] .blk { min-height: 130px; }
