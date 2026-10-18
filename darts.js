@@ -9,9 +9,11 @@
 const ROUNDS = 6;
 const ROUND_SECONDS = 30;     // the countdown for each round
 const URGENT_SECONDS = 5;     // the console goes red from here
-const RINGS = [[0.1, 50], [0.2, 25], [0.3, 10], [0.42, 5]]; // [radius in units, points], bull first
-const MIN_R = 0.3, MAX_R = 0.75;  // random targets sit in this band, clear of the centre bull
-const REACH = 0.2;            // a target must have a curated word inside its 25-point ring
+const MAX_POINTS = 50;        // a word on the dot scores this
+const FALLOFF = 1.0;          // points fall to zero this many units from the dot
+const BULL = 0.1;             // within this distance counts as a bullseye
+const MIN_R = 0.3, MAX_R = 0.75;  // random targets sit in this band, clear of the centre
+const REACH = 0.2;            // a target must have a curated word within this distance
 const KINDS = ['target', 'target', 'target', 'centre', 'reverse', 'boss'];
 const SHARDS = 256;
 const FIT_THRESHOLD = 25;     // category fit is 0..100; lenient so real words are rarely refused
@@ -20,15 +22,15 @@ const GRID = 0.25;            // matrix spacing, in units
 const LABEL_GAP = 12;         // axis words sit this far inside the rim
 
 // ---- Scoring: the one place to change the rule ----
-const ringPoints = d => (RINGS.find(([r]) => d <= r) || [0, 0])[1];
+const pointsFor = d => Math.round(MAX_POINTS * Math.max(0, 1 - d / FALLOFF)); // straight line from the dot outwards
 const timeBonus = (points, secondsLeft) => points > 0 ? Math.round(secondsLeft) : 0; // a point per second left, hits only
-const bullseye = d => d <= RINGS[0][0];
+const bullseye = d => d <= BULL;
 
 // ---- Looks: the Graphite console (Abyss survives behind ?theme=abyss) ----
 const THEMES = {
-  graphite: { disc: '#0a1a11', grid: '#16412b', axis: '#3f8b63', rings: ['#eafff2', '#a7ecc6', '#86d8a8', '#3f8b63'], ringEdge: '#06090a', ringText: '#c9f5db', ringTextBull: '#06090a',
+  graphite: { disc: '#0a1a11', grid: '#16412b', axis: '#3f8b63', rings: ['#eafff2', '#a7ecc6', '#86d8a8', '#3f8b63'], ringText: '#c9f5db', target: '#4fc3ff', targetDim: '#2b6f93',
               past: '#3f8b63', pastText: '#86d8a8', answer: '#d9a441', leader: '#a7ecc6', ink: '#06090a' },
-  abyss:    { disc: '#040c07', grid: '#0f2a1c', axis: '#245c3f', rings: ['#ffffff', '#8ff0b8', '#5fbf8a', '#245c3f'], ringEdge: '#020403', ringText: '#d6ffe6', ringTextBull: '#04070a',
+  abyss:    { disc: '#040c07', grid: '#0f2a1c', axis: '#245c3f', rings: ['#ffffff', '#8ff0b8', '#5fbf8a', '#245c3f'], ringText: '#d6ffe6', target: '#5ccfff', targetDim: '#245a78',
               past: '#245c3f', pastText: '#5fbf8a', answer: '#c9933a', leader: '#8ff0b8', ink: '#020403' },
 };
 let theme = THEMES.graphite;
@@ -117,24 +119,15 @@ async function lookup(word, ci) {
 
 // ---- Scope ----
 function consoleTargetSvg(x, y, n, live) {
-  const outer = RINGS[RINGS.length - 1][0] * R, bull = RINGS[0][0] * R;
   if (!live) {
-    return `<g class="target past"><circle cx="${x}" cy="${y}" r="${outer}" fill="none" stroke="${theme.past}" stroke-width="1" stroke-dasharray="3 7" opacity="0.7"/>` +
-           `<circle cx="${x}" cy="${y}" r="${bull * 0.45}" fill="${theme.past}" opacity="0.8"/>` +
-           `<text x="${x}" y="${y - bull - 6}" font-size="14" fill="${theme.past}" text-anchor="middle">${n}</text></g>`;
+    return `<g class="target past"><circle cx="${x}" cy="${y}" r="4" fill="${theme.targetDim}"/>` +
+           `<text x="${x}" y="${y - 10}" font-size="13" fill="${theme.targetDim}" text-anchor="middle">${n}</text></g>`;
   }
-  const [bullCol, c25, c10, c5] = theme.rings;
-  let s = `<g class="target live"><circle class="pulse" cx="${x}" cy="${y}" r="${outer}" fill="none" stroke="${c25}" stroke-width="1.5"/>`;
-  [[RINGS[3][0], RINGS[3][1], c5, '6 5', 0.5], [RINGS[2][0], RINGS[2][1], c10, 'none', 0.7], [RINGS[1][0], RINGS[1][1], c25, 'none', 0.85]].forEach(([r, pts, col, dash, op]) => {
-    s += `<circle cx="${x}" cy="${y}" r="${r * R}" fill="none" stroke="${col}" stroke-width="1" stroke-dasharray="${dash}" opacity="${op}"/>`;
-    s += `<text x="${x}" y="${y - r * R + 14}" font-size="12" fill="${theme.ringText}" text-anchor="middle" opacity="0.9">${pts}</text>`;
-  });
-  s += `<circle cx="${x}" cy="${y}" r="${bull}" fill="${c25}" fill-opacity="0.1" stroke="${bullCol}" stroke-width="1.6"/>`;
-  s += `<text x="${x}" y="${y - bull + 14}" font-size="12" fill="${theme.ringText}" text-anchor="middle" opacity="0.9">${RINGS[0][1]}</text>`;
-  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) s += `<line x1="${x + dx * bull * 1.3}" y1="${y + dy * bull * 1.3}" x2="${x + dx * bull * 2.1}" y2="${y + dy * bull * 2.1}" stroke="${bullCol}" stroke-width="1" opacity="0.7"/>`;
-  s += `<circle class="bull" cx="${x}" cy="${y}" r="${bull * 0.4}" fill="${bullCol}"/>`;
-  s += `<text x="${x}" y="${y + bull + 16}" font-size="12" fill="${theme.ringText}" text-anchor="middle" letter-spacing="2">T${n}</text></g>`;
-  return s;
+  const ring = FALLOFF * R * 0.5; // the pulse runs out to half the fall-off distance
+  return `<g class="target live"><circle class="pulse" cx="${x}" cy="${y}" r="${ring}" fill="none" stroke="${theme.target}" stroke-width="2"/>` +
+         `<circle cx="${x}" cy="${y}" r="16" fill="${theme.target}" fill-opacity="0.12"/>` +
+         `<circle class="dot" cx="${x}" cy="${y}" r="7" fill="${theme.target}"/>` +
+         `<text x="${x}" y="${y + 30}" font-size="12" fill="${theme.target}" text-anchor="middle" letter-spacing="2">T${n}</text></g>`;
 }
 function returnSvg(x, y, faded) {
   return `<g opacity="${faded ? 0.6 : 1}"><circle cx="${x}" cy="${y}" r="11" fill="none" stroke="${theme.pastText}" stroke-width="1.2"/><circle cx="${x}" cy="${y}" r="4.5" fill="${theme.ringText}"/></g>`;
@@ -233,7 +226,7 @@ function renderSide() {
     const tag = kd === 'centre' ? ' · centre' : kd === 'reverse' ? ' · reverse' : kd === 'boss' ? ' · boss' : '';
     if (r) {
       const what = r.kind === 'boss' ? `${r.hits.length} hit${r.hits.length === 1 ? '' : 's'}` : r.kind === 'reverse' ? esc(r.word) : (r.word ? esc(r.word) : 'no answer');
-      const detail = r.kind === 'boss' ? `${r.hits.map(h => `${esc(h.word)} ${h.points}`).join(' · ') || 'nothing landed'}` : r.word ? `${r.points} ring + ${r.bonus} time · ${fmt(r.seconds)}` : `time up`;
+      const detail = r.kind === 'boss' ? `${r.hits.map(h => `${esc(h.word)} ${h.points}`).join(' · ') || 'nothing landed'}` : r.word ? `${r.points} hit + ${r.bonus} time · ${fmt(r.seconds)}` : `time up`;
       return `<li class="done"><span class="n">${k + 1}</span><span class="w">${esc(name)}${tag} · ${what}</span><span class="s">${r.score}</span><span class="brg">${detail}</span></li>`;
     }
     if (k === roundIdx && phase === 'playing') return `<li class="cur"><span class="n">${k + 1}</span><span class="w">${esc(name)}${tag}</span><span class="s"></span><span class="brg">${kd === 'reverse' ? `where is ${esc(reverseWord.word)}?` : brgRng(targets[k])}</span></li>`;
@@ -265,7 +258,7 @@ function renderAxes() {
       out += `<line x1="${x}" y1="${py(tv)}" x2="${x}" y2="${py(cl)}" stroke="${theme.leader}" stroke-width="3" stroke-opacity="0.45"/><circle cx="${x}" cy="${py(cl)}" r="5" fill="${theme.leader}"/>`;
       out += `<text x="${x + 14}" y="${(py(tv) + py(cl)) / 2 + 4}" font-size="11" fill="${theme.answer}">${Math.abs(gap) < 0.12 ? 'ON' : `${gap > 0 ? '+' : '−'}${Math.abs(gap).toFixed(2)}`}</text>`;
     }
-    return out + `<circle cx="${x}" cy="${py(tv)}" r="7" fill="none" stroke="${theme.rings[0]}" stroke-width="1.4"/>`;
+    return out + `<circle cx="${x}" cy="${py(tv)}" r="6" fill="${theme.target}"/>`;
   });
   $('d-axes').innerHTML = rows.join('') + `<text x="150" y="508" text-anchor="middle" font-size="10" letter-spacing="1" fill="${theme.axis}">○ ${kd === 'reverse' ? 'TRUE' : 'TARGET'}   ● ${kd === 'reverse' ? 'YOUR TAP' : 'YOUR WORD'}</text>`;
 }
@@ -274,7 +267,7 @@ function renderAxes() {
 function answers() {
   return targets.map((tg, k) => {
     if (!tg) return null;
-    const hits = curatedWords(catOrder[k]).map(w => ({ ...w, d: dist(w, tg), points: ringPoints(dist(w, tg)) })).filter(w => w.points > 0).sort((a, b) => a.d - b.d);
+    const hits = curatedWords(catOrder[k]).map(w => ({ ...w, d: dist(w, tg), points: pointsFor(dist(w, tg)) })).filter(w => w.points > 0).sort((a, b) => a.d - b.d);
     return { hits: hits.slice(0, 4), best: hits[0] };
   });
 }
@@ -312,7 +305,7 @@ function finishRound(result) {
   showInput(false);
   const next = roundIdx + 1 < ROUNDS ? `Press Enter for round ${roundIdx + 2}.` : 'Press Enter for the result.';
   const line = result.kind === 'boss' ? `Boss: ${result.hits.length} hit${result.hits.length === 1 ? '' : 's'} for ${result.score} pts.`
-    : !result.word ? 'Time up. 0 pts.' : `${result.word} · ${result.points} ring + ${result.bonus} time = ${result.score} pts.`;
+    : !result.word ? 'Time up. 0 pts.' : `${result.word} · ${result.points} hit + ${result.bonus} time = ${result.score} pts.`;
   say(`${line}  ${next}`); note('');
   document.body.classList.remove('urgent');
   render(); save();
@@ -338,18 +331,18 @@ async function submitWord() {
   if (!entry) { pending = false; return note(`"${word}" isn't a word I know.`); }
   if (entry.fit < (cat(roundIdx).threshold ?? FIT_THRESHOLD)) { pending = false; return note(`"${word}" doesn't look like ${cat(roundIdx).name.toLowerCase()} to me.`); }
   $('d-guess').value = ''; placeCursor(); note('');
-  const tg = targets[roundIdx], d = dist(entry, tg), points = ringPoints(d);
+  const tg = targets[roundIdx], d = dist(entry, tg), points = pointsFor(d);
   pingSound();
   await animatePing(entry);
   if (kd === 'boss') {
-    bossHits.push({ word, x: entry.x, y: entry.y, points });
+    bossHits.push({ word, x: entry.x, y: entry.y, points, d });
     pending = false;
     note(points ? `${word} · ${points} pts${bullseye(d) ? ' · bullseye' : ''}` : `${word} · missed`);
     if (remaining() <= 0) return timeOut();
     render(); return;
   }
   const bonus = timeBonus(points, ROUND_SECONDS - secondsAt);
-  finishRound({ kind: kd, cat: ci, word, x: entry.x, y: entry.y, points, bonus, score: points + bonus, seconds: Math.round(secondsAt * 10) / 10 });
+  finishRound({ kind: kd, cat: ci, word, x: entry.x, y: entry.y, d, points, bonus, score: points + bonus, seconds: Math.round(secondsAt * 10) / 10 });
 }
 
 // The reverse round: a tap on the scope is the answer.
@@ -360,16 +353,16 @@ function scopeTap(e) {
   const px = (e.clientX - box.left - ox) * scale, py = (e.clientY - box.top - oy) * scale;
   const click = { x: (px - C) / R, y: (C - py) / R };
   if (Math.hypot(click.x, click.y) > 1.05) return note('Tap inside the scope.');
-  const secondsAt = Math.min(ROUND_SECONDS, elapsed()), d = dist(click, reverseWord), points = ringPoints(d), bonus = timeBonus(points, ROUND_SECONDS - secondsAt);
+  const secondsAt = Math.min(ROUND_SECONDS, elapsed()), d = dist(click, reverseWord), points = pointsFor(d), bonus = timeBonus(points, ROUND_SECONDS - secondsAt);
   pingSound();
-  finishRound({ kind: 'reverse', cat: catOrder[roundIdx], word: reverseWord.word, x: reverseWord.x, y: reverseWord.y, click, points, bonus, score: points + bonus, seconds: Math.round(secondsAt * 10) / 10 });
+  finishRound({ kind: 'reverse', cat: catOrder[roundIdx], word: reverseWord.word, x: reverseWord.x, y: reverseWord.y, click, d, points, bonus, score: points + bonus, seconds: Math.round(secondsAt * 10) / 10 });
 }
 
 function endGame() {
   phase = 'over';
   showInput(false); say('');
   document.body.classList.add('d-over'); document.body.classList.remove('urgent');
-  const sum = total(), bulls = rounds.filter(r => r && r.kind !== 'boss' && r.points === RINGS[0][1]).length;
+  const sum = total(), bulls = rounds.filter(r => r && r.kind !== 'boss' && r.d !== undefined && bullseye(r.d)).length + rounds.filter(r => r && r.kind === 'boss').reduce((n, r) => n + r.hits.filter(h => bullseye(h.d)).length, 0);
   $('d-result').textContent = `Sonar #${dayNumber}: ${sum} points${bulls ? `, ${bulls} bullseye${bulls > 1 ? 's' : ''}` : ''}.`;
   $('d-share-text').textContent = `Sonar #${dayNumber} · ${sum} pts · ${rounds.map(r => r ? r.score : 0).join(' ')}`;
   $('d-share').hidden = false;

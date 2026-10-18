@@ -201,8 +201,8 @@ body[data-family="console"] .stage svg .bearing { font-size: 14px; fill: var(--g
 body[data-family="console"] .stage svg .corner { font-size: 14px; fill: var(--g2); letter-spacing: 0.14em; text-transform: uppercase; }
 body[data-family="console"] .stage svg .sweep { transform-origin: 300px 300px; animation: sweep 6s linear infinite; }
 body[data-family="console"] .stage svg .target.live .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2.2s ease-out infinite; }
-body[data-family="console"] .stage svg .target.live .bull { animation: bull 2.2s ease-in-out infinite; }
-@keyframes pulse { 0% { transform: scale(0.22); opacity: 0.8; } 70% { opacity: 0.2; } 100% { transform: scale(1.05); opacity: 0; } }
+body[data-family="console"] .stage svg .target.live .dot { animation: bull 2.2s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(79, 195, 255, 0.9)); }
+@keyframes pulse { 0% { transform: scale(0.1); opacity: 0.9; } 70% { opacity: 0.25; } 100% { transform: scale(1); opacity: 0; } }
 @keyframes bull { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 body[data-family="console"] .ping { border: 1.5px solid var(--g3); box-shadow: 0 0 12px var(--g2); z-index: 4; }
 body[data-family="console"] .flash { background: var(--bull); box-shadow: 0 0 18px var(--g3); z-index: 4; }
