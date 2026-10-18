@@ -368,6 +368,14 @@ function renderSide() {
   if (!theme.console || !puzzle) return;
   const cur = over ? -1 : round(), last = throws[throws.length - 1], sum = total(throws);
   $('d-status').textContent = over ? `Final ${sum} / ${MAX_SCORE}` : `Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS} · Score ${sum} / ${MAX_SCORE}`;
+  $('d-rounds').innerHTML = targets.map((t, k) => {
+    const th = throws[k], cls = k === cur ? 'cur' : th ? 'done' : '';
+    const status = th ? `${esc(th.word)} · ${th.score} pts` : k === cur ? (awaiting ? 'plotted' : 'tracking') : 'standby';
+    return `<li class="${cls}"><span>Target ${k + 1}</span><span>${status}</span></li>`;
+  }).join('');
+  const best = throws.reduce((a, b) => !a || b.score > a.score ? b : a, null);
+  $('d-score').innerHTML = `<dt>Round</dt><dd>${Math.min(over ? ROUNDS : cur + 1, ROUNDS)} / ${ROUNDS}</dd><dt>Score</dt><dd>${sum} / ${MAX_SCORE}</dd>` +
+    `<dt>Bullseyes</dt><dd>${throws.filter(t => t.score === RINGS[0][1]).length}</dd><dt>Best</dt><dd>${best ? `${esc(best.word)} ${best.score}` : '—'}</dd>`;
   const tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
   $('d-detail').innerHTML = over ? `All ${ROUNDS} targets resolved. Final score <b>${sum}</b> of ${MAX_SCORE}.`
     : awaiting ? `Target ${throws.length} · <b>${esc(last.word)}</b>\n${brgRng(last)} · <b>${last.score} pts</b>\n${hint(last, targets[throws.length - 1])}`

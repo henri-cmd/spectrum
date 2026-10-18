@@ -108,13 +108,21 @@
       <div class="blk blk-contacts" data-title="Log">
         <ol id="d-readout" class="readout"></ol>
       </div>
+      <div class="blk blk-rounds sonar-only" data-title="Targets">
+        <ol id="d-rounds" class="rounds"></ol>
+      </div>
+      <div class="blk blk-tally sonar-only" data-title="Score">
+        <dl id="d-score" class="score"></dl>
+      </div>
       <div class="blk blk-details" data-title="Analysis">
         <div id="d-detail" class="detail"></div>
-        <svg id="d-axes" class="sonar-only" viewBox="0 0 300 110" aria-label="Where the latest word sat on each spectrum"></svg>
         <div id="d-reveal-wrap" hidden>
           <p class="legend">What would have hit each target:</p>
           <ol id="d-reveal" class="readout"></ol>
         </div>
+      </div>
+      <div class="blk blk-axes sonar-only" data-title="Axis analysis">
+        <svg id="d-axes" viewBox="0 0 300 110" aria-label="Where the latest word sat on each spectrum"></svg>
       </div>
       <div class="blk blk-score" data-title="Result">
         <p id="d-result" class="result"></p>
