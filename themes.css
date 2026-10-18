@@ -102,7 +102,7 @@ body[data-theme="saloon"] #tab-darts .panel b { color: var(--fg); }
 body[data-theme="graphite"] {
   --ink: #06090a; --panel: #15171a; --panel2: #1b1e22; --bz: #2a2f35; --lbl: #6b7480; --head-fg: #aeb7bf;
   --g0: #06090a; --g1: #16412b; --g2: #3f8b63; --g3: #86d8a8; --g4: #c9f5db; --amber: #d9a441; --bull: #eafff2;
-  --font: 'IBM Plex Mono', monospace; --weight: 400; --clock-weight: 500;
+  --font: 'VT323', monospace; --label-font: 'Share Tech Mono', monospace; --weight: 400; --clock-weight: 400;
   --glass: radial-gradient(ellipse at 50% 40%, #0c1611 0%, #090e0b 60%, #06090a 100%);
   --glass-shadow: inset 0 0 0 1px #0b0d10, inset 0 0 26px rgba(0, 0, 0, 0.65);
   --bezel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -113,17 +113,17 @@ body[data-theme="graphite"] {
 body[data-theme="abyss"] {
   --ink: #020403; --panel: #050607; --panel2: #0a0c0e; --bz: #15191c; --lbl: #3d454c; --head-fg: #8b949e;
   --g0: #020403; --g1: #0e2017; --g2: #245c3f; --g3: #5fbf8a; --g4: #d6ffe6; --amber: #c9933a; --bull: #ffffff;
-  --font: 'JetBrains Mono', 'IBM Plex Mono', monospace; --weight: 300; --clock-weight: 300;
+  --font: 'VT323', monospace; --label-font: 'Share Tech Mono', monospace; --weight: 400; --clock-weight: 400;
   --glass: radial-gradient(ellipse at 50% 45%, #07140d 0%, #040a07 55%, #020403 100%);
   --glass-shadow: inset 0 0 0 1px #0b0e10, inset 0 0 40px 10px rgba(0, 0, 0, 0.85);
   --bezel-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   --status-box: 0; --status-bg: transparent; --head-border: 0; --head-bg: transparent;
-  background: #030405; color: var(--g3); font-family: var(--font); font-weight: 300;
+  background: #030405; color: var(--g3); font-family: var(--font);
 }
 body[data-tab="darts"][data-family="console"] main { max-width: none; padding: 14px; height: 100vh; box-sizing: border-box; display: grid; gap: 14px; /* a fixed height: the fr rows split it and each screen scrolls inside */
   grid-template-columns: minmax(240px, 1fr) minmax(0, 2.4fr) minmax(240px, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto auto;
-  grid-template-areas: "head head head" "timer scope axes" "log scope axes" "log scope manual" "command command command"; padding-bottom: 44px; }
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;
+  grid-template-areas: "head head head" "category scope axes" "timer scope axes" "log scope axes" "log scope manual" "log scope settings" "command command command"; padding-bottom: 44px; }
 body[data-tab="darts"][data-family="console"] header, body[data-family="console"] #tab-darts, body[data-family="console"] .panel { display: contents; }
 body[data-family="console"] .actor, body[data-family="console"] .dart, body[data-family="console"] .mug, body[data-family="console"] .bottle, body[data-family="console"] .prompt, body[data-family="console"] .message,
 body[data-family="console"] #d-start, body[data-family="console"] #d-nextp, body[data-family="console"] #d-submit, body[data-family="console"] .blk-command .legend { display: none !important; }
@@ -132,13 +132,24 @@ body[data-family="console"] #d-start, body[data-family="console"] #d-nextp, body
 body[data-family="console"] .blk, body[data-family="console"] .stage {
   position: relative; border-radius: 3px; background: var(--panel); border: 1px solid var(--bz); box-shadow: var(--bezel-shadow);
   color: var(--g3); min-height: 0; min-width: 0; }
-body[data-family="console"] .blk { padding: 34px 20px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; overflow: hidden; font-weight: var(--weight); }
+body[data-family="console"] .blk { padding: 34px 20px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 18px; overflow: hidden; font-weight: var(--weight); }
 body[data-family="console"] .blk > * { position: relative; z-index: 1; min-height: 0; margin: 0; }
 body[data-family="console"] .blk > ol, body[data-family="console"] .blk > div, body[data-family="console"] .blk > details { overflow: auto; }
-body[data-family="console"] .blk::before, body[data-family="console"] .stage::before { content: ''; position: absolute; inset: 24px 8px 8px; border-radius: 2px; z-index: 0; background: var(--glass); box-shadow: var(--glass-shadow); }
-body[data-family="console"] .stage::before { inset: 8px; }
-body[data-family="console"] .blk::after { content: attr(data-title); position: absolute; top: 7px; left: 10px; font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--lbl); z-index: 1; }
-body[data-family="console"] .blk-timer { grid-area: timer; } body[data-family="console"] .blk-contacts { grid-area: log; }
+body[data-family="console"] .blk::before, body[data-family="console"] .stage::before { content: ''; position: absolute; inset: 24px 8px 8px; border-radius: 10px / 14px; z-index: 0; background: var(--glass); box-shadow: var(--glass-shadow); }
+body[data-family="console"] .stage::before { inset: 8px; border-radius: 16px / 18px; }
+/* CRT: curved glass (a bulge from the gloss and the heavier corner vignette), scanlines over the content, a slow flicker. */
+body[data-family="console"][data-crt="on"] .blk::before, body[data-family="console"][data-crt="on"] .stage::before {
+  background: radial-gradient(ellipse 130% 60% at 50% -18%, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 45%, transparent 62%), var(--glass);
+  box-shadow: var(--glass-shadow), inset 0 0 60px 18px rgba(0, 0, 0, 0.55); animation: flicker 9s steps(1) infinite; }
+body[data-family="console"][data-crt="on"] .blk .crt-lines, body[data-family="console"][data-crt="on"] .stage .crt-lines { display: block; }
+body[data-family="console"] .crt-lines { display: none; position: absolute; inset: 24px 8px 8px; border-radius: 10px / 14px; z-index: 3; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.35) 100%); }
+body[data-family="console"] .stage .crt-lines { inset: 8px; border-radius: 16px / 18px; }
+@keyframes flicker { 0%, 100% { opacity: 1; } 29% { opacity: 0.975; } 30% { opacity: 1; } 61% { opacity: 0.985; } 62% { opacity: 1; } 84% { opacity: 0.965; } 85% { opacity: 1; } }
+body[data-family="console"][data-sweep="off"] .stage svg .sweep { display: none; }
+body[data-family="console"] .blk::after { content: attr(data-title); position: absolute; top: 7px; left: 10px; font: 10px/1 var(--label-font); letter-spacing: 0.26em; text-transform: uppercase; color: var(--lbl); z-index: 1; }
+body[data-family="console"] .blk-category { grid-area: category; } body[data-family="console"] .blk-timer { grid-area: timer; } body[data-family="console"] .blk-contacts { grid-area: log; }
+body[data-family="console"] .blk-settings { grid-area: settings; }
 body[data-family="console"] .blk-axes { grid-area: axes; } body[data-family="console"] .blk-manual { grid-area: manual; }
 body[data-family="console"] .blk-command, body[data-family="console"] .blk-score { grid-area: command; }
 body[data-family="console"] .blk-score { display: none; } /* the result takes the terminal's place when the game is over */
@@ -148,18 +159,19 @@ body.d-over[data-family="console"] .blk-score { display: flex; } body.d-over[dat
 body[data-family="console"] .sign { grid-area: head; display: flex; align-items: center; gap: 24px; padding: 10px 16px; margin: 0; border: var(--head-border); border-radius: 3px; background: var(--head-bg); }
 body[data-theme="abyss"] .sign { border-bottom: 1px solid var(--bz); border-radius: 0; }
 body[data-family="console"] .sign::before { display: none; }
-body[data-family="console"] .sign h1 { font: var(--weight) 15px/1 var(--font); letter-spacing: 0.4em; text-transform: uppercase; color: var(--head-fg); margin: 0; display: flex; align-items: center; gap: 12px; }
+body[data-family="console"] .sign h1 { font: 14px/1 var(--label-font); letter-spacing: 0.4em; text-transform: uppercase; color: var(--head-fg); margin: 0; display: flex; align-items: center; gap: 12px; }
 body[data-family="console"] .sign h1::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 8px var(--g3); animation: blink 2.4s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0.35; } }
-body[data-family="console"] .sign .sub { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lbl); margin: 0; }
-body[data-family="console"] .sign .status { margin: 0 0 0 auto; font-size: 14px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g4); white-space: nowrap; padding: 6px 12px; border: var(--status-box); border-radius: 3px; background: var(--status-bg); }
+body[data-family="console"] .sign .sub { font: 11px/1.4 var(--label-font); letter-spacing: 0.16em; text-transform: uppercase; color: var(--lbl); margin: 0; }
+body[data-family="console"] .sign .status { margin: 0 0 0 auto; font-size: 19px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g4); white-space: nowrap; padding: 6px 12px; border: var(--status-box); border-radius: 3px; background: var(--status-bg); }
 
 /* The scope: flat glass; the SVG draws the round display, bearing ring and corner readouts. */
 body[data-family="console"] .stage { grid-area: scope; width: 100%; height: 100%; margin: 0; overflow: hidden; }
 body[data-family="console"] .stage svg { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); z-index: 2; shape-rendering: geometricPrecision; }
 body[data-family="console"] .stage svg text { font-family: var(--font); }
-body[data-family="console"] .stage svg .axis { font-size: 21px; fill: var(--g4); letter-spacing: 0.14em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
-body[data-family="console"] .stage svg .tag { font-size: 18px; fill: var(--g4); letter-spacing: 0.08em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
+body[data-family="console"] .stage svg .bearing, body[data-family="console"] .stage svg .corner { font-family: var(--label-font); }
+body[data-family="console"] .stage svg .axis { font-size: 26px; fill: var(--g4); letter-spacing: 0.14em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
+body[data-family="console"] .stage svg .tag { font-size: 22px; fill: var(--g4); letter-spacing: 0.08em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
 body[data-family="console"] .stage svg .tag.ans { fill: var(--amber); }
 body[data-family="console"] .stage svg .bearing { font-size: 14px; fill: var(--g2); letter-spacing: 0.08em; }
 body[data-family="console"] .stage svg .corner { font-size: 14px; fill: var(--g2); letter-spacing: 0.14em; text-transform: uppercase; }
@@ -176,7 +188,7 @@ body[data-family="console"] .stage.thunk svg { animation: none; }
 body[data-family="console"] .views, body[data-family="console"] .themes { position: fixed; bottom: 8px; display: flex; gap: 4px; padding: 4px; margin: 0; border: 0; border-radius: 3px; background: rgba(0, 0, 0, 0.4); opacity: 0.5; z-index: 10; transition: opacity 0.2s; }
 body[data-family="console"] .views:hover, body[data-family="console"] .themes:hover { opacity: 1; }
 body[data-family="console"] .views { left: 14px; } body[data-family="console"] .themes { left: 196px; }
-body[data-family="console"] button { font-family: var(--font); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8b949e; background: #0f1316; border: 1px solid #2a3036; border-radius: 2px; padding: 5px 9px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+body[data-family="console"] button { font-family: var(--label-font); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8b949e; background: #0f1316; border: 1px solid #2a3036; border-radius: 2px; padding: 5px 9px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
 body[data-family="console"] button::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #2a3138; flex: none; }
 body[data-family="console"] button:hover { color: var(--g4); }
 body[data-family="console"] button[aria-pressed="true"], body[data-family="console"] button.again, body[data-family="console"] .share button { color: var(--g4); }
@@ -187,55 +199,65 @@ body[data-family="console"] .blk-command { padding: 22px 30px; justify-content: 
 body[data-family="console"] .blk-command::before { inset: 8px; }
 body[data-family="console"] .blk-command::after { display: none; }
 body[data-family="console"] form { display: flex; justify-content: center; margin: 0; }
-body[data-family="console"] input { width: 100%; max-width: 760px; min-width: 0; background: transparent; border: 0; border-radius: 0; color: var(--g4); font: var(--weight) 34px/1.2 var(--font); text-align: center; text-transform: uppercase; letter-spacing: 0.18em; padding: 6px 0; caret-color: var(--g3); outline: none; text-shadow: 0 0 10px rgba(95, 191, 138, 0.5); }
-body[data-family="console"] input::placeholder { color: var(--g2); text-shadow: none; text-transform: uppercase; letter-spacing: 0.18em; }
-body[data-family="console"] input { caret-color: transparent; }
+body[data-family="console"] #d-guess { width: 100%; max-width: 760px; min-width: 0; background: transparent; border: 0; border-radius: 0; color: var(--g4); font: var(--weight) 44px/1.2 var(--font); text-align: center; text-transform: uppercase; letter-spacing: 0.18em; padding: 6px 0; caret-color: var(--g3); outline: none; text-shadow: 0 0 10px rgba(95, 191, 138, 0.5); }
+body[data-family="console"] #d-guess::placeholder { color: var(--g2); text-shadow: none; text-transform: uppercase; letter-spacing: 0.18em; }
+body[data-family="console"] #d-guess { caret-color: transparent; }
 body[data-family="console"] form { position: relative; }
 body[data-family="console"] .cursor { position: absolute; height: 3px; background: var(--g4); box-shadow: 0 0 8px var(--g3); animation: caret 1s steps(1) infinite; pointer-events: none; }
 body[data-family="console"] .cursor.empty { background: var(--g3); }
 @keyframes caret { 50% { opacity: 0; } }
 
 /* Log: every round, done / tracking / standby, with the status line above. */
-body[data-family="console"] .logstatus { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); min-height: 1.3em; margin: 0 0 6px; }
+body[data-family="console"] .logstatus { font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); min-height: 1.3em; margin: 0 0 6px; }
 body[data-family="console"] .logstatus:empty { display: none; }
-body[data-family="console"] .readout { list-style: none; margin: 0; padding: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+body[data-family="console"] .readout { list-style: none; margin: 0; padding: 0; font-size: 17px; text-transform: uppercase; letter-spacing: 0.06em; }
 body[data-family="console"] .readout li { display: grid; grid-template-columns: 2em 1fr auto; gap: 2px 10px; padding: 7px 0; border-top: 1px solid var(--g1); align-items: baseline; }
 body[data-family="console"] .readout li:first-child { border-top: 0; }
 body[data-family="console"] .readout .n { color: var(--g2); } body[data-family="console"] .readout .w { color: var(--g4); font-weight: normal; letter-spacing: 0.1em; }
 body[data-family="console"] .readout .s { color: var(--g4); text-align: right; min-width: 0; }
 body[data-family="console"] .readout .done .s::after { content: ' pts'; color: var(--g2); }
-body[data-family="console"] .readout .brg { grid-column: 2; color: var(--g2); font-size: 11px; letter-spacing: 0.08em; }
-body[data-family="console"] .readout .hint { grid-column: 2 / -1; color: var(--g3); font-size: 11px; letter-spacing: 0.04em; }
+body[data-family="console"] .readout .brg { grid-column: 2; color: var(--g2); font-size: 14px; letter-spacing: 0.08em; }
+body[data-family="console"] .readout .hint { grid-column: 2 / -1; color: var(--g3); font-size: 14px; letter-spacing: 0.04em; }
 body[data-family="console"] .readout .cur .w { color: var(--g3); } body[data-family="console"] .readout .cur .n { color: var(--g3); }
 
 /* Timer, axis charts, manual, result. */
-body[data-family="console"] .timer { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
-body[data-family="console"] .clock { font-size: 46px; font-weight: var(--clock-weight); letter-spacing: 0.06em; color: var(--g4); font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 10px rgba(95, 191, 138, 0.35); }
-body[data-family="console"] .clock-label { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--g2); }
-body[data-family="console"] .times { list-style: none; margin: 10px 0 0; padding: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
-body[data-family="console"] .times li { display: grid; grid-template-columns: 2em 1fr auto; gap: 8px; padding: 5px 0; border-top: 1px solid var(--g1); }
+body[data-family="console"] .blk-timer { padding-bottom: 14px; }
+body[data-family="console"] .timer { display: flex; flex-direction: column; gap: 2px; }
+body[data-family="console"] .clock { font-size: 52px; font-weight: var(--clock-weight); letter-spacing: 0.06em; color: var(--g4); font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 10px rgba(95, 191, 138, 0.35); }
+body[data-family="console"] .clock-label { font: 11px/1 var(--label-font); letter-spacing: 0.22em; text-transform: uppercase; color: var(--g2); }
+body[data-family="console"] .times { list-style: none; margin: 8px 0 0; padding: 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em; }
+body[data-family="console"] .times li { display: grid; grid-template-columns: 2em 1fr auto; gap: 8px; padding: 3px 0; border-top: 1px solid var(--g1); }
 body[data-family="console"] .times li:first-child { border-top: 0; }
 body[data-family="console"] .times .n { color: var(--g2); } body[data-family="console"] .times .w { color: var(--g3); } body[data-family="console"] .times .t { color: var(--g4); font-variant-numeric: tabular-nums; }
 body[data-family="console"] #d-axes { width: 100%; height: auto; display: block; overflow: visible; }
-body[data-family="console"] .blk-score .result { font-size: 20px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g4); margin: 0 0 8px; text-align: center; }
+body[data-family="console"] .category { display: flex; flex-direction: column; gap: 4px; text-transform: uppercase; }
+body[data-family="console"] .cat-name { font-size: 40px; line-height: 1; letter-spacing: 0.12em; color: var(--g4); text-shadow: 0 0 10px rgba(95, 191, 138, 0.35); }
+body[data-family="console"] .cat-axes { display: flex; flex-direction: column; font-size: 16px; letter-spacing: 0.08em; color: var(--g3); }
+body[data-family="console"] .cat-meta { font: 10px/1.4 var(--label-font); letter-spacing: 0.18em; color: var(--g2); }
+body[data-family="console"] .settings { display: flex; flex-direction: column; gap: 6px; font-size: 17px; text-transform: uppercase; letter-spacing: 0.08em; }
+body[data-family="console"] .settings label { display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--g3); }
+body[data-family="console"] .settings input { appearance: none; flex: none; width: 12px; height: 12px; padding: 0; border: 1px solid var(--g2); border-radius: 2px; margin: 0; background: transparent; cursor: pointer; }
+body[data-family="console"] .settings input:checked { background: var(--g3); box-shadow: 0 0 8px var(--g3); border-color: var(--g3); }
+body[data-family="console"] .blk-settings { padding: 30px 20px 14px; }
+body[data-family="console"] .blk-score .result { font-size: 28px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g4); margin: 0 0 8px; text-align: center; }
 body[data-family="console"] .share { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
-body[data-family="console"] .share code { font-family: var(--font); font-size: 14px; background: var(--g0); color: var(--g3); padding: 8px 10px; border: 1px solid var(--g1); }
+body[data-family="console"] .share code { font-family: var(--font); font-size: 18px; background: var(--g0); color: var(--g3); padding: 8px 10px; border: 1px solid var(--g1); }
 body[data-family="console"] #d-reveal-wrap .legend { margin: 10px 0 4px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g2); }
 body[data-family="console"] #d-reveal li { grid-template-columns: 2em 1fr; font-size: 12px; }
 body[data-family="console"] #d-reveal .hint { grid-column: 2; }
 body[data-family="console"] .blk-manual { padding: 26px 20px 12px; }
-body[data-family="console"] details { font-size: 12px; color: var(--g3); margin: 0; line-height: 1.5; }
-body[data-family="console"] summary { color: var(--g4); letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; font-size: 12px; }
+body[data-family="console"] details { font-size: 16px; color: var(--g3); margin: 0; line-height: 1.4; }
+body[data-family="console"] summary { color: var(--g4); letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; font-size: 15px; }
 body[data-family="console"] details p { margin: 8px 0 0; }
 
 @media (max-width: 960px) {
   body[data-tab="darts"][data-family="console"] main { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 14px; padding: 12px;
-    grid-template-areas: "head" "scope" "command" "timer" "log" "axes" "manual"; padding-bottom: 56px; }
+    grid-template-areas: "head" "scope" "command" "category" "timer" "log" "axes" "manual" "settings"; padding-bottom: 56px; }
   body[data-family="console"] .blk-axes { min-height: 420px; }
   body[data-family="console"] .stage { width: 100%; height: auto; aspect-ratio: 1; }
   body[data-family="console"] .blk { min-height: 130px; }
   body[data-family="console"] .sign { flex-wrap: wrap; gap: 8px 20px; }
   body[data-family="console"] .sign .status { margin-left: 0; width: 100%; white-space: normal; font-size: 13px; }
-  body[data-family="console"] input { font-size: 26px; }
+  body[data-family="console"] #d-guess { font-size: 34px; }
   body[data-family="console"] .views, body[data-family="console"] .themes { background: rgba(8, 11, 14, 0.92); opacity: 0.9; }
 }

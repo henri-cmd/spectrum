@@ -312,7 +312,8 @@ async function animateDart(landing) { // landing in board units
 async function animatePing(landing) {
   // On the console the scope fills the stage: its centre is the stage's centre and the disc spans R of the 600 box.
   const sw = stage.clientWidth, cx = sw / 2, cy = sw / 2, rim = sw * R / 600;
-  msg('Pinging…', '#5ff29a');
+  msg('Pinging…');
+  pingSound();
   await sleep(120);
   const reach = Math.min(1.45, Math.max(0.15, Math.hypot(landing.x, landing.y))); // the pulse runs out to the word, at least a little way
   const dur = 350 + 450 * reach;
@@ -353,6 +354,31 @@ guess.addEventListener('input', placeCursor);
 guess.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('d-form').requestSubmit(); } }); // the submit key is hidden on the console
 new ResizeObserver(placeCursor).observe(document.body);
 document.fonts && document.fonts.ready.then(placeCursor);
+
+// Scanline overlays for the console's screens (styled only on the console themes).
+for (const el of document.querySelectorAll('#tab-darts .blk, #tab-darts .stage')) { const d = document.createElement('div'); d.className = 'crt-lines'; d.setAttribute('aria-hidden', 'true'); el.appendChild(d); }
+
+// ---- Settings: CRT effects, the sweep, a ping sound ----
+const SETTINGS = { crt: true, sweep: true, sound: false };
+function applySettings() {
+  document.body.dataset.crt = SETTINGS.crt ? 'on' : 'off';
+  document.body.dataset.sweep = SETTINGS.sweep ? 'on' : 'off';
+  for (const k of Object.keys(SETTINGS)) $(`s-${k}`).checked = SETTINGS[k];
+  try { localStorage.setItem('darts:settings', JSON.stringify(SETTINGS)); } catch {}
+}
+try { Object.assign(SETTINGS, JSON.parse(localStorage.getItem('darts:settings')) || {}); } catch {}
+for (const k of Object.keys(SETTINGS)) $(`s-${k}`).addEventListener('change', e => { SETTINGS[k] = e.target.checked; applySettings(); });
+applySettings();
+function pingSound() { // a short falling tone, like an active sonar ping
+  if (!SETTINGS.sound) return;
+  try {
+    const ac = pingSound.ac || (pingSound.ac = new (window.AudioContext || window.webkitAudioContext)());
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+    o.type = 'sine'; o.frequency.setValueAtTime(1400, t); o.frequency.exponentialRampToValueAtTime(900, t + 0.5);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + 0.75);
+  } catch {}
+}
 
 // ---- Theme switch ----
 function applyTheme(name) {
@@ -424,6 +450,8 @@ function renderSide() {
   if (!theme.console || !puzzle) return;
   const cur = over ? -1 : round(), last = awaiting || over ? throws[throws.length - 1] : null, sum = total(throws);
   $('d-status').textContent = over ? `Final ${sum} / ${MAX_SCORE}` : `Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS} · Score ${sum} / ${MAX_SCORE}`;
+  const [X, Y] = axes.map(i => puzzle.spectrums[i]);
+  $('d-category').innerHTML = `<div class="cat-name">${esc(puzzle.category)}</div><div class="cat-axes"><span>${esc(X.low)} ↔ ${esc(X.high)}</span><span>${esc(Y.low)} ↔ ${esc(Y.high)}</span></div><div class="cat-meta">puzzle #${puzzle.number} · ${puzzle.date}</div>`;
   const tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
   renderTimes();
   renderReadout();

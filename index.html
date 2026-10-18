@@ -114,8 +114,11 @@
       <div class="blk blk-axes sonar-only" data-title="Axis analysis">
         <svg id="d-axes" viewBox="0 0 300 520" aria-label="Where the latest word sat on each spectrum"></svg>
       </div>
+      <div class="blk blk-category sonar-only" data-title="Category">
+        <div id="d-category" class="category"></div>
+      </div>
       <div class="blk blk-timer sonar-only" data-title="Timer">
-        <div class="timer"><span id="d-clock" class="clock">00:00.0</span><span id="d-clock-label" class="clock-label"></span></div>
+        <div class="timer"><span id="d-clock-label" class="clock-label"></span><span id="d-clock" class="clock">00:00.0</span></div>
         <ol id="d-times" class="times"></ol>
       </div>
       <div class="blk blk-score" data-title="Result">
@@ -133,6 +136,13 @@
           <p>Each round sets a target somewhere new on the board. Throw a word at it: the word lands where it truly sits on both spectrums, and scores the ring it lands in — 50 for the bull, then 25, 10 and 5. When you've seen where it landed, click on to the next target. Four rounds, four targets, 200 points at most. The last target is always the bull at the very centre of the board: the word that sits dead in the middle of both spectrums.</p>
           <p>The readout says which way each dart missed. At the end, the words that would have scored most on each target are revealed.</p>
         </details>
+      </div>
+      <div class="blk blk-settings sonar-only" data-title="Settings">
+        <div class="settings">
+          <label><input type="checkbox" id="s-crt" checked> CRT effects</label>
+          <label><input type="checkbox" id="s-sweep" checked> Sweep</label>
+          <label><input type="checkbox" id="s-sound"> Ping sound</label>
+        </div>
       </div>
       <div class="mug" aria-hidden="true"></div><div class="bottle" aria-hidden="true"></div>
     </div>
