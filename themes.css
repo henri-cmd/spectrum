@@ -121,7 +121,7 @@ body[data-theme="abyss"] {
   background: #030405; color: var(--g3); font-family: var(--font);
 }
 body[data-tab="darts"][data-family="console"] main { max-width: none; padding: 14px; height: 100vh; box-sizing: border-box; display: grid; gap: 14px; /* a fixed height: the fr rows split it and each screen scrolls inside */
-  grid-template-columns: minmax(240px, 1fr) minmax(0, 2.4fr) minmax(240px, 1fr);
+  grid-template-columns: minmax(240px, 1fr) minmax(0, 2.4fr) minmax(330px, 1.1fr);
   grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;
   grid-template-areas: "head head status" "timer scope axes" "category scope axes" "log scope axes" "log scope manual" "log scope settings" "command command command"; padding-bottom: 44px; }
 body[data-tab="darts"][data-family="console"] header, body[data-family="console"] #tab-darts, body[data-family="console"] .panel { display: contents; }
@@ -165,13 +165,23 @@ body[data-family="console"] .sign h1 { font: 26px/1 var(--font); letter-spacing:
 body[data-family="console"] .sign h1::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 8px var(--g3); animation: blink 2.4s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0.35; } }
 body[data-family="console"] .sign .sub { font: 17px/1.4 var(--font); letter-spacing: 0.12em; text-transform: uppercase; color: var(--g3); margin: 0; }
-body[data-family="console"] .sign .status { grid-area: status; margin: 0; padding: 16px 20px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 21px; line-height: 1.15; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g4); white-space: nowrap; }
+body[data-family="console"] .sign .status { grid-area: status; margin: 0; padding: 16px 20px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 19px; line-height: 1.15; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g4); white-space: nowrap; }
 body[data-family="console"] .sign .status .crt-lines { z-index: 3; }
-body[data-family="console"] .sign .status > span { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 2px; }
-body[data-family="console"] .sign .status b { font-weight: normal; display: block; }
+body[data-family="console"] .sign .status > span { position: relative; z-index: 1; display: flex; gap: 18px; white-space: nowrap; }
+body[data-family="console"] .sign .status b { font-weight: normal; }
 /* Countdown in its last seconds: the Timer screen's content flashes red. */
-body[data-family="console"] .blk-timer.urgent .clock, body[data-family="console"] .blk-timer.urgent .clock-label { color: #ff4a3d; text-shadow: 0 0 12px rgba(255, 74, 61, 0.6); animation: urgent 0.5s steps(1) infinite; }
+body.urgent[data-family="console"] .clock, body.urgent[data-family="console"] .clock-label { color: #ff4a3d; text-shadow: 0 0 12px rgba(255, 74, 61, 0.6); animation: urgent 0.5s steps(1) infinite; }
 @keyframes urgent { 50% { opacity: 0.25; } }
+body.urgent[data-family="console"] .blk::before, body.urgent[data-family="console"] .stage::before, body.urgent[data-family="console"] .plate::before, body.urgent[data-family="console"] .sign .status::before,
+body.urgent[data-family="console"] .blk-command::before { animation: danger 0.7s ease-in-out infinite alternate; }
+@keyframes danger { from { box-shadow: var(--glass-shadow), inset 0 0 30px 4px rgba(255, 60, 40, 0.08); } to { box-shadow: var(--glass-shadow), inset 0 0 90px 30px rgba(255, 60, 40, 0.5); } }
+body.urgent[data-family="console"] .blk, body.urgent[data-family="console"] .sign .status, body.urgent[data-family="console"] .plate { color: #ff8a7a; text-shadow: 0 0 6px rgba(255, 74, 61, 0.45); }
+body.urgent[data-family="console"] .blk::after { color: #c9533f; }
+body.urgent[data-family="console"] .stage svg { filter: drop-shadow(0 0 6px rgba(255, 74, 61, 0.55)); animation: dangerText 0.7s ease-in-out infinite alternate; }
+body.urgent[data-family="console"] #d-guess { color: #ffb0a4; text-shadow: 0 0 8px rgba(255, 74, 61, 0.6); }
+body.urgent[data-family="console"] .cursor { background: #ff6a5a; box-shadow: 0 0 8px #ff4a3d; }
+body.urgent[data-family="console"]::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 50; background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(255, 50, 30, 0.35) 100%); animation: dangerText 0.7s ease-in-out infinite alternate; }
+@keyframes dangerText { from { opacity: 0.35; } to { opacity: 1; } }
 body[data-family="console"] .readout .missed .w, body[data-family="console"] .readout .missed .brg { color: #c9933a; }
 
 /* The scope: flat glass; the SVG draws the round display, bearing ring and corner readouts. */
@@ -271,11 +281,10 @@ body[data-family="console"] details p { margin: 8px 0 0; }
   body[data-family="console"] .blk-command::before { inset: 6px; border-radius: 8px / 12px; }
   body[data-family="console"] .blk-command .crt-lines { inset: 6px; border-radius: 8px / 12px; }
   body[data-family="console"] #d-guess { font-size: 28px; padding: 2px 0; }
-  body[data-family="console"] .views, body[data-family="console"] .themes { bottom: 86px; }
   body[data-family="console"] .blk-timer, body[data-family="console"] .blk-command, body[data-family="console"] .blk-category { min-height: 0 !important; }
   body[data-family="console"] .blk-category { padding: 26px 16px 10px; } body[data-family="console"] .cat-name { font-size: 28px; }
   body[data-family="console"] .blk-axes { min-height: 420px; }
-  body[data-family="console"] .stage { width: 100%; height: auto; aspect-ratio: 1; }
+  body[data-family="console"] .stage { width: min(100%, calc(100vh - 400px)); min-width: 220px; height: auto; aspect-ratio: 1; margin: 0 auto; }
   body[data-family="console"] .blk { min-height: 130px; }
   body[data-family="console"] .plate { flex-wrap: wrap; gap: 8px 20px; }
   body[data-family="console"] .sign .status { white-space: normal; font-size: 18px; }

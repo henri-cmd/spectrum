@@ -386,7 +386,7 @@ function pingSound() { // a short falling tone, like an active sonar ping
 // ---- Theme switch ----
 function applyTheme(name) {
   if (name === 'sonar') name = 'graphite'; // the old name for the console
-  theme = THEMES[name] || THEMES.saloon;
+  theme = THEMES[name] || THEMES.graphite;
   document.body.dataset.theme = Object.keys(THEMES).find(k => THEMES[k] === theme);
   document.body.dataset.family = theme.console ? 'console' : 'saloon';
   for (const b of document.querySelectorAll('.themes button')) b.setAttribute('aria-pressed', String(THEMES[b.dataset.theme] === theme));
@@ -403,7 +403,7 @@ for (const b of document.querySelectorAll('.themes button')) b.addEventListener(
 {
   let initial = new URLSearchParams(location.search).get('theme');
   if (!initial) { try { initial = localStorage.getItem('darts:theme'); } catch {} }
-  applyTheme(initial || 'saloon');
+  applyTheme(initial || 'graphite');
 }
 
 // ---- Round timer: a stopwatch per target, shown on the console's Timer screen ----
@@ -419,7 +419,7 @@ function tick() {
   else shown = Math.max(0, ROUND_SECONDS - (times[idx] ?? 0)); // what was left when the ping went out
   $('d-clock').textContent = fmt(shown);
   $('d-clock-label').textContent = over ? 'total time' : `round ${idx + 1}`;
-  document.querySelector('.blk-timer').classList.toggle('urgent', urgent);
+  document.body.classList.toggle('urgent', urgent);
 }
 // The countdown ran out: the round is logged as a miss and the next target waits for Enter.
 function timeOut() {
@@ -437,7 +437,7 @@ function timeOut() {
 setInterval(tick, 100);
 function renderTimes() {
   $('d-times').innerHTML = times.map((t, k) => `<li><span class="n">${k + 1}</span><span class="w">${esc(throws[k] ? throws[k].word : '')}</span><span class="t">${fmt(t)}</span></li>`).join('');
-  document.querySelector('.blk-timer').classList.toggle('urgent', false);
+  document.body.classList.remove('urgent');
 }
 
 // ---- Readout ----
@@ -591,7 +591,7 @@ function endGame() {
   $('d-nextp').hidden = true;
   msg('');
   const sum = total(throws), bulls = throws.filter(t => t.score === RINGS[0][1]).length;
-  if (theme.console) document.querySelector('.blk-timer').classList.remove('urgent');
+  document.body.classList.remove('urgent');
   const clock = times.reduce((a, b) => a + b, 0);
   $('d-result').textContent = `Score ${sum} of ${MAX_SCORE}${bulls ? `, with ${bulls} bullseye${bulls > 1 ? 's' : ''}` : ''}${clock ? `, in ${fmt(clock)}` : ''}.`;
   $('d-share-text').textContent = `Darts #${puzzle.number} · ${sum}/${MAX_SCORE} · ${throws.map(t => t.score).join(' ')}`;

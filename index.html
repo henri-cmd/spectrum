@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Spectrum</title>
+<title>Sonar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=JetBrains+Mono:wght@300;400&family=Pixelify+Sans:wght@400..700&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
@@ -52,43 +52,14 @@
     <div class="sign">
       <div class="plate">
         <h1 id="title">Spectrum</h1>
-        <p id="d-sub" class="sub" hidden>Loading…</p>
+        <p id="d-sub" class="sub">Loading…</p>
       </div>
       <p id="d-status" class="status sonar-only"></p>
     </div>
-    <nav class="views" aria-label="Game">
-      <button data-tab="spectrum" aria-pressed="true">Spectrum</button>
-      <button data-tab="darts" aria-pressed="false">Darts</button>
-    </nav>
   </header>
 
-  <section id="tab-spectrum">
-    <p id="sub" class="sub">Loading…</p>
-    <svg id="chart" viewBox="0 0 600 600" aria-label="Spectrum chart"></svg>
-    <p id="legend" class="legend"></p>
-    <p id="start"><button class="go" id="go" disabled>Go</button></p>
-    <form id="guess-form" hidden>
-      <input id="guess" placeholder="Type any word…" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <button id="submit">Guess</button>
-    </form>
-    <p id="message" class="message"></p>
-    <ol id="readout" class="readout"></ol>
-    <p id="result" class="result"></p>
-    <p id="share" class="share" hidden><code id="share-text"></code><button id="copy">Copy</button></p>
-    <details>
-      <summary>How to play</summary>
-      <p>Each day there's a category and a hidden answer word. A spectrum appears, like <i>tiny ↔ huge</i>. Guess any word in the category: it's marked on the spectrum by where it sits compared with the answer.</p>
-      <p>Each guess reveals the next spectrum. After four, you make a final guess with all four showing. Five guesses in all; an exact hit ends the game straight away.</p>
-      <p>The answer is the centre dot and every line passes through it, shifted so the answer sits where it truly belongs on that spectrum. A guess's distance from the dot is how far off it was, and the side it's on says which end word it was closer to. The chart turns so the newest line is upright; the arrow keys or a click on a line turn it back.</p>
-    </details>
-  </section>
 
-  <section id="tab-darts" hidden>
-    <nav class="themes" aria-label="Look">
-      <button data-theme="saloon" aria-pressed="true">Saloon</button>
-      <button data-theme="graphite" aria-pressed="false">Graphite</button>
-      <button data-theme="abyss" aria-pressed="false">Abyss</button>
-    </nav>
+  <section id="tab-darts">
     <div class="stage" id="d-stage">
       <svg id="d-board" viewBox="0 0 600 600" aria-label="Dartboard"></svg>
       <div class="actor" id="d-actor" aria-hidden="true"></div>
@@ -151,29 +122,9 @@
   </section>
 </main>
 <script>
-// Tabs: #darts in the URL opens the dartboard; the choice is remembered.
-(() => {
-  const tabs = [...document.querySelectorAll('.views button')];
-  const names = { spectrum: 'Spectrum', darts: 'Darts' };
-  function show(tab) {
-    if (!names[tab]) tab = 'spectrum';
-    for (const b of tabs) b.setAttribute('aria-pressed', String(b.dataset.tab === tab));
-    for (const t in names) document.getElementById(`tab-${t}`).hidden = t !== tab;
-    document.getElementById('title').textContent = names[tab];
-    document.title = names[tab];
-    document.body.dataset.tab = tab;
-    document.getElementById('d-sub').hidden = tab !== 'darts';
-    if (tab === 'darts' && window.dartsApplyTheme) window.dartsApplyTheme();
-    history.replaceState(null, '', tab === 'spectrum' ? location.pathname + location.search : `#${tab}`);
-    try { localStorage.setItem('tab', tab); } catch {}
-  }
-  for (const b of tabs) b.addEventListener('click', () => show(b.dataset.tab));
-  let initial = location.hash.slice(1);
-  if (!initial) { try { initial = localStorage.getItem('tab'); } catch {} }
-  show(initial || 'spectrum');
-})();
+// This page is the Darts console; Spectrum lives at spectrum.html.
+document.body.dataset.tab = 'darts';
 </script>
-<script src="game.js"></script>
 <script src="darts.js"></script>
 </body>
 </html>
