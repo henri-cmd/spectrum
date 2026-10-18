@@ -124,22 +124,12 @@ function consoleTargetSvg(x, y, n, live) {
     return `<g class="target past"><circle cx="${x}" cy="${y}" r="4" fill="${theme.targetDim}"/>` +
            `<text x="${x}" y="${y - 10}" font-size="13" fill="${theme.targetDim}" text-anchor="middle">${n}</text></g>`;
   }
-  const ring = FALLOFF * R * 0.5; // the pulse runs out to half the fall-off distance
-  return `<g class="target live"><circle class="pulse" cx="${x}" cy="${y}" r="${ring}" fill="none" stroke="${theme.target}" stroke-width="2"/>` +
-         `<circle cx="${x}" cy="${y}" r="16" fill="${theme.target}" fill-opacity="0.12"/>` +
+  return `<g class="target live"><circle cx="${x}" cy="${y}" r="16" fill="${theme.target}" fill-opacity="0.12"/>` +
          `<circle class="dot" cx="${x}" cy="${y}" r="7" fill="${theme.target}"/>` +
          `<text x="${x}" y="${y + 30}" font-size="12" fill="${theme.target}" text-anchor="middle" letter-spacing="2">T${n}</text></g>`;
 }
 function returnSvg(x, y, faded) {
   return `<g opacity="${faded ? 0.6 : 1}"><circle cx="${x}" cy="${y}" r="11" fill="none" stroke="${theme.pastText}" stroke-width="1.2"/><circle cx="${x}" cy="${y}" r="4.5" fill="${theme.ringText}"/></g>`;
-}
-function sweepSvg() {
-  let s = '<g class="sweep">';
-  for (let k = 0; k < 8; k++) {
-    const a0 = -k * 7 * Math.PI / 180, a1 = -(k + 1) * 7 * Math.PI / 180;
-    s += `<path d="M${C},${C} L${C + R * Math.sin(a0)},${C - R * Math.cos(a0)} A${R},${R} 0 0 0 ${C + R * Math.sin(a1)},${C - R * Math.cos(a1)} Z" fill="${theme.axis}" opacity="${0.4 * (1 - k / 8)}"/>`;
-  }
-  return s + `<line x1="${C}" y1="${C}" x2="${C}" y2="${C - R}" stroke="${theme.rings[0]}" stroke-width="2" opacity="0.85"/></g>`;
 }
 function consoleSvg() {
   let s = `<circle cx="${C}" cy="${C}" r="${R + 3}" fill="none" stroke="${theme.axis}" stroke-width="1.2"/>`;
@@ -167,7 +157,6 @@ function render() {
   s += consoleSvg();
   s += '<g clip-path="url(#d-clip)">';
   for (const f of [0.25, 0.5, 0.75]) s += `<circle cx="${C}" cy="${C}" r="${R * f}" fill="none" stroke="${theme.grid}" stroke-width="2"/>`;
-  s += sweepSvg();
   for (let v = -1; v <= 1.001; v += GRID) {
     const main = Math.abs(v) < 1e-9, col = main ? theme.axis : theme.grid, w = main ? 3 : 2;
     s += `<line x1="${sx(v)}" y1="${sy(-1)}" x2="${sx(v)}" y2="${sy(1)}" stroke="${col}" stroke-width="${w}"/>`;
@@ -213,7 +202,20 @@ function render() {
   for (const l of labels) s += `<text class="${l.cls}" x="${l.tx}" y="${l.ty}" text-anchor="${l.anchor}">${esc(l.word)}</text>`;
   svg.innerHTML = s;
   $('d-stage').classList.toggle('reverse', phase === 'playing' && kind(roundIdx) === 'reverse');
+  placeOverlays();
   renderSide();
+}
+
+// The moving parts live outside the SVG as plain elements the GPU can animate: the sweep and the
+// target's pulse ring. They are positioned over the scope whenever it is drawn or resized.
+function placeOverlays() {
+  const { cx, cy, rim } = scopeGeometry();
+  const sw = $('d-sweep');
+  Object.assign(sw.style, { left: `${cx - rim}px`, top: `${cy - rim}px`, width: `${2 * rim}px`, height: `${2 * rim}px` });
+  const tp = $('d-tpulse'), tg = targets[roundIdx], live = phase === 'playing' && tg && kind(roundIdx) !== 'reverse';
+  if (!live) { tp.style.display = 'none'; return; }
+  const r = rim * FALLOFF * 0.5; // the pulse runs out to half the fall-off distance
+  Object.assign(tp.style, { display: 'block', left: `${cx + tg.x * rim - r}px`, top: `${cy - tg.y * rim - r}px`, width: `${2 * r}px`, height: `${2 * r}px` });
 }
 
 // ---- The other screens ----
@@ -288,7 +290,11 @@ setInterval(tick, 100);
 
 // ---- Flow ----
 function say(text) { $('d-message').textContent = text; }
-function note(text) { $('d-logstatus').textContent = text; }
+function note(text) { // on the Log's status line and, briefly, under the input where the player is looking
+  $('d-logstatus').textContent = text;
+  const n = $('d-note'); n.textContent = text; clearTimeout(note.t);
+  if (text) note.t = setTimeout(() => { if (n.textContent === text) n.textContent = ''; }, 2600);
+}
 function showInput(on) { $('d-form').hidden = !on; if (on) { $('d-guess').value = ''; placeCursor(); $('d-guess').focus(); } }
 
 function startGame() { if (phase !== 'idle') return; roundIdx = 0; rounds = []; startRound(); }
@@ -321,27 +327,37 @@ function timeOut() {
 
 async function submitWord() {
   const word = normalise($('d-guess').value);
-  if (!word || pending) return;
+  if (!word) return note('Type a word first.');
+  if (pending) return;
   const kd = kind(roundIdx), ci = catOrder[roundIdx];
-  if (kd === 'boss' && bossHits.some(h => h.word === word)) return note(`"${word}" already landed.`);
+  if (kd === 'boss' && bossHits.some(h => h.word === word)) { note(`"${word}" already landed.`); $('d-guess').select(); return; }
   pending = true;
-  const secondsAt = Math.min(ROUND_SECONDS, elapsed());
-  const entry = await lookup(word, ci);
-  if (!entry) { pending = false; return note(`"${word}" isn't a word I know.`); }
-  if (entry.fit < (cat(roundIdx).threshold ?? FIT_THRESHOLD)) { pending = false; return note(`"${word}" doesn't look like ${cat(roundIdx).name.toLowerCase()} to me.`); }
-  $('d-guess').value = ''; placeCursor(); note('');
-  const tg = targets[roundIdx], d = dist(entry, tg), points = pointsFor(d);
-  pingSound();
-  await animatePing(entry);
-  if (kd === 'boss') {
-    bossHits.push({ word, x: entry.x, y: entry.y, points, d });
+  try {
+    const secondsAt = Math.min(ROUND_SECONDS, elapsed());
+    note('Pinging…'); pingSound();
+    const pulsing = pulse(); // feedback at once, while the word is looked up
+    let entry = null;
+    try { entry = await lookup(word, ci); } catch { entry = null; }
+    const reject = text => { note(text); $('d-guess').select(); }; // the rejected word stays visible but the next keystroke replaces it
+    if (!entry) return reject(`"${word}" isn't a word I know.`);
+    if (entry.fit < (cat(roundIdx).threshold ?? FIT_THRESHOLD)) return reject(`"${word}" doesn't look like ${cat(roundIdx).name.toLowerCase()} — try another.`);
+    $('d-guess').value = ''; placeCursor(); note('');
+    const tg = targets[roundIdx], d = dist(entry, tg), points = pointsFor(d);
+    await pulsing;
+    await flashAt(entry);
+    if (kd === 'boss') {
+      bossHits.push({ word, x: entry.x, y: entry.y, points, d });
+      pending = false;
+      note(points ? `${word} · ${points} pts${bullseye(d) ? ' · bullseye' : ''}` : `${word} · missed`);
+      if (remaining() <= 0) return timeOut();
+      render(); return;
+    }
+    const bonus = timeBonus(points, ROUND_SECONDS - secondsAt);
+    finishRound({ kind: kd, cat: ci, word, x: entry.x, y: entry.y, d, points, bonus, score: points + bonus, seconds: Math.round(secondsAt * 10) / 10 });
+  } finally {
     pending = false;
-    note(points ? `${word} · ${points} pts${bullseye(d) ? ' · bullseye' : ''}` : `${word} · missed`);
-    if (remaining() <= 0) return timeOut();
-    render(); return;
+    if (phase === 'playing') $('d-guess').focus();
   }
-  const bonus = timeBonus(points, ROUND_SECONDS - secondsAt);
-  finishRound({ kind: kd, cat: ci, word, x: entry.x, y: entry.y, d, points, bonus, score: points + bonus, seconds: Math.round(secondsAt * 10) / 10 });
 }
 
 // The reverse round: a tap on the scope is the answer.
@@ -386,16 +402,22 @@ let practice = false;
 // ---- The ping: a pulse from the centre out to the word, which echoes back as a flash ----
 const stage = $('d-stage'), ping = $('d-ping'), flash = $('d-flash');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-async function animatePing(landing) {
-  const box = svg.getBoundingClientRect(), side = Math.min(box.width, box.height), rim = side * R / 600;
-  const cx = box.left - stage.getBoundingClientRect().left + box.width / 2, cy = box.top - stage.getBoundingClientRect().top + box.height / 2;
-  const reach = Math.min(1.45, Math.max(0.15, Math.hypot(landing.x, landing.y))), dur = 250 + 350 * reach;
-  ping.style.display = 'block';
-  await ping.animate([{ left: `${cx}px`, top: `${cy}px`, width: '0px', height: '0px', opacity: 1 }, { left: `${cx - rim * reach}px`, top: `${cy - rim * reach}px`, width: `${2 * rim * reach}px`, height: `${2 * rim * reach}px`, opacity: 0.15 }], { duration: dur, easing: 'linear', fill: 'forwards' }).finished;
+// Wait for an animation, but never longer than its duration: a throttled or hidden page must not hold the game up.
+const settle = (anim, ms) => Promise.race([anim.finished.catch(() => {}), sleep(ms + 40)]);
+function scopeGeometry() {
+  const box = svg.getBoundingClientRect(), host = stage.getBoundingClientRect(), side = Math.min(box.width, box.height);
+  return { cx: box.left - host.left + box.width / 2, cy: box.top - host.top + box.height / 2, rim: side * R / 600, side };
+}
+async function pulse() { // the ping leaves the centre and runs out to the rim (transform only: cheap to animate)
+  const { cx, cy, rim } = scopeGeometry();
+  Object.assign(ping.style, { display: 'block', left: `${cx - rim}px`, top: `${cy - rim}px`, width: `${2 * rim}px`, height: `${2 * rim}px` });
+  await settle(ping.animate([{ transform: 'scale(0.02)', opacity: 1 }, { transform: 'scale(1)', opacity: 0.1 }], { duration: 650, easing: 'linear', fill: 'forwards' }), 650);
   ping.style.display = 'none';
-  const lx = cx + landing.x * rim, ly = cy - landing.y * rim, fs = side * 0.06;
-  flash.style.display = 'block';
-  await flash.animate([{ left: `${lx - fs / 2}px`, top: `${ly - fs / 2}px`, width: `${fs}px`, height: `${fs}px`, opacity: 1 }, { left: `${lx - fs / 8}px`, top: `${ly - fs / 8}px`, width: `${fs / 4}px`, height: `${fs / 4}px`, opacity: 0 }], { duration: 300, easing: 'ease-out', fill: 'forwards' }).finished;
+}
+async function flashAt(landing) { // the echo: a flash where the word is
+  const { cx, cy, rim, side } = scopeGeometry(), fs = side * 0.06;
+  Object.assign(flash.style, { display: 'block', left: `${cx + landing.x * rim - fs / 2}px`, top: `${cy - landing.y * rim - fs / 2}px`, width: `${fs}px`, height: `${fs}px` });
+  await settle(flash.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(0.25)', opacity: 0 }], { duration: 260, easing: 'ease-out', fill: 'forwards' }), 260);
   flash.style.display = 'none';
 }
 
@@ -415,7 +437,7 @@ function placeCursor() {
   cursor.classList.toggle('empty', !text);
 }
 guess.addEventListener('input', placeCursor);
-new ResizeObserver(placeCursor).observe(document.body);
+new ResizeObserver(() => { placeCursor(); if (arena) placeOverlays(); }).observe(document.body);
 document.fonts && document.fonts.ready.then(placeCursor);
 
 // Scanline overlays for the screens.

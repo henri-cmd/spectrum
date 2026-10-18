@@ -62,6 +62,8 @@
   <section id="tab-darts">
     <div class="stage" id="d-stage">
       <svg id="d-board" viewBox="0 0 600 600" aria-label="Dartboard"></svg>
+      <div class="sweep" id="d-sweep" aria-hidden="true"></div>
+      <div class="tpulse" id="d-tpulse" aria-hidden="true"></div>
       <div class="actor" id="d-actor" aria-hidden="true"></div>
       <div class="dart" id="d-dart" aria-hidden="true"></div>
       <div class="ping" id="d-ping" aria-hidden="true"></div>
@@ -74,6 +76,7 @@
           <input id="d-guess" placeholder="Type a word…" autocomplete="off" autocapitalize="off" spellcheck="false">
           <span id="d-cursor" class="cursor" aria-hidden="true"></span>
         </form>
+        <p id="d-note" class="note" aria-live="polite"></p>
       </div>
       <div class="blk blk-contacts" data-title="Log">
         <p id="d-logstatus" class="logstatus sonar-only"></p>

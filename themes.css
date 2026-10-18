@@ -53,7 +53,7 @@ body[data-theme="saloon"] #tab-darts .actor { position: absolute; left: 0; botto
   background: var(--a-actor) 0 0 / calc(var(--px) * 576px) calc(var(--px) * 110px) no-repeat; image-rendering: pixelated; pointer-events: none; }
 body[data-theme="saloon"] #tab-darts .dart { position: absolute; left: 0; top: 0; width: calc(var(--px) * 16px); height: calc(var(--px) * 16px); background: var(--a-dart) 0 0 / 100% 100% no-repeat;
   image-rendering: pixelated; display: none; pointer-events: none; transform-origin: 50% 50%; }
-#tab-darts .ping, #tab-darts .flash { position: absolute; border-radius: 50%; pointer-events: none; display: none; z-index: 2; }
+#tab-darts .ping, #tab-darts .flash { position: absolute; border-radius: 50%; pointer-events: none; display: none; z-index: 2; will-change: transform, opacity; transform-origin: 50% 50%; }
 body[data-theme="saloon"] #tab-darts .ping { border: calc(var(--px) * 1px) solid #6cf29b; box-shadow: 0 0 calc(var(--px) * 3px) #27a85e; }
 body[data-theme="saloon"] #tab-darts .flash { background: #c8ffd9; box-shadow: 0 0 calc(var(--px) * 4px) #6cf29b; }
 body[data-theme="saloon"] body[data-theme="saloon"] #tab-darts .stage.thunk svg { animation: thunk 180ms steps(2) 1; }
@@ -101,7 +101,7 @@ body[data-theme="saloon"] #tab-darts .panel b { color: var(--fg); }
 /* Graphite: matte graphite panel, hairline bezels, flat glass, mid-green trace. */
 body[data-theme="graphite"] {
   --ink: #06090a; --panel: #15171a; --panel2: #1b1e22; --bz: #2a2f35; --lbl: #6b7480; --head-fg: #aeb7bf;
-  --g0: #06090a; --g1: #16412b; --g2: #3f8b63; --g3: #86d8a8; --g4: #c9f5db; --amber: #d9a441; --bull: #eafff2;
+  --g0: #06090a; --g1: #16412b; --g2: #3f8b63; --g3: #86d8a8; --g4: #c9f5db; --amber: #d9a441; --bull: #eafff2; --sweep-rgb: 63, 139, 99; --sweep-edge: #eafff2; --target: #4fc3ff;
   --font: 'VT323', monospace; --label-font: 'Share Tech Mono', monospace; --weight: 400; --clock-weight: 400;
   --glass: radial-gradient(ellipse at 50% 40%, #0c1611 0%, #090e0b 60%, #06090a 100%);
   --glass-shadow: inset 0 0 0 1px #0b0d10, inset 0 0 26px rgba(0, 0, 0, 0.65);
@@ -112,7 +112,7 @@ body[data-theme="graphite"] {
 /* Abyss: near-black, the glass a deep well, thin light weights, only the trace and the word bright. */
 body[data-theme="abyss"] {
   --ink: #020403; --panel: #050607; --panel2: #0a0c0e; --bz: #15191c; --lbl: #3d454c; --head-fg: #8b949e;
-  --g0: #020403; --g1: #0e2017; --g2: #245c3f; --g3: #5fbf8a; --g4: #d6ffe6; --amber: #c9933a; --bull: #ffffff;
+  --g0: #020403; --g1: #0e2017; --g2: #245c3f; --g3: #5fbf8a; --g4: #d6ffe6; --amber: #c9933a; --bull: #ffffff; --sweep-rgb: 36, 92, 63; --sweep-edge: #ffffff; --target: #5ccfff;
   --font: 'VT323', monospace; --label-font: 'Share Tech Mono', monospace; --weight: 400; --clock-weight: 400;
   --glass: radial-gradient(ellipse at 50% 45%, #07140d 0%, #040a07 55%, #020403 100%);
   --glass-shadow: inset 0 0 0 1px #0b0e10, inset 0 0 40px 10px rgba(0, 0, 0, 0.85);
@@ -129,6 +129,8 @@ body[data-family="console"] .actor, body[data-family="console"] .dart, body[data
 /* The terminal line between rounds: the result and the prompt to go on; a tap on it goes on too. */
 body[data-family="console"] .blk-command .message { margin: 0; text-align: center; font-size: 24px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--g4); cursor: pointer; line-height: 1.3; outline: none; }
 body[data-family="console"] .blk-command .message:empty { display: none; }
+body[data-family="console"] .blk-command .note { margin: 6px 0 0; text-align: center; font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); line-height: 1.2; }
+body[data-family="console"] .blk-command .note:empty { display: none; }
 body[data-family="console"] .stage.reverse svg { cursor: crosshair; }
 body[data-family="console"] .stage.reverse::before { box-shadow: var(--glass-shadow), inset 0 0 50px 10px rgba(217, 164, 65, 0.12); }
 body[data-family="console"] .cat-name.dim { color: var(--g2); }
@@ -147,14 +149,14 @@ body[data-family="console"] .plate > * { position: relative; z-index: 1; }
 /* CRT: curved glass (a bulge from the gloss and the heavier corner vignette), scanlines over the content, a slow flicker. */
 body[data-family="console"][data-crt="on"] .blk::before, body[data-family="console"][data-crt="on"] .stage::before, body[data-family="console"][data-crt="on"] .plate::before, body[data-family="console"][data-crt="on"] .sign .status::before {
   background: radial-gradient(ellipse 130% 60% at 50% -18%, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 45%, transparent 62%), var(--glass);
-  box-shadow: var(--glass-shadow), inset 0 0 60px 18px rgba(0, 0, 0, 0.55); animation: flicker 9s steps(1) infinite; }
+  box-shadow: var(--glass-shadow), inset 0 0 60px 18px rgba(0, 0, 0, 0.55); }
 body[data-family="console"][data-crt="on"] .blk .crt-lines, body[data-family="console"][data-crt="on"] .stage .crt-lines, body[data-family="console"][data-crt="on"] .plate .crt-lines, body[data-family="console"][data-crt="on"] .status .crt-lines { display: block; }
 body[data-family="console"] .crt-lines { display: none; position: absolute; inset: 24px 8px 8px; border-radius: 10px / 14px; z-index: 3; pointer-events: none;
   background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.35) 100%); }
 body[data-family="console"] .stage .crt-lines { inset: 8px; border-radius: 16px / 18px; }
 body[data-family="console"] .plate .crt-lines, body[data-family="console"] .status .crt-lines { inset: 6px; border-radius: 8px / 12px; }
 @keyframes flicker { 0%, 100% { opacity: 1; } 29% { opacity: 0.975; } 30% { opacity: 1; } 61% { opacity: 0.985; } 62% { opacity: 1; } 84% { opacity: 0.965; } 85% { opacity: 1; } }
-body[data-family="console"][data-sweep="off"] .stage svg .sweep { display: none; }
+
 body[data-family="console"] .blk::after { content: attr(data-title); position: absolute; top: 7px; left: 10px; font: 10px/1 var(--label-font); letter-spacing: 0.26em; text-transform: uppercase; color: var(--lbl); z-index: 1; }
 body[data-family="console"] .blk-category { grid-area: category; } body[data-family="console"] .blk-timer { grid-area: timer; } body[data-family="console"] .blk-contacts { grid-area: log; }
 body[data-family="console"] .blk-tally { grid-area: score; }
@@ -202,11 +204,13 @@ body[data-family="console"] .stage svg .tag { font-size: 22px; fill: var(--g4); 
 body[data-family="console"] .stage svg .tag.ans { fill: var(--amber); }
 body[data-family="console"] .stage svg .bearing { font-size: 14px; fill: var(--g2); letter-spacing: 0.08em; }
 body[data-family="console"] .stage svg .corner { font-size: 14px; fill: var(--g2); letter-spacing: 0.14em; text-transform: uppercase; }
-body[data-family="console"] .stage svg .sweep { transform-origin: 300px 300px; animation: sweep 6s linear infinite; }
-body[data-family="console"] .stage svg .target.live .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2.2s ease-out infinite; }
-body[data-family="console"] .stage svg .target.live .dot { animation: bull 2.2s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(79, 195, 255, 0.9)); }
-@keyframes pulse { 0% { transform: scale(0.1); opacity: 0.9; } 70% { opacity: 0.25; } 100% { transform: scale(1); opacity: 0; } }
-@keyframes bull { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+body[data-family="console"] .stage .sweep { position: absolute; border-radius: 50%; pointer-events: none; z-index: 3; will-change: transform;
+  background: conic-gradient(from -58deg at 50% 50%, transparent 0deg, rgba(var(--sweep-rgb), 0.03) 8deg, rgba(var(--sweep-rgb), 0.4) 55deg, var(--sweep-edge) 57deg, transparent 58deg);
+  animation: sweep 6s linear infinite; }
+body[data-family="console"][data-sweep="off"] .stage .sweep { display: none; }
+body[data-family="console"] .stage .tpulse { position: absolute; display: none; border-radius: 50%; border: 2px solid var(--target); pointer-events: none; z-index: 3; will-change: transform, opacity; animation: tpulse 2.2s ease-out infinite; }
+@keyframes tpulse { 0% { transform: scale(0.1); opacity: 0.9; } 70% { opacity: 0.25; } 100% { transform: scale(1); opacity: 0; } }
+body[data-family="console"] .stage svg .target.live .dot { filter: drop-shadow(0 0 5px rgba(79, 195, 255, 0.9)); }
 body[data-family="console"] .ping { border: 1.5px solid var(--g3); box-shadow: 0 0 12px var(--g2); z-index: 4; }
 body[data-family="console"] .flash { background: var(--bull); box-shadow: 0 0 18px var(--g3); z-index: 4; }
 body[data-family="console"] .stage.thunk svg { animation: none; }
