@@ -166,7 +166,9 @@ body.d-over[data-family="console"] .blk-score { display: flex; } body.d-over[dat
 
 /* Head strip: a flat bar with the game name, the day's line and, at the right, round and score. */
 body[data-family="console"] .sign { display: contents; }
-body[data-family="console"] .plate { grid-area: head; display: flex; align-items: center; gap: 24px; padding: 16px 26px; margin: 0; }
+body[data-family="console"] .plate { grid-area: head; display: flex; align-items: center; gap: 24px; padding: 14px 26px; margin: 0; }
+body[data-family="console"] .plate .round { margin: 0 0 0 auto; font-size: 34px; line-height: 1; letter-spacing: 0.14em; text-transform: uppercase; color: #ffffff; text-shadow: 0 0 12px rgba(134, 216, 168, 0.6), 0 0 2px #fff; white-space: nowrap; }
+body[data-family="console"] .plate .round:empty { display: none; }
 body[data-family="console"] .sign h1 { font: 26px/1 var(--font); letter-spacing: 0.32em; text-transform: uppercase; color: var(--g4); text-shadow: 0 0 10px rgba(95, 191, 138, 0.35); margin: 0; display: flex; align-items: center; gap: 12px; }
 body[data-family="console"] .sign h1::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 8px var(--g3); animation: blink 2.4s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0.35; } }
@@ -285,7 +287,8 @@ body[data-family="console"] details p { margin: 8px 0 0; }
   body[data-tab="darts"][data-family="console"] main { grid-template-columns: 1fr 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 12px; padding: 12px;
     grid-template-areas: "head head" "category category" "timer score" "scope scope" "command command" "log log" "axes axes" "manual manual" "settings settings"; padding-bottom: 120px; }
   /* The name plate and the round/score screen share the top row, each on two lines. */
-  body[data-family="console"] .plate { gap: 16px; padding: 12px 16px; }
+  body[data-family="console"] .plate { gap: 6px 16px; padding: 12px 16px; flex-wrap: wrap; }
+  body[data-family="console"] .plate .round { width: 100%; margin: 4px 0 0; font-size: 26px; white-space: normal; }
   body[data-family="console"] .plate h1 { font-size: 20px; letter-spacing: 0.28em; }
   body[data-family="console"] .plate .sub { font-size: 13px; letter-spacing: 0.04em; }
   body[data-family="console"] .blk-timer, body[data-family="console"] .blk-tally { min-height: 0 !important; }
@@ -303,7 +306,7 @@ body[data-family="console"] details p { margin: 8px 0 0; }
   body[data-family="console"] .blk-command .crt-lines { inset: 6px 6px 0; border-radius: 8px 8px 0 0; }
   body[data-family="console"] #d-guess { font-size: 28px; padding: 2px 0; }
   body[data-family="console"] .blk-timer, body[data-family="console"] .blk-command, body[data-family="console"] .blk-category { min-height: 0 !important; }
-  body[data-family="console"] .blk-category { padding: 26px 16px 12px; } body[data-family="console"] .cat-name { font-size: 36px; } body[data-family="console"] .cat-round { font-size: 10px; letter-spacing: 0.18em; }
+  body[data-family="console"] .blk-category { padding: 26px 16px 12px; } body[data-family="console"] .cat-name { font-size: 36px; }
   body[data-family="console"] .blk-axes { min-height: 420px; }
   body[data-family="console"] .stage { width: 100%; height: auto; aspect-ratio: 1; margin: 0; }
   body[data-family="console"] .blk { min-height: 130px; }
