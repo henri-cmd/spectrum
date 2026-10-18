@@ -101,6 +101,7 @@
         <form id="d-form" hidden>
           <span class="prompt" aria-hidden="true">&gt;</span>
           <input id="d-guess" placeholder="Type any word…" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <span id="d-cursor" class="cursor sonar-only" aria-hidden="true"></span>
           <button id="d-submit">Throw</button>
         </form>
         <p id="d-message" class="message"></p>
@@ -111,7 +112,7 @@
         <ol id="d-readout" class="readout"></ol>
       </div>
       <div class="blk blk-axes sonar-only" data-title="Axis analysis">
-        <svg id="d-axes" viewBox="0 0 300 110" aria-label="Where the latest word sat on each spectrum"></svg>
+        <svg id="d-axes" viewBox="0 0 300 520" aria-label="Where the latest word sat on each spectrum"></svg>
       </div>
       <div class="blk blk-timer sonar-only" data-title="Timer">
         <div class="timer"><span id="d-clock" class="clock">00:00.0</span><span id="d-clock-label" class="clock-label"></span></div>

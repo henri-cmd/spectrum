@@ -333,6 +333,27 @@ async function animatePing(landing) {
   msg('');
 }
 
+// ---- The terminal's cursor: a blinking underline where the next letter goes ----
+const guess = $('d-guess'), cursor = $('d-cursor');
+function placeCursor() {
+  if (!theme.console) return;
+  const cs = getComputedStyle(guess), ctx = placeCursor.ctx || (placeCursor.ctx = document.createElement('canvas').getContext('2d'));
+  ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const ls = parseFloat(cs.letterSpacing) || 0, text = guess.value.toUpperCase();
+  const width = t => ctx.measureText(t).width + ls * t.length;
+  const box = guess.getBoundingClientRect(), host = guess.parentElement.getBoundingClientRect();
+  const mid = box.left - host.left + box.width / 2;
+  const x = text ? mid + width(text) / 2 : mid - width(guess.placeholder.toUpperCase()) / 2; // after the text, or under the placeholder's first letter
+  cursor.style.left = `${x}px`;
+  cursor.style.width = `${Math.max(14, width('M'))}px`;
+  cursor.style.top = `${box.top - host.top + box.height - 6}px`;
+  cursor.classList.toggle('empty', !text);
+}
+guess.addEventListener('input', placeCursor);
+guess.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('d-form').requestSubmit(); } }); // the submit key is hidden on the console
+new ResizeObserver(placeCursor).observe(document.body);
+document.fonts && document.fonts.ready.then(placeCursor);
+
 // ---- Theme switch ----
 function applyTheme(name) {
   if (name === 'sonar') name = 'graphite'; // the old name for the console
@@ -346,6 +367,7 @@ function applyTheme(name) {
   try { localStorage.setItem('darts:theme', document.body.dataset.theme); } catch {}
   if (theme.terminal && puzzle && !started) start(); // the console has no start step
   render();
+  setTimeout(placeCursor, 50);
 }
 window.dartsApplyTheme = () => applyTheme(document.body.dataset.theme);
 for (const b of document.querySelectorAll('.themes button')) b.addEventListener('click', () => applyTheme(b.dataset.theme));
@@ -389,7 +411,7 @@ function renderReadout() {
       const t = throws[k];
       if (t) return `<li class="done"><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}${times[k] !== undefined ? ` · ${fmt(times[k])}` : ''}</span><span class="hint">${hint(t, tg)}</span></li>`;
       if (k === cur) return `<li class="cur"><span class="n">${k + 1}</span><span class="w">tracking</span><span class="s"></span><span class="brg">${brgRng(tg)}</span></li>`;
-      return `<li class="todo"><span class="n">${k + 1}</span><span class="w">standby</span><span class="s"></span></li>`;
+      return '';
     }).join('');
     return;
   }
@@ -405,23 +427,26 @@ function renderSide() {
   const tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
   renderTimes();
   renderReadout();
-  // Axis analysis: each spectrum as a bar, the target hollow, the latest word solid.
-  const L = 70, Rr = 230, rows = axes.map((i, k) => {
-    const sp = puzzle.spectrums[i], y = 30 + k * 46, px = v => L + (v + 1) / 2 * (Rr - L);
+  // Axis analysis: each spectrum as a vertical bar, the high end at the top; the target hollow, the latest word solid.
+  const top = 70, bottom = 450, cols = [95, 215], rows = axes.map((i, k) => {
+    const sp = puzzle.spectrums[i], x = cols[k], py = v => bottom - (v + 1) / 2 * (bottom - top);
     const tv = k === 0 ? tg.x : tg.y, wv = last ? (k === 0 ? last.x : last.y) : null;
-    let r = `<text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="${theme.pastText}">${esc(sp.low.toUpperCase())}</text>` +
-            `<text x="${Rr + 8}" y="${y + 4}" font-size="11" fill="${theme.pastText}">${esc(sp.high.toUpperCase())}</text>` +
-            `<line x1="${L}" y1="${y}" x2="${Rr}" y2="${y}" stroke="${theme.axis}" stroke-width="1"/>`;
-    for (const v of [-1, -0.5, 0, 0.5, 1]) r += `<line x1="${px(v)}" y1="${y - 4}" x2="${px(v)}" y2="${y + 4}" stroke="${theme.axis}"/>`;
-    r += `<circle cx="${px(tv)}" cy="${y}" r="6" fill="none" stroke="${theme.rings[0]}" stroke-width="1.2"/>`;
+    let r = `<text x="${x}" y="${top - 26}" text-anchor="middle" font-size="12" letter-spacing="1.5" fill="${theme.ringText}">${esc(sp.high.toUpperCase())}</text>` +
+            `<text x="${x}" y="${bottom + 34}" text-anchor="middle" font-size="12" letter-spacing="1.5" fill="${theme.ringText}">${esc(sp.low.toUpperCase())}</text>` +
+            `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" stroke="${theme.axis}" stroke-width="1"/>`;
+    for (const v of [-1, -0.5, 0, 0.5, 1]) r += `<line x1="${x - (v === 0 ? 10 : 5)}" y1="${py(v)}" x2="${x + (v === 0 ? 10 : 5)}" y2="${py(v)}" stroke="${theme.axis}"/>`;
+    r += `<text x="${x + 16}" y="${py(0) + 4}" font-size="9" fill="${theme.axis}">0</text>`;
     if (wv !== null) {
-      const cl = Math.max(-1.1, Math.min(1.1, wv));
-      r += `<circle cx="${px(cl)}" cy="${y}" r="4" fill="${theme.leader}"/>` +
-           `<text x="${(px(tv) + px(cl)) / 2}" y="${y + 19}" text-anchor="middle" font-size="11" fill="${theme.answer}">${Math.abs(wv - tv) < 0.12 ? 'ON' : `${wv > tv ? '+' : '−'}${Math.abs(wv - tv).toFixed(2)}`}</text>`;
+      const cl = Math.max(-1.08, Math.min(1.08, wv));
+      r += `<line x1="${x}" y1="${py(tv)}" x2="${x}" y2="${py(cl)}" stroke="${theme.leader}" stroke-width="3" stroke-opacity="0.45"/>`;
+      r += `<circle cx="${x}" cy="${py(cl)}" r="5" fill="${theme.leader}"/>`;
+      const gap = wv - tv, on = Math.abs(gap) < 0.12;
+      r += `<text x="${x + 14}" y="${(py(tv) + py(cl)) / 2 + 4}" font-size="11" fill="${theme.answer}">${on ? 'ON' : `${gap > 0 ? '+' : '−'}${Math.abs(gap).toFixed(2)}`}</text>`;
     }
+    r += `<circle cx="${x}" cy="${py(tv)}" r="7" fill="none" stroke="${theme.rings[0]}" stroke-width="1.4"/>`;
     return r;
   });
-  $('d-axes').innerHTML = rows.join('') + `<text x="150" y="104" text-anchor="middle" font-size="10" fill="${theme.axis}">○ TARGET   ● YOUR WORD</text>`;
+  $('d-axes').innerHTML = rows.join('') + `<text x="150" y="508" text-anchor="middle" font-size="10" letter-spacing="1" fill="${theme.axis}">○ TARGET   ● YOUR WORD</text>`;
 }
 
 // For each round: the common words that would have scored, best first (at most four shown).
@@ -460,6 +485,7 @@ async function submitThrow(e) {
   if (!entry) return msg(`"${word}" isn't a word I know.`);
   if (entry.fit < FIT_THRESHOLD) return msg(`"${word}" doesn't look like ${puzzle.category.toLowerCase()} to me — try another word.`);
   $('d-guess').value = '';
+  placeCursor();
   msg('');
   await addThrow(word, entry, true);
   save();
