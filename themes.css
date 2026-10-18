@@ -122,8 +122,8 @@ body[data-theme="abyss"] {
 }
 body[data-tab="darts"][data-family="console"] main { max-width: none; padding: 14px; height: 100vh; box-sizing: border-box; display: grid; gap: 14px; /* a fixed height: the fr rows split it and each screen scrolls inside */
   grid-template-columns: minmax(240px, 1fr) minmax(0, 2.4fr) minmax(330px, 1.1fr);
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;
-  grid-template-areas: "head head round" "category scope score" "timer scope axes" "log scope axes" "log scope manual" "log scope settings" "command command command"; padding-bottom: 44px; }
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "head head round" "category scope score" "timer scope axes" "log scope manual" "log scope settings" "command command command"; padding-bottom: 44px; }
 body[data-tab="darts"][data-family="console"] header, body[data-family="console"] #tab-darts, body[data-family="console"] .panel { display: contents; }
 body[data-family="console"] .actor, body[data-family="console"] .dart, body[data-family="console"] .mug, body[data-family="console"] .bottle { display: none !important; }
 /* The terminal line between rounds: the result and the prompt to go on; a tap on it goes on too. */
@@ -261,7 +261,7 @@ body[data-family="console"] .times li { display: grid; grid-template-columns: 2e
 body[data-family="console"] .times li:first-child { border-top: 0; }
 body[data-family="console"] .times .n { color: var(--g2); } body[data-family="console"] .times .w { color: var(--g3); } body[data-family="console"] .times .t { color: var(--g4); font-variant-numeric: tabular-nums; }
 body[data-family="console"] #d-axes { width: 100%; height: auto; display: block; overflow: visible; }
-body[data-family="console"] .blk-category { padding: 30px 20px 16px; }
+body[data-family="console"] .blk-category { padding: 30px 20px 14px; justify-content: center; min-height: 120px; }
 body[data-family="console"] .category { text-transform: uppercase; text-align: center; }
 body[data-family="console"] .cat-name { font-size: 52px; line-height: 1; letter-spacing: 0.18em; color: #ffffff; text-shadow: 0 0 14px rgba(134, 216, 168, 0.7), 0 0 2px #fff; }
 body[data-family="console"] .cat-name.dim { color: var(--g2); text-shadow: none; font-size: 36px; }
@@ -289,7 +289,7 @@ body[data-family="console"] details p { margin: 8px 0 0; }
 
 @media (max-width: 960px) {
   body[data-tab="darts"][data-family="console"] main { grid-template-columns: 1fr 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 12px; padding: 12px;
-    grid-template-areas: "head round" "category category" "timer score" "scope scope" "command command" "log log" "axes axes" "manual manual" "settings settings"; padding-bottom: 120px; }
+    grid-template-areas: "head round" "timer score" "category category" "scope scope" "command command" "log log" "axes axes" "manual manual" "settings settings"; padding-bottom: 120px; }
   /* The name plate and the round/score screen share the top row, each on two lines. */
   body[data-family="console"] .plate { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
   body[data-family="console"] .roundplate { font-size: 22px; padding: 10px 12px; }
@@ -310,7 +310,7 @@ body[data-family="console"] details p { margin: 8px 0 0; }
   body[data-family="console"] .blk-command .crt-lines { inset: 6px 6px 0; border-radius: 8px 8px 0 0; }
   body[data-family="console"] #d-guess { font-size: 28px; padding: 2px 0; }
   body[data-family="console"] .blk-timer, body[data-family="console"] .blk-command, body[data-family="console"] .blk-category { min-height: 0 !important; }
-  body[data-family="console"] .blk-category { padding: 26px 16px 12px; } body[data-family="console"] .cat-name { font-size: 36px; }
+  body[data-family="console"] .blk-category { padding: 26px 16px 12px; min-height: 0; } body[data-family="console"] .cat-name { font-size: 36px; }
   body[data-family="console"] .blk-axes { min-height: 420px; }
   body[data-family="console"] .stage { width: 100%; height: auto; aspect-ratio: 1; margin: 0; }
   body[data-family="console"] .blk { min-height: 130px; }

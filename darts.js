@@ -7,7 +7,8 @@
 // spectrums and its fit for each category, plus each category's hand-picked words.
 (() => {
 const ROUNDS = 6;
-const ROUND_SECONDS = 30;     // the countdown for each round
+const ROUND_SECONDS = 60;     // the countdown for each round
+const TIME_POINTS = 30;       // a hit with the whole clock left earns this much on top
 const URGENT_SECONDS = 5;     // the console goes red from here
 const MAX_POINTS = 50;        // a word on the dot scores this
 const FALLOFF = 1.0;          // points fall to zero this many units from the dot
@@ -24,7 +25,7 @@ const LABEL_GAP = 12;         // axis words sit this far inside the rim
 
 // ---- Scoring: the one place to change the rule ----
 const pointsFor = d => Math.round(MAX_POINTS * Math.max(0, 1 - d / FALLOFF)); // straight line from the dot outwards
-const timeBonus = (points, secondsLeft) => points > 0 ? Math.round(secondsLeft) : 0; // a point per second left, hits only
+const timeBonus = (points, secondsLeft) => points > 0 ? Math.round(TIME_POINTS * secondsLeft / ROUND_SECONDS) : 0; // up to TIME_POINTS for a quick hit; misses get nothing
 const bullseye = d => d <= BULL;
 
 // ---- Looks: the Graphite console (Abyss survives behind ?theme=abyss) ----
@@ -240,7 +241,7 @@ function renderSide() {
   }).join('');
   renderAxes();
 }
-// Axis analysis: each spectrum as a vertical bar; the target hollow, the latest word solid.
+// Axis analysis: each spectrum as a horizontal bar; the target solid blue, the latest word green.
 function renderAxes() {
   const r = rounds[roundIdx], kd = kind(roundIdx);
   let tg = targets[roundIdx], word = null;
@@ -248,21 +249,21 @@ function renderAxes() {
   else if (kd === 'boss') word = (r && r.hits.length ? r.hits[r.hits.length - 1] : bossHits[bossHits.length - 1]) || null;
   else word = r && r.word ? r : null;
   if (phase === 'idle' || !tg) { $('d-axes').innerHTML = ''; return; }
-  const top = 70, bottom = 450, cols = [95, 215], rows = axes.map((i, k) => {
-    const sp = arena.spectrums[i], x = cols[k], py = v => bottom - (v + 1) / 2 * (bottom - top);
+  const L = 78, Rr = 222, rows = axes.map((i, k) => {
+    const sp = arena.spectrums[i], y = 30 + k * 46, px = v => L + (v + 1) / 2 * (Rr - L);
     const tv = k === 0 ? tg.x : tg.y, wv = word ? (k === 0 ? word.x : word.y) : null;
-    let out = `<text x="${x}" y="${top - 26}" text-anchor="middle" font-size="12" letter-spacing="1.5" fill="${theme.ringText}">${esc(sp.high.toUpperCase())}</text>` +
-              `<text x="${x}" y="${bottom + 34}" text-anchor="middle" font-size="12" letter-spacing="1.5" fill="${theme.ringText}">${esc(sp.low.toUpperCase())}</text>` +
-              `<line x1="${x}" y1="${top}" x2="${x}" y2="${bottom}" stroke="${theme.axis}" stroke-width="1"/>`;
-    for (const v of [-1, -0.5, 0, 0.5, 1]) out += `<line x1="${x - (v === 0 ? 10 : 5)}" y1="${py(v)}" x2="${x + (v === 0 ? 10 : 5)}" y2="${py(v)}" stroke="${theme.axis}"/>`;
+    let out = `<text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="11" letter-spacing="1" fill="${theme.ringText}">${esc(sp.low.toUpperCase())}</text>` +
+              `<text x="${Rr + 8}" y="${y + 4}" font-size="11" letter-spacing="1" fill="${theme.ringText}">${esc(sp.high.toUpperCase())}</text>` +
+              `<line x1="${L}" y1="${y}" x2="${Rr}" y2="${y}" stroke="${theme.axis}" stroke-width="1"/>`;
+    for (const v of [-1, -0.5, 0, 0.5, 1]) out += `<line x1="${px(v)}" y1="${y - (v === 0 ? 8 : 4)}" x2="${px(v)}" y2="${y + (v === 0 ? 8 : 4)}" stroke="${theme.axis}"/>`;
     if (wv !== null) {
       const cl = Math.max(-1.08, Math.min(1.08, wv)), gap = wv - tv;
-      out += `<line x1="${x}" y1="${py(tv)}" x2="${x}" y2="${py(cl)}" stroke="${theme.leader}" stroke-width="3" stroke-opacity="0.45"/><circle cx="${x}" cy="${py(cl)}" r="5" fill="${theme.leader}"/>`;
-      out += `<text x="${x + 14}" y="${(py(tv) + py(cl)) / 2 + 4}" font-size="11" fill="${theme.answer}">${Math.abs(gap) < 0.12 ? 'ON' : `${gap > 0 ? '+' : '−'}${Math.abs(gap).toFixed(2)}`}</text>`;
+      out += `<line x1="${px(tv)}" y1="${y}" x2="${px(cl)}" y2="${y}" stroke="${theme.leader}" stroke-width="3" stroke-opacity="0.45"/><circle cx="${px(cl)}" cy="${y}" r="5" fill="${theme.leader}"/>`;
+      out += `<text x="${(px(tv) + px(cl)) / 2}" y="${y + 20}" text-anchor="middle" font-size="11" fill="${theme.answer}">${Math.abs(gap) < 0.12 ? 'ON' : `${gap > 0 ? '+' : '−'}${Math.abs(gap).toFixed(2)}`}</text>`;
     }
-    return out + `<circle cx="${x}" cy="${py(tv)}" r="6" fill="${theme.target}"/>`;
+    return out + `<circle cx="${px(tv)}" cy="${y}" r="6" fill="${theme.target}"/>`;
   });
-  $('d-axes').innerHTML = rows.join('') + `<text x="150" y="508" text-anchor="middle" font-size="10" letter-spacing="1" fill="${theme.axis}">○ ${kd === 'reverse' ? 'TRUE' : 'TARGET'}   ● ${kd === 'reverse' ? 'YOUR TAP' : 'YOUR WORD'}</text>`;
+  $('d-axes').innerHTML = rows.join('') + `<text x="150" y="112" text-anchor="middle" font-size="10" letter-spacing="1" fill="${theme.axis}">● ${kd === 'reverse' ? 'TRUE' : 'TARGET'}   ● ${kd === 'reverse' ? 'YOUR TAP' : 'YOUR WORD'}</text>`;
 }
 
 // For the end: the curated words that would have scored most on each target round.
