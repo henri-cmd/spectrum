@@ -1,7 +1,7 @@
 """Saloon dartboard game: cowboy thrower sprite strip + dart sprites.
 
 Run from the project folder:  .venv/bin/python art/thrower.py
-Writes assets/thrower.png, assets/dart.png, assets/dart-stuck.png, art/preview-thrower.png
+Writes assets/thrower.png, assets/dart.png, assets/dart-stuck.png, art/preview-saloon-thrower.png
 """
 import math
 import os
@@ -9,7 +9,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-ASSETS = os.path.join(ROOT, "assets")
+ASSETS = os.path.join(ROOT, "assets", "saloon")
 
 
 def hx(s):
@@ -406,7 +406,7 @@ def main():
     pv.alpha_composite(dart.resize((16 * S6, 16 * S6), Image.NEAREST), (x, 10))
     x += 16 * S6 + 20
     pv.alpha_composite(stuck.resize((12 * S6, 12 * S6), Image.NEAREST), (x, 10))
-    pv.convert("RGB").save(os.path.join(HERE, "preview-thrower.png"))
+    pv.convert("RGB").save(os.path.join(HERE, "preview-saloon-thrower.png"))
 
     bad = palette_check({"strip": strip, "dart": dart, "stuck": stuck})
     print("palette violations:", bad if bad else "none")

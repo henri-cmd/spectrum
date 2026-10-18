@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="saloon.css">
+<link rel="stylesheet" href="themes.css">
 <style>
   :root { color-scheme: light; }
   [hidden] { display: none !important; }
@@ -81,10 +81,16 @@
   </section>
 
   <section id="tab-darts" hidden>
+    <nav class="themes" aria-label="Look">
+      <button data-theme="saloon" aria-pressed="true">Saloon</button>
+      <button data-theme="sonar" aria-pressed="false">Sonar</button>
+    </nav>
     <div class="stage" id="d-stage">
       <svg id="d-board" viewBox="0 0 600 600" aria-label="Dartboard"></svg>
-      <div class="thrower" id="d-thrower" aria-hidden="true"></div>
-      <img class="dart" id="d-dart" src="assets/dart.png" alt="" aria-hidden="true">
+      <div class="actor" id="d-actor" aria-hidden="true"></div>
+      <div class="dart" id="d-dart" aria-hidden="true"></div>
+      <div class="ping" id="d-ping" aria-hidden="true"></div>
+      <div class="flash" id="d-flash" aria-hidden="true"></div>
     </div>
     <div class="panel">
       <p id="d-legend" class="legend"></p>
@@ -108,7 +114,7 @@
         <p>Each round sets a target somewhere new on the board. Throw a word at it: the word lands where it truly sits on both spectrums, and scores the ring it lands in — 50 for the bull, then 25, 10 and 5. When you've seen where it landed, click on to the next target. Four rounds, four targets, 200 points at most. The last target is always the bull at the very centre of the board: the word that sits dead in the middle of both spectrums.</p>
         <p>The readout says which way each dart missed. At the end, the words that would have scored most on each target are revealed.</p>
       </details>
-      <img class="mug" src="assets/mug.png" alt="" aria-hidden="true"><img class="bottle" src="assets/bottle.png" alt="" aria-hidden="true">
+      <div class="mug" aria-hidden="true"></div><div class="bottle" aria-hidden="true"></div>
     </div>
   </section>
 </main>
@@ -123,8 +129,9 @@
     for (const t in names) document.getElementById(`tab-${t}`).hidden = t !== tab;
     document.getElementById('title').textContent = names[tab];
     document.title = names[tab];
-    document.body.classList.toggle('saloon', tab === 'darts');
+    document.body.dataset.tab = tab;
     document.getElementById('d-sub').hidden = tab !== 'darts';
+    if (tab === 'darts' && window.dartsApplyTheme) window.dartsApplyTheme();
     history.replaceState(null, '', tab === 'spectrum' ? location.pathname + location.search : `#${tab}`);
     try { localStorage.setItem('tab', tab); } catch {}
   }

@@ -413,9 +413,9 @@ blit(bo)
 
 # =============================== SAVE ===========================================
 def save():
-    os.makedirs(os.path.join(ROOT, 'assets'), exist_ok=True)
-    img.save(os.path.join(ROOT, 'assets', 'scene-bg.png'))
-    img.resize((W * 3, H * 3), Image.NEAREST).save(os.path.join(HERE, 'preview-scene.png'))
+    os.makedirs(os.path.join(ROOT, 'assets', 'saloon'), exist_ok=True)
+    img.save(os.path.join(ROOT, 'assets', 'saloon', 'scene-bg.png'))
+    img.resize((W * 3, H * 3), Image.NEAREST).save(os.path.join(HERE, 'preview-saloon-scene.png'))
     pal = set(PAL.values())
     bad = {P[x, y] for y in range(H) for x in range(W) if P[x, y] not in pal or P[x, y][3] != 255}
     print('saved', img.size, 'colours used:', len({P[x, y] for y in range(H) for x in range(W)}), 'off-palette:', bad or 'none')

@@ -22,10 +22,25 @@ const THROWER = { x: 0, y: 190, w: 96, h: 110, frames: 6, hand: [87, 39], frameM
 const unitPx = SCENE.r;       // art pixels per board unit
 const svgPerArt = (2 * R) / (2 * SCENE.r); // SVG units per art pixel
 
-// Palette (matches art/PALETTE.md).
-const P = { ink: '#15090a', shadow: '#2a1710', woodDark: '#5a2f1a', woodMid: '#7a4426', cream: '#f3e2b4', tan: '#c9a46a', gold: '#f0c050',
-            red: '#c8322e', darkRed: '#8e1d1d', pinkLight: '#e9a0a0', pinkMid: '#e07070', dusk: '#5a2a3a', glow: '#ffb347' };
-const RING_FILL = [P.darkRed, P.red, P.pinkMid, P.pinkLight]; // bull outward
+// ---- Themes: the same game in two rooms. Colours match art/PALETTE-*.md; sprites live in assets/<theme>/ ----
+const THEMES = {
+  saloon: {
+    title: 'Darts', go: 'Throw', next: 'Next target', again: 'New targets', target: 'red target', miss: 'Missed.', landed: 'where your word landed',
+    assets: 'assets/saloon', marker: 'dart-stuck.png', sweep: false, shots: 'darts',
+    // board colours: disc, faint grid, main axes, live-ring fills bull outward, ring edge, ring text, past-target, past-target text, answer dot, leader line
+    disc: '#2a1710', grid: '#5a2f1a', axis: '#f3e2b4', rings: ['#8e1d1d', '#c8322e', '#e07070', '#e9a0a0'], ringEdge: '#15090a', ringText: '#f3e2b4', ringTextBull: '#f3e2b4',
+    past: '#5a2a3a', pastText: '#c9a46a', answer: '#ffb347', leader: '#f3e2b4', ink: '#15090a',
+    actor: { frames: 6, frameMs: 70 }, animate: (...a) => animateDart(...a),
+  },
+  sonar: {
+    title: 'Sonar', go: 'Ping', next: 'Next contact', again: 'New contacts', target: 'contact', miss: 'No contact.', landed: 'where your word echoed',
+    assets: 'assets/sonar', marker: 'blip.png', sweep: true, shots: 'pings',
+    disc: '#0c2a1c', grid: '#145c35', axis: '#27a85e', rings: ['#ffd36b', '#f0a030', '#9a5a12', '#145c35'], ringEdge: '#0a0e12', ringText: '#c8ffd9', ringTextBull: '#0a0e12',
+    past: '#3e5266', pastText: '#8da2b5', answer: '#ffd36b', leader: '#6cf29b', ink: '#0a0e12',
+    actor: { frames: 6, frameMs: 90 }, animate: (...a) => animatePing(...a),
+  },
+};
+let theme = THEMES.saloon;
 
 // ---- Scoring: the one place to change the rule ----
 // A dart scores the points of the innermost ring it lands in; the game's score is the total.
@@ -111,38 +126,53 @@ async function lookup(word) {
 function targetSvg(t, n, live) {
   const x = sx(t.x), y = sy(t.y);
   if (!live) { // a past target: just its bull, its outer ring and its round number
-    return `<circle cx="${x}" cy="${y}" r="${RINGS[RINGS.length - 1][0] * R}" fill="none" stroke="${P.dusk}" stroke-width="3" stroke-dasharray="6 8"/>` +
-           `<circle cx="${x}" cy="${y}" r="${RINGS[0][0] * R}" fill="${P.dusk}"/>` +
-           `<text x="${x}" y="${y + 6}" font-size="18" fill="${P.tan}" text-anchor="middle">${n}</text>`;
+    return `<circle cx="${x}" cy="${y}" r="${RINGS[RINGS.length - 1][0] * R}" fill="none" stroke="${theme.past}" stroke-width="3" stroke-dasharray="6 8"/>` +
+           `<circle cx="${x}" cy="${y}" r="${RINGS[0][0] * R}" fill="${theme.past}"/>` +
+           `<text x="${x}" y="${y + 6}" font-size="18" fill="${theme.pastText}" text-anchor="middle">${n}</text>`;
   }
   let s = '';
   [...RINGS].reverse().forEach(([r, pts], k) => {
     const i = RINGS.length - 1 - k; // ring index, bull = 0
-    s += `<circle cx="${x}" cy="${y}" r="${r * R}" fill="${RING_FILL[i]}" stroke="${P.ink}" stroke-width="2"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="${r * R}" fill="${theme.rings[i]}" stroke="${theme.ringEdge}" stroke-width="2"/>`;
     if (i > 0) { // points sit in each band, up the right-hand diagonal
       const rr = (r + RINGS[i - 1][0]) / 2 * R;
-      s += `<text x="${x + rr * 0.72}" y="${y - rr * 0.72 + 6}" font-size="19" fill="${P.cream}" text-anchor="middle" paint-order="stroke" stroke="${P.ink}" stroke-width="3">${pts}</text>`;
+      s += `<text x="${x + rr * 0.72}" y="${y - rr * 0.72 + 6}" font-size="19" fill="${theme.ringText}" text-anchor="middle" paint-order="stroke" stroke="${theme.ink}" stroke-width="3">${pts}</text>`;
     }
   });
-  s += `<text x="${x}" y="${y + 7}" font-size="22" font-weight="700" fill="${P.cream}" text-anchor="middle" paint-order="stroke" stroke="${P.ink}" stroke-width="3">${RINGS[0][1]}</text>`;
+  s += `<text x="${x}" y="${y + 7}" font-size="22" font-weight="700" fill="${theme.ringTextBull}" text-anchor="middle" paint-order="stroke" stroke="${theme.ringTextBull === theme.ink ? 'none' : theme.ink}" stroke-width="3">${RINGS[0][1]}</text>`;
   return s;
 }
 
-// A dart stuck in the board: the pixel sprite, drawn to scale.
+// A dart stuck in the board (or a blip on the scope): the theme's pixel sprite, drawn to scale.
 function stuckDart(x, y, faded) {
   const w = 12 * svgPerArt;
-  return `<image href="assets/dart-stuck.png" x="${x - w / 2}" y="${y - w / 2}" width="${w}" height="${w}" style="image-rendering:pixelated" opacity="${faded ? 0.55 : 1}"/>`;
+  return `<image href="${theme.assets}/${theme.marker}" x="${x - w / 2}" y="${y - w / 2}" width="${w}" height="${w}" style="image-rendering:pixelated" opacity="${faded ? 0.55 : 1}"/>`;
+}
+
+// The sonar sweep: a fading wedge that the stylesheet spins around the scope.
+function sweepSvg() {
+  let s = '<g class="sweep">';
+  for (let k = 0; k < 8; k++) {
+    const a0 = -k * 7 * Math.PI / 180, a1 = -(k + 1) * 7 * Math.PI / 180;
+    s += `<path d="M${C},${C} L${C + R * Math.sin(a0)},${C - R * Math.cos(a0)} A${R},${R} 0 0 0 ${C + R * Math.sin(a1)},${C - R * Math.cos(a1)} Z" fill="#27a85e" opacity="${0.42 * (1 - k / 8)}"/>`;
+  }
+  s += `<line x1="${C}" y1="${C}" x2="${C}" y2="${C - R}" stroke="#c8ffd9" stroke-width="3" opacity="0.9"/></g>`;
+  return s;
 }
 
 function render() {
   if (!puzzle) return;
   const [X, Y] = axes.map(i => puzzle.spectrums[i]);
   let s = `<defs><clipPath id="d-clip"><circle cx="${C}" cy="${C}" r="${R}"/></clipPath></defs>`;
-  s += `<circle cx="${C}" cy="${C}" r="${R}" fill="${P.shadow}"/>`;
-  // The matrix: grid lines every GRID units, clipped to the board; the two axes through the centre are cream.
+  s += `<circle cx="${C}" cy="${C}" r="${R}" fill="${theme.disc}"/>`;
+  // The matrix: grid lines every GRID units, clipped to the board; the two axes through the centre stand out.
   s += '<g clip-path="url(#d-clip)">';
+  if (theme.sweep) { // range rings behind everything, then the sweep
+    for (const f of [0.25, 0.5, 0.75]) s += `<circle cx="${C}" cy="${C}" r="${R * f}" fill="none" stroke="${theme.grid}" stroke-width="2"/>`;
+    s += sweepSvg();
+  }
   for (let v = -1; v <= 1.001; v += GRID) {
-    const main = Math.abs(v) < 1e-9, col = main ? P.cream : P.woodDark, w = main ? 3 : 2;
+    const main = Math.abs(v) < 1e-9, col = main ? theme.axis : theme.grid, w = main ? 3 : 2;
     s += `<line x1="${sx(v)}" y1="${sy(-1)}" x2="${sx(v)}" y2="${sy(1)}" stroke="${col}" stroke-width="${w}"/>`;
     s += `<line x1="${sx(-1)}" y1="${sy(v)}" x2="${sx(1)}" y2="${sy(v)}" stroke="${col}" stroke-width="${w}"/>`;
   }
@@ -162,13 +192,13 @@ function render() {
   throws.forEach((t, k) => {
     if (k === throws.length - 1 && throwing) return; // still in the air
     const x = sx(t.x), y = sy(t.y), last = k === throws.length - 1, tg = targets[k];
-    if (last && awaiting) s += `<line x1="${x}" y1="${y}" x2="${sx(tg.x)}" y2="${sy(tg.y)}" stroke="${P.cream}" stroke-width="2" stroke-dasharray="4 6"/>`;
+    if (last && awaiting) s += `<line x1="${x}" y1="${y}" x2="${sx(tg.x)}" y2="${sy(tg.y)}" stroke="${theme.leader}" stroke-width="2" stroke-dasharray="4 6"/>`;
     s += stuckDart(x, y, !last || over);
     labels.push({ x, y, word: t.word, cls: 'tag' });
   });
   // At the end, the best word for each target is shown where it sits.
   if (over) for (const a of answers()) if (a.best && !throws.some(t => t.word === a.best.word)) labels.push({ x: sx(a.best.x), y: sy(a.best.y), word: a.best.word, cls: 'tag ans', dot: true });
-  for (const l of labels) if (l.dot) s += `<circle cx="${l.x}" cy="${l.y}" r="6" fill="${P.glow}" stroke="${P.ink}" stroke-width="2"/>`;
+  for (const l of labels) if (l.dot) s += `<circle cx="${l.x}" cy="${l.y}" r="6" fill="${theme.answer}" stroke="${theme.ink}" stroke-width="2"/>`;
   // Words beside their darts: to the right unless near the right edge; pushed down when they'd overlap.
   for (const l of labels) {
     const right = l.x < C + R * 0.55, w = (l.word.length + 2) * 11;
@@ -182,26 +212,28 @@ function render() {
   for (const l of labels) s += `<text class="${l.cls}" x="${l.tx}" y="${l.ty}" text-anchor="${l.anchor}">${esc(l.word)}</text>`;
   svg.innerHTML = s;
   $('d-legend').textContent = over
-    ? `Your darts, and the words that would have scored most on each target${practice ? ' · practice' : ''}`
-    : awaiting ? `Round ${round() + 1} of ${ROUNDS} · where your word landed${practice ? ' · practice' : ''}`
-    : `Round ${round() + 1} of ${ROUNDS} · throw a word at the red target${practice ? ' · practice' : ''}`;
+    ? `Your ${theme.shots}, and the words that would have scored most on each ${theme.target}${practice ? ' · practice' : ''}`
+    : awaiting ? `Round ${round() + 1} of ${ROUNDS} · ${theme.landed}${practice ? ' · practice' : ''}`
+    : `Round ${round() + 1} of ${ROUNDS} · ${theme.go.toLowerCase()} a word at the ${theme.target}${practice ? ' · practice' : ''}`;
 }
 
-// ---- The throw: the cowboy winds up, the dart flies from his hand to where the word lands ----
-const stage = $('d-stage'), thrower = $('d-thrower'), dart = $('d-dart');
+// ---- The throw. Saloon: the cowboy winds up and a dart flies from his hand to where the word lands.
+// Sonar: the operator presses the ping button, a pulse spreads from the centre and the word echoes back as a blip. ----
+const stage = $('d-stage'), actor = $('d-actor'), dart = $('d-dart'), ping = $('d-ping'), flash = $('d-flash');
 const pxScale = () => stage.clientWidth / SCENE.w; // screen pixels per art pixel
 function fitStage() { document.documentElement.style.setProperty('--px', pxScale()); }
 new ResizeObserver(fitStage).observe(stage);
 fitStage();
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-function setFrame(i) { thrower.style.backgroundPosition = `calc(var(--px) * ${-i * THROWER.w}px) 0`; }
+function setFrame(i) { actor.style.backgroundPosition = `calc(var(--px) * ${-i * THROWER.w}px) 0`; }
+const landingPx = (landing, k) => [(SCENE.cx + landing.x * unitPx) * k, (SCENE.cy - landing.y * unitPx) * k];
 
-async function animateThrow(landing) { // landing in board units
-  const k = pxScale();
+async function animateDart(landing) { // landing in board units
+  const k = pxScale(), ms = theme.actor.frameMs;
   const from = [(THROWER.x + THROWER.hand[0]) * k, (THROWER.y + THROWER.hand[1]) * k];
-  const to = [(SCENE.cx + landing.x * unitPx) * k, (SCENE.cy - landing.y * unitPx) * k];
-  for (let f = 0; f < THROWER.releaseFrame; f++) { setFrame(f); await sleep(THROWER.frameMs); }
+  const to = landingPx(landing, k);
+  for (let f = 0; f < THROWER.releaseFrame; f++) { setFrame(f); await sleep(ms); }
   setFrame(THROWER.releaseFrame);
   const size = 16 * k, ang = Math.atan2(to[1] - from[1], to[0] - from[0]) * 180 / Math.PI + 45; // the sprite points up-right
   dart.style.display = 'block';
@@ -211,12 +243,56 @@ async function animateThrow(landing) { // landing in board units
     { transform: `translate(${mid[0] - size / 2}px, ${mid[1] - size / 2}px) rotate(${ang}deg) scale(0.95)`, offset: 0.5 },
     { transform: `translate(${to[0] - size / 2}px, ${to[1] - size / 2}px) rotate(${ang}deg) scale(0.6)` },
   ], { duration: 460, easing: 'ease-in', fill: 'forwards' });
-  const rest = (async () => { for (let f = THROWER.releaseFrame + 1; f < THROWER.frames; f++) { await sleep(THROWER.frameMs * 1.6); setFrame(f); } })();
+  const rest = (async () => { for (let f = THROWER.releaseFrame + 1; f < theme.actor.frames; f++) { await sleep(ms * 1.6); setFrame(f); } })();
   await flight.finished;
   dart.style.display = 'none';
   stage.classList.remove('thunk'); void stage.offsetWidth; stage.classList.add('thunk');
   await rest;
   setFrame(0);
+}
+
+async function animatePing(landing) {
+  const k = pxScale(), ms = theme.actor.frameMs;
+  for (let f = 0; f <= 2; f++) { setFrame(f); await sleep(ms); } // reach for the button and press it
+  setFrame(3);
+  const cx = SCENE.cx * k, cy = SCENE.cy * k, rim = SCENE.r * k;
+  const reach = Math.min(1.45, Math.max(0.15, Math.hypot(landing.x, landing.y))); // the pulse runs out to the word, at least a little way
+  const dur = 350 + 450 * reach;
+  ping.style.display = 'block';
+  const pulse = ping.animate([
+    { left: `${cx}px`, top: `${cy}px`, width: '0px', height: '0px', opacity: 1 },
+    { left: `${cx - rim * reach}px`, top: `${cy - rim * reach}px`, width: `${2 * rim * reach}px`, height: `${2 * rim * reach}px`, opacity: 0.15 },
+  ], { duration: dur, easing: 'linear', fill: 'forwards' });
+  const rest = (async () => { await sleep(ms * 2); setFrame(4); await sleep(ms * 2); setFrame(5); await sleep(ms * 2); setFrame(0); })();
+  await pulse.finished;
+  ping.style.display = 'none';
+  const [lx, ly] = landingPx(landing, k), fs = 26 * k; // the echo: a flash where the word is
+  flash.style.display = 'block';
+  await flash.animate([
+    { left: `${lx - fs / 2}px`, top: `${ly - fs / 2}px`, width: `${fs}px`, height: `${fs}px`, opacity: 1 },
+    { left: `${lx - fs / 8}px`, top: `${ly - fs / 8}px`, width: `${fs / 4}px`, height: `${fs / 4}px`, opacity: 0 },
+  ], { duration: 320, easing: 'ease-out', fill: 'forwards' }).finished;
+  flash.style.display = 'none';
+  await rest;
+}
+
+// ---- Theme switch ----
+function applyTheme(name) {
+  theme = THEMES[name] || THEMES.saloon;
+  document.body.dataset.theme = theme === THEMES.sonar ? 'sonar' : 'saloon';
+  for (const b of document.querySelectorAll('.themes button')) b.setAttribute('aria-pressed', String(THEMES[b.dataset.theme] === theme));
+  if (document.body.dataset.tab === 'darts') { $('title').textContent = theme.title; document.title = theme.title; }
+  $('d-go').textContent = theme.go; $('d-submit').textContent = theme.go; $('d-next').textContent = theme.next; $('d-again').textContent = theme.again;
+  setFrame(0);
+  try { localStorage.setItem('darts:theme', document.body.dataset.theme); } catch {}
+  render();
+}
+window.dartsApplyTheme = () => applyTheme(document.body.dataset.theme);
+for (const b of document.querySelectorAll('.themes button')) b.addEventListener('click', () => applyTheme(b.dataset.theme));
+{
+  let initial = new URLSearchParams(location.search).get('theme');
+  if (!initial) { try { initial = localStorage.getItem('darts:theme'); } catch {} }
+  applyTheme(initial || 'saloon');
 }
 
 // ---- Readout ----
@@ -284,13 +360,13 @@ async function addThrow(word, entry, animate) {
     throwing = true;
     $('d-form').hidden = true;
     render();
-    await animateThrow(entry);
+    await theme.animate(entry);
     throwing = false;
   }
   renderReadout();
   if (throws.length === ROUNDS) return endGame();
   awaiting = true;
-  msg(score ? `${score} points${score === RINGS[0][1] ? ' — bullseye!' : ''}.` : 'Missed.');
+  msg(score ? `${score} points${score === RINGS[0][1] ? ' — bullseye!' : ''}.` : theme.miss);
   $('d-form').hidden = true;
   $('d-nextp').hidden = false;
   render();

@@ -4,7 +4,7 @@ import os, random
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ASSETS = os.path.join(HERE, "..", "assets")
+ASSETS = os.path.join(HERE, "..", "assets", "saloon")
 os.makedirs(ASSETS, exist_ok=True)
 
 PAL = {
@@ -362,7 +362,7 @@ def preview(a):
         if x + 120 * Z > 760: x, y = 10, y + 60 * Z + 20
     sheet = new(760, tiles.height + nine.height)
     sheet.paste(tiles, (0, 0)); sheet.paste(nine, (0, tiles.height))
-    sheet.save(os.path.join(HERE, "preview-chrome.png"))
+    sheet.save(os.path.join(HERE, "preview-saloon-chrome.png"))
 
 def palette_check(files):
     ok = True

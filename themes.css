@@ -1,0 +1,104 @@
+/* Themes for the Darts tab. The structure is shared; each theme sets colours and sprite URLs.
+   Pixel art lives in assets/<theme>/ at native size and is shown at --px screen pixels per art
+   pixel (set by darts.js from the stage width; about 2.5 at the full 640px column). */
+:root { --px: 3; }
+
+/* ---- Saloon: a Wild West bar, the board on a plank wall, a cowboy throwing darts ---- */
+body[data-theme="saloon"] {
+  --ink: #15090a; --bg: #2a1710; --fg: #f3e2b4; --accent: #f0c050; --muted: #c9a46a; --line: #5a2f1a; --code-bg: #15090a;
+  --title-font: 'Pixelify Sans', sans-serif; --body-font: 'VT323', monospace;
+  --a-wall: url(assets/saloon/wall-tile.png); --a-scene: url(assets/saloon/scene-bg.png); --a-actor: url(assets/saloon/thrower.png);
+  --a-dart: url(assets/saloon/dart.png); --a-sign: url(assets/saloon/sign-9slice.png); --a-panel: url(assets/saloon/panel-9slice.png);
+  --a-button: url(assets/saloon/button-9slice.png); --a-button-active: url(assets/saloon/button-active-9slice.png); --a-input: url(assets/saloon/input-9slice.png);
+  --a-mug: url(assets/saloon/mug.png); --a-bottle: url(assets/saloon/bottle.png);
+  --star: '\2605'; --glow: none;
+}
+/* ---- Sonar: a submarine control room, the board a sonar scope, an operator pinging ---- */
+body[data-theme="sonar"] {
+  --ink: #0a0e12; --bg: #121a22; --fg: #c8ffd9; --accent: #ffd36b; --muted: #8da2b5; --line: #2b3a4a; --code-bg: #0c2a1c;
+  --title-font: 'Pixelify Sans', sans-serif; --body-font: 'VT323', monospace;
+  --a-wall: url(assets/sonar/wall-tile.png); --a-scene: url(assets/sonar/scene-bg.png); --a-actor: url(assets/sonar/operator.png);
+  --a-dart: none; --a-sign: url(assets/sonar/sign-9slice.png); --a-panel: url(assets/sonar/panel-9slice.png);
+  --a-button: url(assets/sonar/button-9slice.png); --a-button-active: url(assets/sonar/button-active-9slice.png); --a-input: url(assets/sonar/input-9slice.png);
+  --a-mug: url(assets/sonar/mug.png); --a-bottle: url(assets/sonar/bottle.png);
+  --star: '\25C9'; --glow: 0 0 6px rgba(108, 242, 155, 0.6);
+}
+
+body[data-tab="darts"] { background: var(--bg) var(--a-wall) repeat; background-size: calc(var(--px) * 48px); color: var(--fg); }
+body[data-tab="darts"] main { padding-top: 10px; }
+body[data-tab="darts"] .px { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+/* Header: a hanging sign and the game toggle as a panel. */
+body[data-tab="darts"] header { align-items: stretch; gap: 12px; margin-bottom: 6px; }
+body[data-tab="darts"] .sign { position: relative; flex: 1; padding: 12px 18px 10px; border: calc(var(--px) * 12px) solid transparent;
+  border-image: var(--a-sign) 12 fill stretch; border-image-width: calc(var(--px) * 12px); image-rendering: pixelated; margin-top: 8px; }
+body[data-tab="darts"] .sign::before, body[data-tab="darts"] .sign::after { content: ''; position: absolute; top: calc(-8px - var(--px) * 12px); width: 3px; height: 8px; background: var(--ink); }
+body[data-tab="darts"] .sign::before { left: 14%; } body[data-tab="darts"] .sign::after { right: 14%; }
+body[data-tab="darts"] .sign h1 { font-family: var(--title-font); font-weight: 700; font-size: 34px; letter-spacing: 0.06em; color: var(--fg); margin: -6px 0 0;
+  text-shadow: 2px 2px 0 var(--ink), var(--glow); display: flex; align-items: center; gap: 10px; }
+body[data-tab="darts"] .sign h1::before, body[data-tab="darts"] .sign h1::after { content: var(--star); color: var(--accent); font-size: 22px; text-shadow: 1px 1px 0 var(--ink); }
+body[data-tab="darts"] .sign .sub { font-family: var(--body-font); font-size: 20px; color: var(--accent); margin: 0; letter-spacing: 0.04em; text-transform: uppercase; }
+body[data-tab="darts"] .views, body[data-tab="darts"] .themes { display: inline-flex; border-radius: 0; overflow: visible; align-self: flex-start; padding: 6px; gap: 6px;
+  border: calc(var(--px) * 12px) solid transparent; border-image: var(--a-panel) 12 fill stretch; border-image-width: calc(var(--px) * 8px); }
+body[data-tab="darts"] .views { margin-top: 8px; }
+body[data-tab="darts"] .views button, body[data-tab="darts"] .themes button { font-family: var(--title-font); font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  background: transparent; border: calc(var(--px) * 8px) solid transparent; border-image: var(--a-button) 8 fill stretch; border-image-width: calc(var(--px) * 4px); padding: 4px 8px; cursor: pointer; }
+body[data-tab="darts"] .views button[aria-pressed="true"], body[data-tab="darts"] .themes button[aria-pressed="true"] { color: var(--ink); border-image-source: var(--a-button-active); }
+body:not([data-tab="darts"]) .themes { display: none; }
+#tab-darts .themes { display: flex; width: max-content; margin: 0 0 8px auto; padding: 3px; border-width: calc(var(--px) * 6px); border-image-width: calc(var(--px) * 6px); }
+#tab-darts .themes button { font-size: 11px; padding: 2px 6px; border-width: calc(var(--px) * 4px); border-image-width: calc(var(--px) * 3px); }
+
+/* The stage: the scene with the board, the actor in front, and a projectile in flight. */
+#tab-darts .stage { position: relative; width: 100%; aspect-ratio: 240 / 300; background: var(--a-scene) 0 0 / 100% 100% no-repeat; image-rendering: pixelated; overflow: hidden;
+  border: calc(var(--px) * 1px) solid var(--ink); box-shadow: 0 0 0 calc(var(--px) * 1px) var(--line); }
+#tab-darts .stage svg { position: absolute; overflow: visible; shape-rendering: crispEdges;
+  /* board disc radius 70 art px centred at (120,128) in a 240x300 scene; the SVG's board radius is 215 of its 600 box */
+  --d: calc(140 / 240 * 600 / 430 * 100%); width: var(--d); height: auto; left: calc(50% - var(--d) / 2); top: calc(128 / 300 * 100% - var(--d) * 0.4); }
+#tab-darts .stage svg text { shape-rendering: auto; font-family: var(--body-font); }
+#tab-darts .stage svg .axis { font-size: 27px; fill: var(--fg); paint-order: stroke; stroke: var(--ink); stroke-width: 4px; letter-spacing: 0.02em; }
+#tab-darts .stage svg .tag { font-size: 24px; fill: var(--fg); paint-order: stroke; stroke: var(--ink); stroke-width: 4px; }
+#tab-darts .stage svg .tag.ans { fill: var(--accent); }
+#tab-darts .stage svg .sweep { transform-origin: 300px 300px; animation: sweep 5s linear infinite; }
+@keyframes sweep { to { transform: rotate(360deg); } }
+#tab-darts .actor { position: absolute; left: 0; bottom: 0; width: calc(var(--px) * 96px); height: calc(var(--px) * 110px);
+  background: var(--a-actor) 0 0 / calc(var(--px) * 576px) calc(var(--px) * 110px) no-repeat; image-rendering: pixelated; pointer-events: none; }
+#tab-darts .dart { position: absolute; left: 0; top: 0; width: calc(var(--px) * 16px); height: calc(var(--px) * 16px); background: var(--a-dart) 0 0 / 100% 100% no-repeat;
+  image-rendering: pixelated; display: none; pointer-events: none; transform-origin: 50% 50%; }
+#tab-darts .ping, #tab-darts .flash { position: absolute; border-radius: 50%; pointer-events: none; display: none; }
+#tab-darts .ping { border: calc(var(--px) * 1px) solid #6cf29b; box-shadow: 0 0 calc(var(--px) * 3px) #27a85e; }
+#tab-darts .flash { background: #c8ffd9; box-shadow: 0 0 calc(var(--px) * 4px) #6cf29b; }
+#tab-darts .stage.thunk svg { animation: thunk 180ms steps(2) 1; }
+@keyframes thunk { 0% { transform: translate(0, 0); } 50% { transform: translate(1px, 2px); } 100% { transform: translate(0, 0); } }
+
+/* The control panel under the stage. */
+#tab-darts .panel { position: relative; margin-top: 10px; padding: 10px 14px 12px; border: calc(var(--px) * 12px) solid transparent;
+  border-image: var(--a-panel) 12 fill stretch; border-image-width: calc(var(--px) * 8px); font-family: var(--body-font); font-size: 21px; color: var(--fg); }
+#tab-darts .panel .legend { color: var(--accent); font-family: var(--title-font); font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 10px; }
+#tab-darts .panel form { margin: 0 0 6px; gap: 10px; }
+#tab-darts .panel input { font-family: var(--body-font); font-size: 24px; color: var(--fg); background: transparent; border: calc(var(--px) * 8px) solid transparent;
+  border-image: var(--a-input) 8 fill stretch; border-image-width: calc(var(--px) * 3px); border-radius: 0; padding: 4px 8px; min-width: 0; text-shadow: var(--glow); }
+#tab-darts .panel input::placeholder { color: var(--muted); opacity: 0.8; }
+#tab-darts .panel button.go, #tab-darts .panel form button, #tab-darts .panel .share button, #tab-darts .panel button.again {
+  font-family: var(--title-font); font-weight: 700; font-size: 16px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: transparent;
+  border: calc(var(--px) * 8px) solid transparent; border-image: var(--a-button) 8 fill stretch; border-image-width: calc(var(--px) * 4px); border-radius: 0; padding: 6px 14px; cursor: pointer; }
+#tab-darts .panel button:active { color: var(--ink); border-image-source: var(--a-button-active); }
+#tab-darts .panel .message { color: var(--accent); font-size: 20px; min-height: 1.2em; margin: 2px 0 6px; }
+#tab-darts .panel .readout { font-size: 20px; margin: 4px 0; }
+#tab-darts .panel .readout li { border-top: 1px solid var(--line); padding: 4px 0; }
+#tab-darts .panel .readout .n { color: var(--muted); } #tab-darts .panel .readout .w { color: var(--fg); } #tab-darts .panel .readout .s { color: var(--accent); } #tab-darts .panel .readout .hint { color: var(--muted); }
+#tab-darts .panel .result { font-family: var(--title-font); font-size: 20px; color: var(--accent); margin: 10px 0 6px; }
+#tab-darts .panel .share code { font-family: var(--body-font); font-size: 20px; background: var(--code-bg); color: var(--fg); border-radius: 0; }
+#tab-darts .panel details { color: var(--muted); font-size: 19px; margin-top: 14px; }
+#tab-darts .panel summary { font-family: var(--title-font); font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+#tab-darts .panel summary::marker { color: var(--accent); }
+#tab-darts .panel details p { margin: 6px 0; }
+#tab-darts .panel .mug, #tab-darts .panel .bottle { position: absolute; pointer-events: none; image-rendering: pixelated; background-size: 100% 100%; background-repeat: no-repeat; }
+#tab-darts .panel .mug { right: 24px; bottom: -4px; width: calc(var(--px) * 20px); height: calc(var(--px) * 26px); background-image: var(--a-mug); }
+#tab-darts .panel .bottle { right: 0; bottom: 6px; width: calc(var(--px) * 12px); height: calc(var(--px) * 30px); background-image: var(--a-bottle); }
+#tab-darts .panel b { color: var(--fg); }
+
+@media (max-width: 480px) {
+  body[data-tab="darts"] .sign h1 { font-size: 26px; }
+  #tab-darts .panel { font-size: 19px; }
+  #tab-darts .panel .mug, #tab-darts .panel .bottle { display: none; }
+}
