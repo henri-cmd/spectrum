@@ -123,7 +123,7 @@ body[data-theme="abyss"] {
 body[data-tab="darts"][data-family="console"] main { max-width: none; padding: 14px; height: 100vh; box-sizing: border-box; display: grid; gap: 14px; /* a fixed height: the fr rows split it and each screen scrolls inside */
   grid-template-columns: minmax(240px, 1fr) minmax(0, 2.4fr) minmax(330px, 1.1fr);
   grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto;
-  grid-template-areas: "head head status" "category scope axes" "timer scope axes" "log scope axes" "log scope manual" "log scope settings" "command command command"; padding-bottom: 44px; }
+  grid-template-areas: "head head head" "category scope score" "timer scope axes" "log scope axes" "log scope manual" "log scope settings" "command command command"; padding-bottom: 44px; }
 body[data-tab="darts"][data-family="console"] header, body[data-family="console"] #tab-darts, body[data-family="console"] .panel { display: contents; }
 body[data-family="console"] .actor, body[data-family="console"] .dart, body[data-family="console"] .mug, body[data-family="console"] .bottle { display: none !important; }
 /* The terminal line between rounds: the result and the prompt to go on; a tap on it goes on too. */
@@ -157,6 +157,7 @@ body[data-family="console"] .plate .crt-lines, body[data-family="console"] .stat
 body[data-family="console"][data-sweep="off"] .stage svg .sweep { display: none; }
 body[data-family="console"] .blk::after { content: attr(data-title); position: absolute; top: 7px; left: 10px; font: 10px/1 var(--label-font); letter-spacing: 0.26em; text-transform: uppercase; color: var(--lbl); z-index: 1; }
 body[data-family="console"] .blk-category { grid-area: category; } body[data-family="console"] .blk-timer { grid-area: timer; } body[data-family="console"] .blk-contacts { grid-area: log; }
+body[data-family="console"] .blk-tally { grid-area: score; }
 body[data-family="console"] .blk-settings { grid-area: settings; }
 body[data-family="console"] .blk-axes { grid-area: axes; } body[data-family="console"] .blk-manual { grid-area: manual; }
 body[data-family="console"] .blk-command, body[data-family="console"] .blk-score { grid-area: command; }
@@ -258,6 +259,12 @@ body[data-family="console"] .blk-category { padding: 30px 20px 16px; }
 body[data-family="console"] .category { text-transform: uppercase; text-align: center; }
 body[data-family="console"] .cat-name { font-size: 52px; line-height: 1; letter-spacing: 0.18em; color: #ffffff; text-shadow: 0 0 14px rgba(134, 216, 168, 0.7), 0 0 2px #fff; }
 body[data-family="console"] .cat-name.dim { color: var(--g2); text-shadow: none; font-size: 36px; }
+body[data-family="console"] .cat-round { text-align: center; font: 11px/1 var(--label-font); letter-spacing: 0.24em; text-transform: uppercase; color: var(--g3); margin-bottom: 8px; overflow: visible !important; }
+body[data-family="console"] .blk-timer .timer, body[data-family="console"] .blk-tally > div { overflow: visible !important; }
+/* Score: one big number. */
+body[data-family="console"] .blk-tally { align-items: center; justify-content: center; text-align: center; padding: 30px 20px 16px; }
+body[data-family="console"] .score-big { font-size: 64px; line-height: 1; letter-spacing: 0.06em; color: #ffffff; text-shadow: 0 0 16px rgba(134, 216, 168, 0.7), 0 0 2px #fff; font-variant-numeric: tabular-nums; }
+body[data-family="console"] .score-sub { font: 11px/1 var(--label-font); letter-spacing: 0.22em; text-transform: uppercase; color: var(--g2); margin-top: 8px; }
 body[data-family="console"] .settings { display: flex; flex-direction: column; gap: 6px; font-size: 17px; text-transform: uppercase; letter-spacing: 0.08em; }
 body[data-family="console"] .settings label { display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--g3); }
 body[data-family="console"] .settings input { appearance: none; flex: none; width: 12px; height: 12px; padding: 0; border: 1px solid var(--g2); border-radius: 2px; margin: 0; background: transparent; cursor: pointer; }
@@ -276,24 +283,27 @@ body[data-family="console"] details p { margin: 8px 0 0; }
 
 @media (max-width: 960px) {
   body[data-tab="darts"][data-family="console"] main { grid-template-columns: 1fr 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 12px; padding: 12px;
-    grid-template-areas: "head status" "category category" "timer timer" "scope scope" "command command" "log log" "axes axes" "manual manual" "settings settings"; padding-bottom: 120px; }
+    grid-template-areas: "head head" "category category" "timer score" "scope scope" "command command" "log log" "axes axes" "manual manual" "settings settings"; padding-bottom: 120px; }
   /* The name plate and the round/score screen share the top row, each on two lines. */
-  body[data-family="console"] .plate { flex-direction: column; align-items: flex-start; gap: 6px; padding: 12px 16px; }
+  body[data-family="console"] .plate { gap: 16px; padding: 12px 16px; }
   body[data-family="console"] .plate h1 { font-size: 20px; letter-spacing: 0.28em; }
   body[data-family="console"] .plate .sub { font-size: 13px; letter-spacing: 0.04em; }
-  body[data-family="console"] .sign .status { padding: 12px 14px; font-size: 18px; letter-spacing: 0.08em; }
-  body[data-family="console"] .sign .status > span { flex-direction: column; gap: 4px; align-items: center; white-space: nowrap; }
+  body[data-family="console"] .blk-timer, body[data-family="console"] .blk-tally { min-height: 0 !important; }
+  body[data-family="console"] .blk-tally { padding: 24px 16px 10px; position: sticky; top: 6px; z-index: 20; justify-content: flex-start; }
+  body[data-family="console"] .score-big { font-size: 34px; margin-top: 2px; }
+  body[data-family="console"] .score-sub { display: none; }
   /* The timer pins under the header as the page scrolls, as one short line. */
   body[data-family="console"] .blk-timer { position: sticky; top: 6px; z-index: 20; padding: 24px 16px 10px; }
-  body[data-family="console"] .blk-timer .timer { flex-direction: row; align-items: baseline; gap: 14px; }
-  body[data-family="console"] .blk-timer .clock { font-size: 36px; }
+  body[data-family="console"] .blk-timer .timer { flex-direction: column; align-items: flex-start; gap: 4px; }
+  body[data-family="console"] .blk-timer .clock { font-size: 30px; }
+  body[data-family="console"] .blk-timer .clock-label { font-size: 10px; white-space: nowrap; }
   /* The word input is a short chin fixed to the bottom of the screen. */
   body[data-family="console"] .blk-command { position: fixed; left: 0; right: 0; bottom: 0; padding: 14px 18px calc(14px + env(safe-area-inset-bottom)); z-index: 30; min-height: 0; border-radius: 0; border-left: 0; border-right: 0; border-bottom: 0; box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5); }
   body[data-family="console"] .blk-command::before { inset: 6px 6px 0; border-radius: 8px 8px 0 0; }
   body[data-family="console"] .blk-command .crt-lines { inset: 6px 6px 0; border-radius: 8px 8px 0 0; }
   body[data-family="console"] #d-guess { font-size: 28px; padding: 2px 0; }
   body[data-family="console"] .blk-timer, body[data-family="console"] .blk-command, body[data-family="console"] .blk-category { min-height: 0 !important; }
-  body[data-family="console"] .blk-category { padding: 26px 16px 12px; } body[data-family="console"] .cat-name { font-size: 40px; }
+  body[data-family="console"] .blk-category { padding: 26px 16px 12px; } body[data-family="console"] .cat-name { font-size: 36px; } body[data-family="console"] .cat-round { font-size: 10px; letter-spacing: 0.18em; }
   body[data-family="console"] .blk-axes { min-height: 420px; }
   body[data-family="console"] .stage { width: 100%; height: auto; aspect-ratio: 1; margin: 0; }
   body[data-family="console"] .blk { min-height: 130px; }

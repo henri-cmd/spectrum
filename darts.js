@@ -15,6 +15,7 @@ const BULL = 0.1;             // within this distance counts as a bullseye
 const MIN_R = 0.3, MAX_R = 0.75;  // random targets sit in this band, clear of the centre
 const REACH = 0.2;            // a target must have a curated word within this distance
 const KINDS = ['target', 'target', 'target', 'centre', 'reverse', 'boss'];
+const KIND_NAMES = { target: 'Contact', centre: 'Dead centre', reverse: 'Reverse bearing', boss: 'Boss' };
 const SHARDS = 256;
 const FIT_THRESHOLD = 25;     // category fit is 0..100; lenient so real words are rarely refused
 const C = 300, R = 215;       // board centre and the length of one unit, in SVG units
@@ -217,13 +218,15 @@ function render() {
 
 // ---- The other screens ----
 function renderSide() {
-  const st = $('d-status'); let stText = st.querySelector('span'); if (!stText) { stText = document.createElement('span'); st.prepend(stText); }
-  stText.innerHTML = phase === 'over' ? `<b>Final</b><b>${total()} pts</b>` : phase === 'idle' ? `<b>Sonar #${dayNumber}</b><b>${ROUNDS} rounds</b>` : `<b>Round ${roundIdx + 1} of ${ROUNDS}</b><b>Score ${total()}</b>`;
+  $('d-round').textContent = phase === 'idle' ? `${ROUNDS} rounds` : phase === 'over' ? 'all rounds complete' : `Round ${roundIdx + 1} of ${ROUNDS} · ${KIND_NAMES[kind(roundIdx)]}`;
   $('d-category').innerHTML = phase === 'idle' ? `<div class="cat-name dim">—</div>` : `<div class="cat-name">${esc(cat(roundIdx).name)}</div>`;
+  $('d-score-big').textContent = total();
+  const lastDone = phase === 'between' || phase === 'over' ? rounds[roundIdx] : null;
+  $('d-score-sub').textContent = phase === 'idle' ? `Sonar #${dayNumber}` : phase === 'over' ? 'final' : lastDone ? `+${lastDone.score} this round` : `${rounds.filter(Boolean).length} of ${ROUNDS} rounds scored`;
   // Log: one row per round played, plus the round in play.
   $('d-readout').innerHTML = Array.from({ length: ROUNDS }, (_, k) => {
     const r = rounds[k], kd = kind(k), name = phase === 'idle' ? '' : (k <= roundIdx ? cat(k).name : '');
-    const tag = kd === 'centre' ? ' · centre' : kd === 'reverse' ? ' · reverse' : kd === 'boss' ? ' · boss' : '';
+    const tag = ` · ${KIND_NAMES[kd].toLowerCase()}`;
     if (r) {
       const what = r.kind === 'boss' ? `${r.hits.length} hit${r.hits.length === 1 ? '' : 's'}` : r.kind === 'reverse' ? esc(r.word) : (r.word ? esc(r.word) : 'no answer');
       const detail = r.kind === 'boss' ? `${r.hits.map(h => `${esc(h.word)} ${h.points}`).join(' · ') || 'nothing landed'}` : r.word ? `${r.points} hit + ${r.bonus} time · ${fmt(r.seconds)}` : `time up`;
