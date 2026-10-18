@@ -450,8 +450,7 @@ function renderSide() {
   if (!theme.console || !puzzle) return;
   const cur = over ? -1 : round(), last = awaiting || over ? throws[throws.length - 1] : null, sum = total(throws);
   $('d-status').textContent = over ? `Final ${sum} / ${MAX_SCORE}` : `Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS} · Score ${sum} / ${MAX_SCORE}`;
-  const [X, Y] = axes.map(i => puzzle.spectrums[i]);
-  $('d-category').innerHTML = `<div class="cat-name">${esc(puzzle.category)}</div><div class="cat-axes"><span>${esc(X.low)} ↔ ${esc(X.high)}</span><span>${esc(Y.low)} ↔ ${esc(Y.high)}</span></div><div class="cat-meta">puzzle #${puzzle.number} · ${puzzle.date}</div>`;
+  $('d-category').innerHTML = `<div class="cat-name">${esc(puzzle.category)}</div>`;
   const tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
   renderTimes();
   renderReadout();
