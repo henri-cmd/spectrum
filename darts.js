@@ -232,11 +232,7 @@ function renderSide() {
     if (k === roundIdx && phase === 'playing') return `<li class="cur"><span class="n">${k + 1}</span><span class="w">${esc(name)}${tag}</span><span class="s"></span><span class="brg">${kd === 'reverse' ? `where is ${esc(reverseWord.word)}?` : brgRng(targets[k])}</span></li>`;
     return '';
   }).join('');
-  renderTimes();
   renderAxes();
-}
-function renderTimes() {
-  $('d-times').innerHTML = rounds.map((r, k) => r ? `<li><span class="n">${k + 1}</span><span class="w">${esc(r.kind === 'boss' ? 'boss' : r.word || '—')}</span><span class="t">${fmt(r.seconds)}</span></li>` : '').join('');
 }
 // Axis analysis: each spectrum as a vertical bar; the target hollow, the latest word solid.
 function renderAxes() {
