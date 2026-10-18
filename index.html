@@ -85,12 +85,16 @@
     <p id="d-message" class="message"></p>
     <ol id="d-readout" class="readout"></ol>
     <p id="d-result" class="result"></p>
-    <p id="d-share" class="share" hidden><code id="d-share-text"></code><button id="d-copy">Copy</button><button class="again" id="d-again">New target</button></p>
+    <p id="d-share" class="share" hidden><code id="d-share-text"></code><button id="d-copy">Copy</button><button class="again" id="d-again">New targets</button></p>
+    <div id="d-reveal-wrap" hidden>
+      <p class="legend">What would have hit each target:</p>
+      <ol id="d-reveal" class="readout"></ol>
+    </div>
     <details>
       <summary>How to play</summary>
-      <p>The board is a grid of two spectrums from today's category: one runs left to right, the other bottom to top. A target is set at a random point on the board.</p>
-      <p>Throw a word: it lands where it truly sits on both spectrums. A dart scores by how close it lands to the target, 100 for a bullseye. Five darts; a bullseye ends the game straight away. Your result is your best dart.</p>
-      <p>The readout under the board says which way each dart missed, so the next throw can correct for it.</p>
+      <p>The board is a grid of two spectrums from today's category, chosen because they're the least alike: one runs left to right, the other bottom to top.</p>
+      <p>Each round sets a target somewhere new on the board. Throw a word at it: the word lands where it truly sits on both spectrums, and scores the ring it lands in — 50 for the bull, then 25, 10 and 5. Four rounds, four targets, 200 points at most. The last target is always the bull at the very centre of the board: the word that sits dead in the middle of both spectrums.</p>
+      <p>The readout says which way each dart missed. At the end, the words that would have scored most on each target are revealed.</p>
     </details>
   </section>
 </main>

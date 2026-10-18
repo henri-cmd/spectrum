@@ -1,29 +1,29 @@
-// Darts — the second game, on the Darts tab. Reuses today's Spectrum puzzle data: two of its four
-// spectrums become the board's axes, and a target is set at a random point on the board.
+// Darts — the second game, on the Darts tab. Reuses today's Spectrum puzzle data: the two least
+// alike of its four spectrums become the board's axes (build.py picks them). Each round sets a
+// fresh target, with rings around it worth points; one word is thrown at each. At the end the
+// words that would have hit each target are revealed.
 // Everything lives in one closure so nothing collides with game.js.
 (() => {
-const DARTS = 5;
+const ROUNDS = 4;
 const SHARDS = 256;
 const FIT_THRESHOLD = 25;    // same leniency as Spectrum
-const TARGET_RADIUS = 0.75;  // targets stay inside this radius so a real word can always get close
-const BULL = 0.1;            // a dart within this distance is a bullseye
-const C = 300, R = 215;      // board centre and the screen length of one unit
-const GRID = 0.25;           // matrix spacing, in units
+const RINGS = [[0.1, 50], [0.2, 25], [0.3, 10], [0.42, 5]]; // [radius in units, points], bull first
+const MIN_R = 0.3, MAX_R = 0.75;  // the quarter targets sit in this band, clear of the centre bull
+const REACH = 0.2;            // a target must have a common word inside its 25-point ring
+const C = 300, R = 215;       // board centre and the screen length of one unit
+const GRID = 0.25;            // matrix spacing, in units
 
 // ---- Scoring: the one place to change the rule ----
-// A dart scores by its distance from the target: 100 inside the bull, then falling to 0 one unit away.
-// The game's score is the best dart.
-function scoreDart(d) {
-  if (d <= BULL) return 100;
-  return Math.max(0, Math.min(99, Math.round(100 * (1 - d))));
-}
-const scoreGame = throws => throws.length ? Math.max(...throws.map(t => t.score)) : 0;
+// A dart scores the points of the innermost ring it lands in; the game's score is the total.
+const scoreDart = d => (RINGS.find(([r]) => d <= r) || [0, 0])[1];
+const total = ts => ts.reduce((s, t) => s + t.score, 0);
+const MAX_SCORE = ROUNDS * RINGS[0][1];
 
 // ---- State ----
-let puzzle;               // today's Spectrum puzzle: {id, category, spectrums, date, number}
+let puzzle;               // today's Spectrum puzzle: {id, category, spectrums, board, common, date, number}
 let axes = [0, 1];        // which of the puzzle's spectrums run left→right and bottom→top
-let target = { x: 0, y: 0 };
-let throws = [];          // {word, x, y, d, score}
+let targets = [];         // one {x, y} per round
+let throws = [];          // {word, x, y, d, score}, throw k was at targets[k]
 let started = false, over = false, practice = false;
 const shardCache = new Map();
 
@@ -32,8 +32,10 @@ const svg = $('d-board');
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const normalise = s => s.trim().toLowerCase().replace(/[^a-z\s-]/g, '').replace(/[\s-]+/g, ' ').trim();
 const sx = x => C + x * R, sy = y => C - y * R;   // units → screen
+const round = () => throws.length;                 // index of the round being played
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
-// ---- Seeded random: everyone gets the same target on the same day ----
+// ---- Seeded random: everyone gets the same targets on the same day ----
 function fnv1a(s) {
   let h = 0x811c9dc5;
   for (const b of new TextEncoder().encode(s)) h = Math.imul(h ^ b, 0x01000193) >>> 0;
@@ -47,12 +49,31 @@ function mulberry32(a) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-// Picks the two axes and a target uniformly inside the target disc.
-function setUp(rand) {
-  const a = Math.floor(rand() * 4), b = (a + 1 + Math.floor(rand() * 3)) % 4;
-  axes = [a, b];
-  const ang = rand() * 2 * Math.PI, r = Math.sqrt(rand()) * TARGET_RADIUS;
-  target = { x: Math.round(100 * r * Math.cos(ang)) / 100, y: Math.round(100 * r * Math.sin(ang)) / 100 };
+
+// The common category words, placed on the board.
+const commonWords = () => Object.entries(puzzle.common || {}).map(([word, p]) => ({ word, x: p[axes[0]] / 100, y: p[axes[1]] / 100 }));
+
+// One target per round. The first rounds each land in a different quarter of the board (in a random
+// order) so that between them they explore the whole map; a target is only kept if a common word can
+// score 25 on it. The last round is always the bull at the very centre of the board.
+function makeTargets(rand) {
+  const quarters = [0, 1, 2, 3];
+  for (let i = 3; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [quarters[i], quarters[j]] = [quarters[j], quarters[i]]; }
+  const words = commonWords();
+  const ts = quarters.slice(0, ROUNDS - 1).map(qd => {
+    let best = null;
+    for (let tries = 0; tries < 40; tries++) {
+      const ang = (qd + 0.1 + 0.8 * rand()) * Math.PI / 2;
+      const r = Math.sqrt(MIN_R ** 2 + (MAX_R ** 2 - MIN_R ** 2) * rand());
+      const t = { x: Math.round(100 * r * Math.cos(ang)) / 100, y: Math.round(100 * r * Math.sin(ang)) / 100 };
+      const near = words.length ? Math.min(...words.map(w => dist(w, t))) : 0;
+      if (!best || near < best.near) best = { t, near };
+      if (near <= REACH) break;
+    }
+    return best.t;
+  });
+  ts.push({ x: 0, y: 0 });
+  return ts;
 }
 
 // ---- Word lookup (same shard files as Spectrum) ----
@@ -70,6 +91,27 @@ async function lookup(word) {
 }
 
 // ---- Board ----
+// A target: rings worth points, numbered. `live` draws it in full with point labels; otherwise faded.
+function targetSvg(t, n, live) {
+  const x = sx(t.x), y = sy(t.y);
+  if (!live) { // a past target: just its bull, its outer ring and its round number
+    return `<circle cx="${x}" cy="${y}" r="${RINGS[RINGS.length - 1][0] * R}" fill="none" stroke="#ccc" stroke-width="1" stroke-dasharray="3 4"/>` +
+           `<circle cx="${x}" cy="${y}" r="${RINGS[0][0] * R}" fill="#e4e4e4"/>` +
+           `<text x="${x}" y="${y + 3.5}" font-size="10" fill="#777" text-anchor="middle">${n}</text>`;
+  }
+  let s = '';
+  [...RINGS].reverse().forEach(([r, pts], k) => {
+    const last = k === RINGS.length - 1;
+    s += `<circle cx="${x}" cy="${y}" r="${r * R}" fill="#c00" fill-opacity="${last ? 0.3 : 0.07}" stroke="#c00" stroke-width="1.2"/>`;
+    if (!last) { // points sit in each band, up the right-hand diagonal
+      const rr = (r + RINGS[RINGS.length - 2 - k][0]) / 2 * R;
+      s += `<text x="${x + rr * 0.72}" y="${y - rr * 0.72 + 3.5}" font-size="10" fill="#c00" text-anchor="middle">${pts}</text>`;
+    }
+  });
+  s += `<text x="${x}" y="${y + 4}" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${RINGS[0][1]}</text>`;
+  return s;
+}
+
 function render() {
   if (!puzzle) return;
   const [X, Y] = axes.map(i => puzzle.spectrums[i]);
@@ -82,7 +124,10 @@ function render() {
     s += `<line x1="${sx(v)}" y1="${sy(-1)}" x2="${sx(v)}" y2="${sy(1)}" stroke="${col}" stroke-width="1"/>`;
     s += `<line x1="${sx(-1)}" y1="${sy(v)}" x2="${sx(1)}" y2="${sy(v)}" stroke="${col}" stroke-width="1"/>`;
   }
-  s += `<circle cx="${C}" cy="${C}" r="${R * 0.5}" fill="none" stroke="#ccc" stroke-width="1" stroke-dasharray="3 4"/>`;
+  if (started) {
+    targets.forEach((t, k) => { if (k < round() || over) s += targetSvg(t, k + 1, false); });
+    if (!over) s += targetSvg(targets[round()], round() + 1, true);
+  }
   s += '</g>';
   // Axis end words.
   s += `<text class="axis" x="${sx(-1) - 10}" y="${C + 5}" text-anchor="end">${esc(X.low)}</text>`;
@@ -90,21 +135,18 @@ function render() {
   s += `<text class="axis" x="${C}" y="${sy(1) - 12}" text-anchor="middle">${esc(Y.high)}</text>`;
   s += `<text class="axis" x="${C}" y="${sy(-1) + 22}" text-anchor="middle">${esc(Y.low)}</text>`;
   if (!started) { svg.innerHTML = s; return; }
-  // Target: a crosshair with the bull drawn to scale.
-  const tx = sx(target.x), ty = sy(target.y);
-  s += `<circle cx="${tx}" cy="${ty}" r="${BULL * R}" fill="#c00" fill-opacity="0.15" stroke="#c00" stroke-width="1.5"/>`;
-  s += `<line x1="${tx - 16}" y1="${ty}" x2="${tx + 16}" y2="${ty}" stroke="#c00" stroke-width="1.5"/>`;
-  s += `<line x1="${tx}" y1="${ty - 16}" x2="${tx}" y2="${ty + 16}" stroke="#c00" stroke-width="1.5"/>`;
-  s += `<circle cx="${tx}" cy="${ty}" r="2.5" fill="#c00"/>`;
-  // Darts: the newest is filled and tied to the target with a dashed line.
+  // Darts: the newest is filled and tied to its target with a dashed line.
   const labels = [];
   throws.forEach((t, k) => {
-    const x = sx(t.x), y = sy(t.y), last = k === throws.length - 1;
-    if (last && !over) s += `<line x1="${x}" y1="${y}" x2="${tx}" y2="${ty}" stroke="#999" stroke-width="1" stroke-dasharray="2 3"/>`;
-    s += `<circle cx="${x}" cy="${y}" r="5" fill="${last ? '#111' : '#fff'}" stroke="#111" stroke-width="1.7"/>`;
-    labels.push({ x, y, word: t.word, n: k + 1 });
+    const x = sx(t.x), y = sy(t.y), last = k === throws.length - 1, tg = targets[k];
+    if (last && !over) s += `<line x1="${x}" y1="${y}" x2="${sx(tg.x)}" y2="${sy(tg.y)}" stroke="#999" stroke-width="1" stroke-dasharray="2 3"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="5" fill="${last && !over ? '#111' : '#fff'}" stroke="#111" stroke-width="1.7"/>`;
+    labels.push({ x, y, word: t.word, fill: '#111' });
   });
-  // Words beside their darts: to the right unless near the right edge; pushed down when they'd overlap.
+  // At the end, the best word for each target is shown where it sits.
+  if (over) for (const a of answers()) if (a.best && !throws.some(t => t.word === a.best.word)) labels.push({ x: sx(a.best.x), y: sy(a.best.y), word: a.best.word, fill: '#c00', dot: true });
+  for (const l of labels) if (l.dot) s += `<circle cx="${l.x}" cy="${l.y}" r="3.5" fill="#c00"/>`;
+  // Words beside their dots: to the right unless near the right edge; pushed down when they'd overlap.
   for (const l of labels) {
     const right = l.x < C + R * 0.55, w = (l.word.length + 2) * 7.5;
     l.tx = right ? l.x + 10 : l.x - 10; l.anchor = right ? 'start' : 'end'; l.ty = l.y + 4;
@@ -114,27 +156,39 @@ function render() {
     const A = labels[a], B = labels[b];
     if (A.x0 < B.x1 && B.x0 < A.x1 && Math.abs(A.ty - B.ty) < 15) B.ty = A.ty + 15;
   }
-  for (const l of labels) s += `<text class="tag" x="${l.tx}" y="${l.ty}" text-anchor="${l.anchor}">${esc(l.word)}</text>`;
+  for (const l of labels) s += `<text class="tag" x="${l.tx}" y="${l.ty}" text-anchor="${l.anchor}" fill="${l.fill}">${esc(l.word)}</text>`;
   svg.innerHTML = s;
-  $('d-legend').textContent = `✚ target   ○ dart   ● latest dart${practice ? '   · practice target' : ''}`;
+  $('d-legend').textContent = over
+    ? `○ your darts   ● words that would have scored most on each numbered target${practice ? '   · practice' : ''}`
+    : `Round ${round() + 1} of ${ROUNDS}: throw a word at the red target.   ○ earlier darts${practice ? '   · practice' : ''}`;
 }
 
 // ---- Readout ----
-function hint(t) {
-  if (t.d <= BULL) return 'bullseye!';
+function hint(t, tg) {
+  if (t.d <= RINGS[0][0]) return 'bullseye!';
   const parts = [];
   axes.forEach((i, k) => {
-    const gap = (k === 0 ? t.x - target.x : t.y - target.y);
+    const gap = k === 0 ? t.x - tg.x : t.y - tg.y;
     if (Math.abs(gap) < 0.12) return;
     const sp = puzzle.spectrums[i];
     parts.push(`${Math.abs(gap) > 0.6 ? 'much ' : ''}more ${sp[gap > 0 ? 'low' : 'high']}`);
   });
   const off = Math.hypot(t.x, t.y) > 1 ? 'off the board — ' : '';
-  return off + (parts.length ? `needs ${parts.join(', ')}` : 'so close');
+  return off + (parts.length ? `needed ${parts.join(', ')}` : 'so close');
 }
 function renderReadout() {
   $('d-readout').innerHTML = throws.map((t, k) =>
-    `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="hint">${hint(t)}</span></li>`).join('');
+    `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="hint">${hint(t, targets[k])}</span></li>`).join('');
+}
+
+// For each round: the common words that would have scored, best first (at most four shown).
+function answers() {
+  const words = commonWords();
+  return targets.map(tg => {
+    const hits = words.map(w => ({ ...w, d: dist(w, tg), score: scoreDart(dist(w, tg)) }))
+      .filter(w => w.score > 0).sort((a, b) => a.d - b.d);
+    return { hits: hits.slice(0, 4), best: hits[0] };
+  });
 }
 
 // ---- Game flow ----
@@ -161,43 +215,44 @@ async function submitThrow(e) {
   if (!entry) return msg(`"${word}" isn't a word I know.`);
   if (entry.fit < FIT_THRESHOLD) return msg(`"${word}" doesn't look like ${puzzle.category.toLowerCase()} to me — try another word.`);
   $('d-guess').value = '';
-  msg('');
   addThrow(word, entry);
   save();
 }
 
 function addThrow(word, entry) {
-  const d = Math.hypot(entry.x - target.x, entry.y - target.y);
-  throws.push({ word, x: entry.x, y: entry.y, d, score: scoreDart(d) });
+  const tg = targets[round()];
+  const d = dist(entry, tg), score = scoreDart(d);
+  throws.push({ word, x: entry.x, y: entry.y, d, score });
   renderReadout();
+  if (throws.length === ROUNDS) return endGame();
+  msg(score ? `${score} points${score === RINGS[0][1] ? ' — bullseye!' : ''}. New target.` : 'Missed. New target.', score ? '#111' : '#a00');
   render();
-  if (d <= BULL || throws.length === DARTS) return endGame();
-  if (throws.length === DARTS - 1) msg('Last dart.', '#111');
 }
 
 function endGame() {
   over = true;
   $('d-form').hidden = true;
   msg('');
-  const best = throws.reduce((a, b) => b.score > a.score ? b : a);
-  const bull = best.d <= BULL;
-  const total = throws.reduce((s, t) => s + t.score, 0);
-  $('d-result').textContent = bull
-    ? `Bullseye with "${best.word}" on dart ${throws.indexOf(best) + 1}! Score ${best.score}.`
-    : `Best dart "${best.word}", ${best.score}. Total ${total} over ${throws.length}.`;
-  $('d-share-text').textContent = `Darts #${puzzle.number} ${bull ? '🎯' : '🏹'} ${best.score} · ${throws.map(t => t.score).join(' ')}`;
+  const sum = total(throws), bulls = throws.filter(t => t.score === RINGS[0][1]).length;
+  $('d-result').textContent = `Score ${sum} of ${MAX_SCORE}${bulls ? `, with ${bulls} bullseye${bulls > 1 ? 's' : ''}` : ''}.`;
+  $('d-share-text').textContent = `Darts #${puzzle.number} · ${sum}/${MAX_SCORE} · ${throws.map(t => t.score).join(' ')}`;
   $('d-share').hidden = false;
+  $('d-reveal').innerHTML = answers().map((a, k) => {
+    const you = throws[k];
+    const list = a.hits.length ? a.hits.map(h => `${esc(h.word)} <span class="s">${h.score}</span>`).join(', ') : 'no common word scores here';
+    return `<li><span class="n">${k + 1}</span><span class="hint">you threw <b>${esc(you.word)}</b> for ${you.score} · best: ${list}</span></li>`;
+  }).join('');
+  $('d-reveal-wrap').hidden = false;
   render();
 }
 
-// A fresh, unseeded target on the same board for another go. Practice games aren't saved.
+// Fresh, unseeded targets on the same board for another go. Practice games aren't saved.
 function again() {
   practice = true; over = false; throws = [];
-  const keep = axes;
-  setUp(Math.random);
-  axes = keep;
-  $('d-readout').innerHTML = ''; $('d-result').textContent = ''; $('d-share').hidden = true;
+  targets = makeTargets(Math.random);
+  $('d-readout').innerHTML = ''; $('d-result').textContent = ''; $('d-share').hidden = true; $('d-reveal-wrap').hidden = true;
   $('d-form').hidden = false;
+  msg('');
   render();
   $('d-guess').focus();
 }
@@ -218,6 +273,7 @@ async function restore() {
     const entry = await lookup(w);
     if (entry) addThrow(w, entry);
   }
+  if (!over) msg('');
   save();
 }
 
@@ -240,7 +296,8 @@ $('d-copy').addEventListener('click', () => navigator.clipboard.writeText($('d-s
     puzzle = await fetch(`puzzles/${id}/puzzle.json`).then(r => r.json());
     puzzle.date = date;
     puzzle.number = Math.round((Date.parse(date) - Date.parse(index.launch)) / 864e5) + 1;
-    setUp(mulberry32(fnv1a(`darts:${id}:${date}`)));
+    axes = puzzle.board || [0, 1];
+    targets = makeTargets(mulberry32(fnv1a(`darts:${id}:${date}`)));
     $('d-sub').textContent = `#${puzzle.number} · ${now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })} · ${puzzle.category}`;
     render();
     $('d-go').disabled = false;

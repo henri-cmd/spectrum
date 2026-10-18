@@ -162,13 +162,28 @@ def main():
         if p['answer'] not in index:
             raise SystemExit(f'answer "{p["answer"]}" is not in the vocabulary')
         ans = index[p['answer']]
+        fit = fits[cid]
+        # For Darts: the board's two axes are the least correlated pair of the puzzle's spectrums
+        # (measured over the words that fit the category), and `common` is the category's hand-picked
+        # words (its seeds and every spectrum's anchors) with their positions, used to place reachable
+        # targets and to reveal, at the end, which words would have hit each target. Fit-based lists
+        # were tried and gave generic words ("food", "job"); the curated ones are real category items.
+        # The Spectrum answer is left out of it.
+        fitting = np.where(fit >= 50)[0]
+        corr = np.corrcoef(cols[fitting].T) if len(fitting) > 2 else np.eye(4)
+        board = min(((i, j) for i in range(4) for j in range(i + 1, 4)), key=lambda ij: abs(corr[ij]))
+        curated = set(cat['seeds'])
+        for spec in cat['spectrums'].values():
+            curated |= set(spec.get('anchors', {}))
+        common = {w: [int(v) for v in q[index[w]]] for w in sorted(curated) if w in index and w != p['answer']}
         json.dump({
             'id': p['id'], 'category': cat['name'], 'answer': p['answer'],
             'answerPos': [int(v) for v in q[ans]],
             'spectrums': [dict(zip(('low', 'high'), k.split('|'))) for k in p['spectrums']],
+            'board': list(board), 'common': common,
         }, open(os.path.join(out, 'puzzle.json'), 'w'))
+        print(f'  board {p["spectrums"][board[0]]} x {p["spectrums"][board[1]]} (r={corr[board]:+.2f}), {len(common)} common words')
         shards = [{} for _ in range(SHARDS)]
-        fit = fits[cid]
         for i, w in enumerate(words):
             shards[fnv1a(w) % SHARDS][w] = [int(v) for v in q[i]] + [int(fit[i])]
         for n, shard in enumerate(shards):
