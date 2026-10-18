@@ -356,7 +356,7 @@ new ResizeObserver(placeCursor).observe(document.body);
 document.fonts && document.fonts.ready.then(placeCursor);
 
 // Scanline overlays for the console's screens (styled only on the console themes).
-for (const el of document.querySelectorAll('#tab-darts .blk, #tab-darts .stage, header .sign')) { const d = document.createElement('div'); d.className = 'crt-lines'; d.setAttribute('aria-hidden', 'true'); el.appendChild(d); }
+for (const el of document.querySelectorAll('#tab-darts .blk, #tab-darts .stage, header .plate, header .status')) { const d = document.createElement('div'); d.className = 'crt-lines'; d.setAttribute('aria-hidden', 'true'); el.appendChild(d); }
 
 // ---- Settings: CRT effects, the sweep, a ping sound ----
 const SETTINGS = { crt: true, sweep: true, sound: false };
@@ -449,7 +449,8 @@ function renderReadout() {
 function renderSide() {
   if (!theme.console || !puzzle) return;
   const cur = over ? -1 : round(), last = awaiting || over ? throws[throws.length - 1] : null, sum = total(throws);
-  $('d-status').textContent = over ? `Final ${sum} / ${MAX_SCORE}` : `Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS} · Score ${sum} / ${MAX_SCORE}`;
+  const st = $('d-status'); let stText = st.querySelector('span'); if (!stText) { stText = document.createElement('span'); st.prepend(stText); } // the overlay stays beside the text
+  stText.textContent = over ? `Final ${sum} / ${MAX_SCORE}` : `Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS} · Score ${sum} / ${MAX_SCORE}`;
   $('d-category').innerHTML = `<div class="cat-name">${esc(puzzle.category)}</div>`;
   const tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
   renderTimes();
