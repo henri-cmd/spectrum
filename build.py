@@ -200,9 +200,15 @@ def main():
     gq = np.rint(gcols * 100).astype(np.int16)
     gcorr = np.corrcoef(gcols[:50000].T)
     pairs = sorted(((i, j) for i in range(len(gkeys)) for j in range(i + 1, len(gkeys))), key=lambda ij: abs(gcorr[ij]))
-    pairs = [list(ij) for ij in pairs if abs(gcorr[ij]) <= 0.3] or [list(pairs[0])]
-    # The arena's categories are the specific ones in arena-categories.json: each is its seed words.
+    # The arena's categories are the specific ones in arena-categories.json: each is its seed words,
+    # and the general spectrums that make sense for it (no small|big for colours). A day's axis pair
+    # must be weakly correlated and sensible for at least six categories (a game is six rounds).
     acats = json.load(open(os.path.join(SRC, 'arena-categories.json')))['categories']
+    for cat in acats:
+        cat['axes'] = [gkeys.index(k) for k in cat['axes']]
+    covers = lambda ij: sum(1 for cat in acats if ij[0] in cat['axes'] and ij[1] in cat['axes'])
+    pairs = [list(ij) for ij in pairs if abs(gcorr[ij]) <= 0.35 and covers(ij) >= 6]
+    assert pairs, 'no axis pair fits six categories'
     afits, curated, thresholds, missing_seeds = {}, {}, {}, {}
     for cat in acats:
         seeds = [w for w in cat['seeds'] if w in index]
@@ -223,7 +229,7 @@ def main():
     os.makedirs(os.path.join(out, 'w'))
     json.dump({
         'spectrums': [dict(zip(('low', 'high'), k.split('|'))) for k in gkeys],
-        'categories': [{'id': cat['id'], 'name': cat['name'], 'threshold': thresholds[cat['id']]} for cat in acats],
+        'categories': [{'id': cat['id'], 'name': cat['name'], 'threshold': thresholds[cat['id']], 'axes': cat['axes']} for cat in acats],
         'pairs': pairs, 'curated': curated, 'launch': args.launch,
     }, open(os.path.join(out, 'arena.json'), 'w'))
     for cid, miss in missing_seeds.items():
@@ -236,7 +242,7 @@ def main():
         shards[fnv1a(w) % SHARDS][w] = [int(v) for v in gq[i]] + [int(f[i]) for f in catfits]
     for n, shard in enumerate(shards):
         json.dump(shard, open(os.path.join(out, 'w', f'{n:02x}.json'), 'w'), separators=(',', ':'))
-    print(f'arena: axes {gkeys}; pairs {[(gkeys[i], gkeys[j], round(float(gcorr[i, j]), 2)) for i, j in pairs]}; '
+    print(f'arena: axes {gkeys}; pairs {[(gkeys[i], gkeys[j], round(float(gcorr[i, j]), 2), covers((i, j))) for i, j in pairs]}; '
           f'{len(catids)} categories, thresholds {thresholds}')
 
     # Schedule: each weekday has a category; that category's puzzles are used in turn, one per week.

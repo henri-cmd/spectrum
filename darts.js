@@ -78,8 +78,11 @@ const curatedWords = ci => Object.entries(arena.curated[arena.categories[ci].id]
 // (each reachable by one of its category's curated words), the centre bull for round 4, and the word
 // for the reverse round.
 function setUpDay(rand) {
+  // The pair is the day's, and the rounds draw only categories the pair makes sense for
+  // (every pair in arena.pairs covers at least six categories; older data without 'axes' allows all).
   axes = arena.pairs[dayNumber % arena.pairs.length];
-  const cats = arena.categories.map((_, i) => i);
+  const fits = c => !c.axes || (c.axes.includes(axes[0]) && c.axes.includes(axes[1]));
+  const cats = arena.categories.map((c, i) => fits(c) ? i : -1).filter(i => i >= 0);
   for (let i = cats.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [cats[i], cats[j]] = [cats[j], cats[i]]; }
   catOrder = Array.from({ length: ROUNDS }, (_, k) => cats[k % cats.length]);
   const quarters = [0, 1, 2, 3];
@@ -116,7 +119,7 @@ async function lookup(word, ci) {
   const entries = await Promise.all(parts.map(async p => (await shard(p))[p]));
   if (entries.some(e => !e)) return null;
   const at = i => entries.reduce((s, e) => s + e[i], 0) / entries.length / 100;
-  return { x: at(axes[0]), y: at(axes[1]), fit: Math.min(...entries.map(e => e[6 + ci])) };
+  return { x: at(axes[0]), y: at(axes[1]), fit: Math.min(...entries.map(e => e[arena.spectrums.length + ci])) };
 }
 
 // ---- Scope ----
@@ -393,7 +396,7 @@ function endGame() {
 }
 function again() { // practice: a fresh unseeded day on the same axes; not saved
   practice = true;
-  setUpDay(Math.random); axes = arena.pairs[dayNumber % arena.pairs.length];
+  setUpDay(Math.random);
   rounds = []; roundIdx = 0; phase = 'idle'; bossHits = [];
   document.body.classList.remove('d-over'); $('d-share').hidden = true; $('d-reveal-wrap').hidden = true; $('d-result').textContent = '';
   say('Practice. Press Enter to start.'); render();
