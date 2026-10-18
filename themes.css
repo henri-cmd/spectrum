@@ -95,12 +95,13 @@ body[data-theme="saloon"] #tab-darts .panel b { color: var(--fg); }
 
 
 /* ============================================================================================
-   Sonar: a full-screen submarine command console. No scene and no character: every part of the
-   game lives on one of the CRT screens around the scope. Built from CSS and SVG, no sprites.
+   Sonar: a full-screen submarine command console. No scene and no character. The scope sits in
+   the middle with a wide terminal under it; a log on the left and an analysis screen on the right.
+   Built from CSS and SVG, no sprites.
    ============================================================================================ */
 body[data-theme="sonar"] {
   --ink: #05090b; --steel: #262c33; --steel-d: #171b20; --steel-l: #3a434b; --steel-x: #4c565f;
-  --g0: #04110a; --g1: #0b3a22; --g2: #1f8a4d; --g3: #5ff29a; --g4: #c8ffd9; --amber: #ffb84a; --red: #ff4a3d;
+  --g0: #04110a; --g1: #0b3a22; --g2: #1f8a4d; --g3: #5ff29a; --g4: #c8ffd9; --amber: #ffb84a;
   --font: 'Share Tech Mono', monospace;
   --screen-bg: radial-gradient(ellipse at 50% 35%, #0b2f1c 0%, #071f13 55%, var(--g0) 100%);
   --screen-frame: inset 0 0 28px rgba(0, 0, 0, 0.75), 0 0 0 5px var(--steel), 0 0 0 7px var(--ink), 0 0 0 9px var(--steel-l), 0 6px 18px rgba(0, 0, 0, 0.6);
@@ -108,36 +109,39 @@ body[data-theme="sonar"] {
   color: var(--g3); font-family: var(--font);
 }
 body[data-tab="darts"][data-theme="sonar"] main { max-width: none; padding: 14px; height: 100vh; box-sizing: border-box; display: grid; gap: 22px; /* a fixed height: the fr rows split it and each screen scrolls inside */
-  grid-template-columns: minmax(240px, 1fr) minmax(0, 2.1fr) minmax(240px, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
-  grid-template-areas: "head head head" "contacts scope axes" "details scope command" "rounds scope score" "views themes manual"; }
+  grid-template-columns: minmax(230px, 1fr) minmax(0, 2.3fr) minmax(230px, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "head head head" "log scope analysis" "log command analysis" "views themes manual"; }
 body[data-tab="darts"][data-theme="sonar"] header, body[data-theme="sonar"] #tab-darts, body[data-theme="sonar"] .panel { display: contents; }
-body[data-theme="sonar"] .actor, body[data-theme="sonar"] .dart, body[data-theme="sonar"] .mug, body[data-theme="sonar"] .bottle { display: none !important; }
+body[data-theme="sonar"] .actor, body[data-theme="sonar"] .dart, body[data-theme="sonar"] .mug, body[data-theme="sonar"] .bottle,
+body[data-theme="sonar"] #d-start, body[data-theme="sonar"] #d-nextp, body[data-theme="sonar"] #d-submit, body[data-theme="sonar"] .blk-command .legend { display: none !important; }
 
 /* Every screen: phosphor glass in a steel bezel, with a title etched top-left and scanlines over it. */
 body[data-theme="sonar"] .blk, body[data-theme="sonar"] .sign, body[data-theme="sonar"] .views, body[data-theme="sonar"] .themes, body[data-theme="sonar"] .stage {
   position: relative; background: var(--screen-bg); border: 2px solid var(--ink); border-radius: 7px; box-shadow: var(--screen-frame);
   color: var(--g3); text-shadow: 0 0 5px rgba(95, 242, 154, 0.45); min-height: 0; min-width: 0; }
-body[data-theme="sonar"] .blk { padding: 28px 14px 12px; overflow: auto; font-size: 15px; }
-body[data-theme="sonar"] .blk::before { content: attr(data-title); position: absolute; top: 7px; left: 13px; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g4); }
+body[data-theme="sonar"] .blk { padding: 30px 16px 14px; overflow: auto; font-size: 16px; }
+body[data-theme="sonar"] .blk::before { content: attr(data-title); position: absolute; top: 8px; left: 14px; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--g2); }
 body[data-theme="sonar"] .blk::after, body[data-theme="sonar"] .stage::after, body[data-theme="sonar"] .sign::after {
   content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: 5px;
   background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px); }
-body[data-theme="sonar"] .blk-contacts { grid-area: contacts; } body[data-theme="sonar"] .blk-details { grid-area: details; }
-body[data-theme="sonar"] .blk-rounds { grid-area: rounds; } body[data-theme="sonar"] .blk-axes { grid-area: axes; }
-body[data-theme="sonar"] .blk-command { grid-area: command; } body[data-theme="sonar"] .blk-score { grid-area: score; }
+body[data-theme="sonar"] .blk-contacts { grid-area: log; } body[data-theme="sonar"] .blk-details { grid-area: analysis; }
+body[data-theme="sonar"] .blk-command, body[data-theme="sonar"] .blk-score { grid-area: command; }
 body[data-theme="sonar"] .blk-manual { grid-area: manual; }
+body[data-theme="sonar"] .blk-score { display: none; } /* the result takes the terminal's place when the game is over */
+body.d-over[data-theme="sonar"] .blk-score { display: block; } body.d-over[data-theme="sonar"] .blk-command { display: none; }
 
-/* Head strip: the game name and the day's line, like a status readout. */
+/* Head strip: the game name, the day's line and, on the right, round and score. */
 body[data-theme="sonar"] .sign { grid-area: head; display: flex; align-items: baseline; gap: 26px; padding: 10px 18px; margin: 0; }
 body[data-theme="sonar"] .sign::before { display: none; }
 body[data-theme="sonar"] .sign h1 { font: 20px/1 var(--font); letter-spacing: 0.26em; text-transform: uppercase; color: var(--g4); margin: 0; display: flex; align-items: center; gap: 12px; }
 body[data-theme="sonar"] .sign h1::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 10px var(--g3); animation: blink 2.4s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0.35; } }
 body[data-theme="sonar"] .sign .sub { font-size: 15px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g3); margin: 0; }
+body[data-theme="sonar"] .sign .status { margin: 0 0 0 auto; font-size: 17px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g4); white-space: nowrap; }
 
 /* The scope: a square CRT; the SVG draws the round display, bearing ring and corner readouts. */
-body[data-theme="sonar"] .stage { grid-area: scope; aspect-ratio: 1; width: min(100%, calc(100vh - 204px)); margin: auto; overflow: hidden; /* 204 = padding, gaps, head strip and key row */
+body[data-theme="sonar"] .stage { grid-area: scope; aspect-ratio: 1; width: min(100%, calc(100vh - 340px)); margin: auto; overflow: hidden; /* 340 = padding, gaps, head strip, terminal or result, key row */
   background: radial-gradient(circle at 50% 50%, #0d3a22 0%, #082216 48%, #04110a 72%, #030b07 100%); }
 body[data-theme="sonar"] .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; shape-rendering: geometricPrecision; filter: drop-shadow(0 0 3px rgba(95, 242, 154, 0.35)); }
 body[data-theme="sonar"] .stage svg text { font-family: var(--font); }
@@ -147,11 +151,15 @@ body[data-theme="sonar"] .stage svg .tag.ans { fill: var(--amber); }
 body[data-theme="sonar"] .stage svg .bearing { font-size: 15px; fill: var(--g2); letter-spacing: 0.08em; }
 body[data-theme="sonar"] .stage svg .corner { font-size: 15px; fill: var(--g3); letter-spacing: 0.12em; text-transform: uppercase; }
 body[data-theme="sonar"] .stage svg .sweep { transform-origin: 300px 300px; animation: sweep 6s linear infinite; }
+body[data-theme="sonar"] .stage svg .target.live .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2.2s ease-out infinite; }
+body[data-theme="sonar"] .stage svg .target.live .bull { animation: bull 2.2s ease-in-out infinite; }
+@keyframes pulse { 0% { transform: scale(0.22); opacity: 0.9; } 70% { opacity: 0.25; } 100% { transform: scale(1.05); opacity: 0; } }
+@keyframes bull { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 body[data-theme="sonar"] .ping { border: 2px solid var(--g3); box-shadow: 0 0 14px var(--g2), inset 0 0 10px rgba(95, 242, 154, 0.3); }
 body[data-theme="sonar"] .flash { background: var(--g4); box-shadow: 0 0 22px var(--g3); }
 body[data-theme="sonar"] .stage.thunk svg { animation: none; }
 
-/* Buttons and switch banks: dark keys with an LED. */
+/* Keys: dark switches with an LED. */
 body[data-theme="sonar"] .views, body[data-theme="sonar"] .themes { display: flex; align-items: center; gap: 10px; padding: 12px 14px; margin: 0; }
 body[data-theme="sonar"] .views { grid-area: views; } body[data-theme="sonar"] .themes { grid-area: themes; }
 body[data-theme="sonar"] button { font-family: var(--font); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g3); background: linear-gradient(#1b2025, #0f1316);
@@ -159,59 +167,49 @@ body[data-theme="sonar"] button { font-family: var(--font); font-size: 13px; let
 body[data-theme="sonar"] button::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #2a3138; box-shadow: inset 0 0 2px #000; flex: none; }
 body[data-theme="sonar"] button:hover { color: var(--g4); }
 body[data-theme="sonar"] button:active { transform: translateY(2px); box-shadow: inset 0 1px 0 #3a434b, 0 1px 0 var(--ink); }
-body[data-theme="sonar"] button[aria-pressed="true"], body[data-theme="sonar"] button.go, body[data-theme="sonar"] form button { color: var(--g4); }
-body[data-theme="sonar"] button[aria-pressed="true"]::before, body[data-theme="sonar"] button.go::before, body[data-theme="sonar"] form button::before { background: var(--g3); box-shadow: 0 0 8px var(--g3); }
-body[data-theme="sonar"] button:disabled { opacity: 0.5; }
+body[data-theme="sonar"] button[aria-pressed="true"], body[data-theme="sonar"] button.again, body[data-theme="sonar"] .share button { color: var(--g4); }
+body[data-theme="sonar"] button[aria-pressed="true"]::before, body[data-theme="sonar"] button.again::before, body[data-theme="sonar"] .share button::before { background: var(--g3); box-shadow: 0 0 8px var(--g3); }
 
-/* Command terminal. */
-body[data-theme="sonar"] .blk-command { display: flex; flex-direction: column; gap: 8px; }
-body[data-theme="sonar"] .legend { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--g4); margin: 0; }
-body[data-theme="sonar"] .legend::before { content: '// '; color: var(--g2); }
-body[data-theme="sonar"] form { display: flex; align-items: center; gap: 10px; margin: 0; }
-body[data-theme="sonar"] .prompt { color: var(--g4); font-size: 20px; }
-body[data-theme="sonar"] input { flex: 1; min-width: 0; background: transparent; border: 0; border-bottom: 1px solid var(--g2); border-radius: 0; color: var(--g4); font: 19px var(--font); text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 4px; caret-color: var(--g3); outline: none; }
-body[data-theme="sonar"] input::placeholder { color: var(--g2); text-transform: none; letter-spacing: 0; }
-body[data-theme="sonar"] .message { color: var(--amber); font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; min-height: 1.2em; margin: 0; }
-body[data-theme="sonar"] .message::before { content: '> '; }
-body[data-theme="sonar"] .message:empty::before { content: ''; }
-body[data-theme="sonar"] #d-start, body[data-theme="sonar"] #d-nextp { margin: 0; }
+/* The terminal: one wide line under the scope. Enter pings; Enter again moves to the next target. */
+body[data-theme="sonar"] .blk-command { padding: 16px 22px 14px; display: flex; flex-direction: column; gap: 8px; justify-content: center; overflow: visible; }
+body[data-theme="sonar"] form { display: flex; align-items: center; gap: 14px; margin: 0; }
+body[data-theme="sonar"] .prompt { color: var(--g4); font-size: 34px; line-height: 1; }
+body[data-theme="sonar"] input { flex: 1; min-width: 0; background: transparent; border: 0; border-radius: 0; color: var(--g4); font: 32px/1.2 var(--font); text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 0; caret-color: var(--g3); outline: none; text-shadow: 0 0 8px rgba(95, 242, 154, 0.6); }
+body[data-theme="sonar"] input::placeholder { color: var(--g2); text-transform: none; letter-spacing: 0.02em; font-size: 24px; }
+body[data-theme="sonar"] .message { color: var(--amber); font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; min-height: 1.3em; margin: 0; }
+body[data-theme="sonar"] .message:not(:empty)::before { content: '> '; }
 
-/* Contact list: one row per ping, with the course correction under it. */
-body[data-theme="sonar"] .readout { list-style: none; margin: 0; padding: 0; font-size: 14px; text-transform: uppercase; }
-body[data-theme="sonar"] .readout li { display: grid; grid-template-columns: 2.2em 1fr auto; gap: 2px 10px; padding: 6px 0; border-top: 1px dashed var(--g1); align-items: baseline; }
+/* Log: one row per ping, with bearing, range and the correction under it. */
+body[data-theme="sonar"] .readout { list-style: none; margin: 0; padding: 0; font-size: 15px; text-transform: uppercase; }
+body[data-theme="sonar"] .readout li { display: grid; grid-template-columns: 2.2em 1fr auto; gap: 2px 10px; padding: 8px 0; border-top: 1px dashed var(--g1); align-items: baseline; }
 body[data-theme="sonar"] .readout li:first-child { border-top: 0; }
 body[data-theme="sonar"] .readout .n { color: var(--g2); } body[data-theme="sonar"] .readout .w { color: var(--g4); font-weight: normal; letter-spacing: 0.08em; }
 body[data-theme="sonar"] .readout .s { color: var(--g4); text-align: right; min-width: 0; }
 body[data-theme="sonar"] .readout .s::after { content: ' pts'; color: var(--g2); }
 body[data-theme="sonar"] .readout .brg { grid-column: 2; color: var(--g2); font-size: 12px; letter-spacing: 0.08em; }
-body[data-theme="sonar"] .readout .hint { grid-column: 2 / -1; color: var(--g3); font-size: 12px; letter-spacing: 0.04em; }
-body[data-theme="sonar"] .readout:empty::before { content: 'No contacts logged.'; color: var(--g2); font-size: 13px; letter-spacing: 0.1em; }
+body[data-theme="sonar"] .readout .hint { grid-column: 2 / -1; color: var(--g3); font-size: 13px; letter-spacing: 0.04em; }
+body[data-theme="sonar"] .readout:empty::before { content: 'No pings yet.'; color: var(--g2); font-size: 13px; letter-spacing: 0.1em; }
 
-/* Contact details, axis analysis, rounds, score. */
-body[data-theme="sonar"] .detail { font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.55; white-space: pre-line; }
+/* Analysis: the latest return, the axis bars, and the reveal at the end. Result: the terminal's place at the end. */
+body[data-theme="sonar"] .detail { font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.6; white-space: pre-line; margin-bottom: 10px; }
 body[data-theme="sonar"] .detail b { color: var(--g4); font-weight: normal; }
-body[data-theme="sonar"] .detail .amber, body[data-theme="sonar"] .readout .amber { color: var(--amber); }
-body[data-theme="sonar"] #d-reveal-wrap .legend { margin: 10px 0 4px; }
-body[data-theme="sonar"] #d-reveal li { grid-template-columns: 2.2em 1fr; }
+body[data-theme="sonar"] #d-reveal-wrap .legend { margin: 12px 0 4px; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g2); }
+body[data-theme="sonar"] #d-reveal li { grid-template-columns: 2.2em 1fr; font-size: 13px; }
+body[data-theme="sonar"] #d-reveal .hint { grid-column: 2; }
 body[data-theme="sonar"] #d-axes { width: 100%; height: auto; display: block; }
-body[data-theme="sonar"] .rounds { list-style: none; margin: 0; padding: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; }
-body[data-theme="sonar"] .rounds li { display: grid; grid-template-columns: 14px 1fr auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px dashed var(--g1); color: var(--g2); }
-body[data-theme="sonar"] .rounds li:first-child { border-top: 0; }
-body[data-theme="sonar"] .rounds li::before { content: ''; width: 10px; height: 10px; border: 1px solid var(--g2); border-radius: 2px; }
-body[data-theme="sonar"] .rounds li.cur { color: var(--g4); } body[data-theme="sonar"] .rounds li.cur::before { background: var(--g3); box-shadow: 0 0 8px var(--g3); border-color: var(--g3); }
-body[data-theme="sonar"] .rounds li.done { color: var(--g3); } body[data-theme="sonar"] .rounds li.done::before { background: var(--g1); border-color: var(--g2); }
-body[data-theme="sonar"] .score { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; margin: 0 0 8px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.1em; }
-body[data-theme="sonar"] .score dt { color: var(--g2); } body[data-theme="sonar"] .score dd { margin: 0; color: var(--g4); text-align: right; }
-body[data-theme="sonar"] .result { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--g4); margin: 6px 0; }
-body[data-theme="sonar"] .share { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-body[data-theme="sonar"] .share code { font-family: var(--font); font-size: 14px; background: var(--g0); color: var(--g3); padding: 6px 8px; border: 1px solid var(--g1); }
+body[data-theme="sonar"] .blk-score { padding: 26px 22px 14px; }
+body[data-theme="sonar"] .result { font-size: 20px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--g4); margin: 0 0 8px; }
+body[data-theme="sonar"] .share { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+body[data-theme="sonar"] .share code { font-family: var(--font); font-size: 15px; background: var(--g0); color: var(--g3); padding: 8px 10px; border: 1px solid var(--g1); }
 body[data-theme="sonar"] details { font-size: 14px; color: var(--g3); margin: 0; line-height: 1.5; }
 body[data-theme="sonar"] summary { color: var(--g4); letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; font-size: 13px; }
 body[data-theme="sonar"] details p { margin: 8px 0 0; }
 
 @media (max-width: 960px) {
   body[data-tab="darts"][data-theme="sonar"] main { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 20px; padding: 12px;
-    grid-template-areas: "head" "scope" "command" "score" "contacts" "details" "axes" "rounds" "views" "themes" "manual"; }
+    grid-template-areas: "head" "scope" "command" "analysis" "log" "views" "themes" "manual"; }
   body[data-theme="sonar"] .stage { width: 100%; }
   body[data-theme="sonar"] .sign { flex-wrap: wrap; gap: 6px 20px; }
+  body[data-theme="sonar"] .sign .status { margin-left: 0; width: 100%; white-space: normal; font-size: 15px; }
+  body[data-theme="sonar"] input { font-size: 26px; } body[data-theme="sonar"] .prompt { font-size: 28px; }
 }

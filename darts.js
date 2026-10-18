@@ -33,8 +33,8 @@ const THEMES = {
     actor: { frames: 6, frameMs: 70 }, animate: (...a) => animateDart(...a),
   },
   sonar: { // a full-screen command console; the board is a scope, pings instead of darts, no character
-    title: 'Sonar', go: 'Ping', next: 'Next contact', again: 'New contacts', target: 'contact', miss: 'No return.', landed: 'return plotted',
-    assets: null, marker: null, sweep: true, console: true, shots: 'pings',
+    title: 'Sonar', go: 'Ping', next: 'Next target', again: 'New targets', target: 'target', miss: 'No return.', landed: 'return plotted',
+    assets: null, marker: null, sweep: true, console: true, terminal: true, shots: 'pings',
     disc: '#061a10', grid: '#0b3a22', axis: '#1f8a4d', rings: ['#c8ffd9', '#5ff29a', '#1f8a4d', '#0b3a22'], ringEdge: '#04110a', ringText: '#c8ffd9', ringTextBull: '#04110a',
     past: '#1f8a4d', pastText: '#5ff29a', answer: '#ffb84a', leader: '#5ff29a', ink: '#04110a',
     actor: null, animate: (...a) => animatePing(...a),
@@ -128,6 +128,7 @@ async function lookup(word) {
 // A target: rings worth points, numbered. `live` draws it in full with point labels; otherwise faded.
 function targetSvg(t, n, live) {
   const x = sx(t.x), y = sy(t.y);
+  if (theme.console) return consoleTargetSvg(x, y, n, live);
   if (!live) { // a past target: just its bull, its outer ring and its round number
     return `<circle cx="${x}" cy="${y}" r="${RINGS[RINGS.length - 1][0] * R}" fill="none" stroke="${theme.past}" stroke-width="3" stroke-dasharray="6 8"/>` +
            `<circle cx="${x}" cy="${y}" r="${RINGS[0][0] * R}" fill="${theme.past}"/>` +
@@ -143,6 +144,29 @@ function targetSvg(t, n, live) {
     }
   });
   s += `<text x="${x}" y="${y + 7}" font-size="22" font-weight="700" fill="${theme.ringTextBull}" text-anchor="middle" paint-order="stroke" stroke="${theme.ringTextBull === theme.ink ? 'none' : theme.ink}" stroke-width="3">${RINGS[0][1]}</text>`;
+  return s;
+}
+
+// The scope's target: thin rings that leave the grid visible, point values up the top of each band,
+// a bright bull with a halo, and a pulse that runs out from the bull (the stylesheet animates it).
+function consoleTargetSvg(x, y, n, live) {
+  const outer = RINGS[RINGS.length - 1][0] * R, bull = RINGS[0][0] * R;
+  if (!live) {
+    return `<g class="target past"><circle cx="${x}" cy="${y}" r="${outer}" fill="none" stroke="#1f8a4d" stroke-width="1" stroke-dasharray="3 7" opacity="0.7"/>` +
+           `<circle cx="${x}" cy="${y}" r="${bull * 0.45}" fill="#1f8a4d" opacity="0.8"/>` +
+           `<text x="${x}" y="${y - bull - 6}" font-size="14" fill="#1f8a4d" text-anchor="middle">${n}</text></g>`;
+  }
+  let s = `<g class="target live"><circle class="pulse" cx="${x}" cy="${y}" r="${outer}" fill="none" stroke="#5ff29a" stroke-width="2"/>`;
+  RINGS.forEach(([r, pts], i) => {
+    const rr = r * R, bright = i === 0;
+    s += `<circle cx="${x}" cy="${y}" r="${rr}" fill="${bright ? '#5ff29a' : 'none'}" fill-opacity="0.12" stroke="${bright ? '#c8ffd9' : '#5ff29a'}" stroke-width="${bright ? 2 : 1.2}" stroke-dasharray="${i === RINGS.length - 1 ? '6 5' : 'none'}" opacity="${bright ? 1 : 0.85 - i * 0.15}"/>`;
+    // the band's value, just inside its top edge
+    s += `<text x="${x}" y="${y - rr + 14}" font-size="12" fill="#c8ffd9" text-anchor="middle" opacity="0.9">${pts}</text>`;
+  });
+  // crosshair ticks and the bull
+  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) s += `<line x1="${x + dx * bull * 1.3}" y1="${y + dy * bull * 1.3}" x2="${x + dx * bull * 2.1}" y2="${y + dy * bull * 2.1}" stroke="#c8ffd9" stroke-width="1.2" opacity="0.8"/>`;
+  s += `<circle class="bull" cx="${x}" cy="${y}" r="${bull * 0.42}" fill="#c8ffd9"/>`;
+  s += `<text x="${x}" y="${y + bull + 16}" font-size="12" fill="#c8ffd9" text-anchor="middle" letter-spacing="2">T${n}</text></g>`;
   return s;
 }
 
@@ -165,8 +189,8 @@ function consoleSvg() {
     if (major) s += `<text class="bearing" x="${C + (R + 36) * Math.sin(a)}" y="${C - (R + 36) * Math.cos(a) + 5}" text-anchor="middle">${String(d).padStart(3, '0')}</text>`;
   }
   const tg = targets[Math.min(round(), ROUNDS - 1)], sum = total(throws);
-  s += `<text class="corner" x="14" y="26">${over ? 'All contacts resolved' : 'Active sonar'}</text><text class="corner" x="14" y="48">Rng scale 1.00</text>`;
-  s += `<text class="corner" x="586" y="26" text-anchor="end">${over ? 'Standby' : `Contact ${round() + 1}`}</text><text class="corner" x="586" y="48" text-anchor="end">${over ? '' : brgRng(tg)}</text>`;
+  s += `<text class="corner" x="14" y="26">${over ? 'All targets resolved' : 'Active sonar'}</text><text class="corner" x="14" y="48">Rng scale 1.00</text>`;
+  s += `<text class="corner" x="586" y="26" text-anchor="end">${over ? 'Standby' : `Target ${round() + 1}`}</text><text class="corner" x="586" y="48" text-anchor="end">${over ? '' : brgRng(tg)}</text>`;
   s += `<text class="corner" x="14" y="586">Round ${Math.min(round() + 1, ROUNDS)}/${ROUNDS}</text>`;
   s += `<text class="corner" x="586" y="586" text-anchor="end">Score ${sum}/${MAX_SCORE}</text>`;
   return s;
@@ -310,6 +334,7 @@ function applyTheme(name) {
   $('d-go').textContent = theme.go; $('d-submit').textContent = theme.go; $('d-next').textContent = theme.next; $('d-again').textContent = theme.again;
   setFrame(0);
   try { localStorage.setItem('darts:theme', document.body.dataset.theme); } catch {}
+  if (theme.terminal && puzzle && !started) start(); // the console has no start step
   render();
 }
 window.dartsApplyTheme = () => applyTheme(document.body.dataset.theme);
@@ -331,33 +356,25 @@ function hint(t, tg) {
     parts.push(`${Math.abs(gap) > 0.6 ? 'much ' : ''}more ${sp[gap > 0 ? 'low' : 'high']}`);
   });
   const off = Math.hypot(t.x, t.y) > 1 ? 'off the board — ' : '';
-  return off + (parts.length ? `needed ${parts.join(', ')}` : 'so close');
+  return off + (parts.length ? `needed ${parts.join(', ')}` : 'so close') + '.';
 }
 function renderReadout() {
   $('d-readout').innerHTML = throws.map((t, k) =>
     `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}</span><span class="hint">${hint(t, targets[k])}</span></li>`).join('');
 }
 
-// The console's side screens: contacts (rounds), score, the latest return's details, and the axis analysis.
+// The console's other screens: the status strip in the head, and the analysis screen (latest return, axis bars).
 function renderSide() {
   if (!theme.console || !puzzle) return;
-  const cur = over ? -1 : round();
-  $('d-rounds').innerHTML = targets.map((tg, k) => {
-    const t = throws[k], cls = k === cur ? 'cur' : t ? 'done' : '';
-    const status = t ? `${esc(t.word)} · ${t.score} pts` : k === cur ? (awaiting ? 'plotted' : 'tracking') : 'standby';
-    return `<li class="${cls}"><span>Contact ${k + 1}${k === ROUNDS - 1 ? ' · centre' : ''}</span><span>${status}</span></li>`;
-  }).join('');
-  const best = throws.reduce((a, b) => !a || b.score > a.score ? b : a, null);
-  $('d-score').innerHTML = `<dt>Round</dt><dd>${Math.min((over ? ROUNDS : round() + 1), ROUNDS)}/${ROUNDS}</dd><dt>Score</dt><dd>${total(throws)}/${MAX_SCORE}</dd>` +
-    `<dt>Bullseyes</dt><dd>${throws.filter(t => t.score === RINGS[0][1]).length}</dd><dt>Best return</dt><dd>${best ? `${esc(best.word)} ${best.score}` : '—'}</dd>`;
-  const last = throws[throws.length - 1], tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
-  $('d-detail').innerHTML = !started ? `Awaiting first ping.\nContact 1 bearing ${bearing(targets[0])}, range ${range(targets[0])}.`
-    : over ? `All ${ROUNDS} contacts resolved. Final score <b>${total(throws)}</b> of ${MAX_SCORE}.`
-    : awaiting ? `Contact ${throws.length}\nPing: <b>${esc(last.word)}</b>\n${brgRng(last)}\nResult: <b>${last.score} pts</b>\nCorrection: ${hint(last, targets[throws.length - 1])}`
-    : `Contact ${cur + 1} designated.\n${brgRng(tg)}${last ? `\nLast ping: <b>${esc(last.word)}</b> · ${last.score} pts` : '\nNo pings yet.'}`;
+  const cur = over ? -1 : round(), last = throws[throws.length - 1], sum = total(throws);
+  $('d-status').textContent = over ? `Final ${sum} / ${MAX_SCORE}` : `Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS} · Score ${sum} / ${MAX_SCORE}`;
+  const tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
+  $('d-detail').innerHTML = over ? `All ${ROUNDS} targets resolved. Final score <b>${sum}</b> of ${MAX_SCORE}.`
+    : awaiting ? `Target ${throws.length} · <b>${esc(last.word)}</b>\n${brgRng(last)} · <b>${last.score} pts</b>\n${hint(last, targets[throws.length - 1])}`
+    : `Target ${cur + 1} · ${brgRng(tg)}${last ? `\nLast ping <b>${esc(last.word)}</b> · ${last.score} pts` : '\nNo pings yet.'}`;
   // Axis analysis: each spectrum as a bar, the target hollow, the latest word solid.
-  const W = 300, L = 70, Rr = 230, rows = axes.map((i, k) => {
-    const sp = puzzle.spectrums[i], y = 34 + k * 50, px = v => L + (v + 1) / 2 * (Rr - L);
+  const L = 70, Rr = 230, rows = axes.map((i, k) => {
+    const sp = puzzle.spectrums[i], y = 30 + k * 46, px = v => L + (v + 1) / 2 * (Rr - L);
     const tv = k === 0 ? tg.x : tg.y, wv = last ? (k === 0 ? last.x : last.y) : null;
     let r = `<text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#5ff29a">${esc(sp.low.toUpperCase())}</text>` +
             `<text x="${Rr + 8}" y="${y + 4}" font-size="11" fill="#5ff29a">${esc(sp.high.toUpperCase())}</text>` +
@@ -367,11 +384,11 @@ function renderSide() {
     if (wv !== null) {
       const cl = Math.max(-1.1, Math.min(1.1, wv));
       r += `<circle cx="${px(cl)}" cy="${y}" r="4" fill="#5ff29a"/>` +
-           `<text x="${(px(tv) + px(cl)) / 2}" y="${y + 20}" text-anchor="middle" font-size="11" fill="#ffb84a">${Math.abs(wv - tv) < 0.12 ? 'ON' : `${wv > tv ? '+' : '−'}${Math.abs(wv - tv).toFixed(2)}`}</text>`;
+           `<text x="${(px(tv) + px(cl)) / 2}" y="${y + 19}" text-anchor="middle" font-size="11" fill="#ffb84a">${Math.abs(wv - tv) < 0.12 ? 'ON' : `${wv > tv ? '+' : '−'}${Math.abs(wv - tv).toFixed(2)}`}</text>`;
     }
     return r;
   });
-  $('d-axes').innerHTML = rows.join('') + `<text x="${W / 2}" y="${114}" text-anchor="middle" font-size="10" fill="#1f8a4d">○ CONTACT   ● LAST PING</text>`;
+  $('d-axes').innerHTML = rows.join('') + `<text x="150" y="104" text-anchor="middle" font-size="10" fill="#1f8a4d">○ TARGET   ● YOUR WORD</text>`;
 }
 
 // For each round: the common words that would have scored, best first (at most four shown).
@@ -399,6 +416,7 @@ function start() {
 async function submitThrow(e) {
   e.preventDefault();
   if (over || throwing) return;
+  if (awaiting && theme.terminal) return nextTarget(); // Enter again moves on to the next target
   const word = normalise($('d-guess').value);
   if (!word) return;
   if (throws.some(t => t.word === word)) return msg(`You already threw "${word}".`);
@@ -427,6 +445,12 @@ async function addThrow(word, entry, animate) {
   renderReadout();
   if (throws.length === ROUNDS) return endGame();
   awaiting = true;
+  if (theme.terminal) { // the terminal stays up: the result prints, Enter moves on
+    msg(`${word} · ${score ? `${score} points` : 'no points'} · ${hint(throws[throws.length - 1], tg)}  Press Enter for target ${throws.length + 1}.`);
+    render();
+    $('d-guess').focus();
+    return;
+  }
   msg(score ? `${score} points${score === RINGS[0][1] ? ' — bullseye!' : ''}.` : theme.miss);
   $('d-form').hidden = true;
   $('d-nextp').hidden = false;
@@ -446,6 +470,7 @@ function nextTarget() {
 
 function endGame() {
   over = true; awaiting = false;
+  document.body.classList.add('d-over');
   $('d-form').hidden = true;
   $('d-nextp').hidden = true;
   msg('');
@@ -465,6 +490,7 @@ function endGame() {
 // Fresh, unseeded targets on the same board for another go. Practice games aren't saved.
 function again() {
   practice = true; over = false; awaiting = false; throws = [];
+  document.body.classList.remove('d-over');
   targets = makeTargets(Math.random);
   $('d-nextp').hidden = true;
   $('d-readout').innerHTML = ''; $('d-result').textContent = ''; $('d-share').hidden = true; $('d-reveal-wrap').hidden = true;
@@ -521,6 +547,7 @@ $('d-copy').addEventListener('click', () => navigator.clipboard.writeText($('d-s
     render();
     $('d-go').disabled = false;
     await restore();
+    if (theme.terminal && !started) start();
   } catch (err) {
     $('d-sub').textContent = `Couldn't load today's board (${err.message}). Serve this folder over http.`;
   }
