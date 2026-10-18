@@ -100,26 +100,26 @@ body[data-theme="saloon"] #tab-darts .panel b { color: var(--fg); }
    with a phosphor bloom, vignette, gloss, scanlines and a slow flicker. No sprites.
    ============================================================================================ */
 body[data-theme="sonar"] {
-  --ink: #05090b; --metal-hi: #4a535c; --metal: #2e353c; --metal-lo: #1c2126; --etch: #b7c0c8;
-  --g0: #04110a; --g1: #0b3a22; --g2: #1f8a4d; --g3: #5ff29a; --g4: #c8ffd9; --amber: #ffb84a;
-  --font: 'Share Tech Mono', monospace;
-  --glass: radial-gradient(ellipse 85% 70% at 50% 42%, #0f4228 0%, #0a2d1b 40%, #06201300 100%), radial-gradient(ellipse at 50% 50%, #0a2d1b 0%, #061b10 60%, #03100a 100%);
-  --glass-shadow: inset 0 0 0 2px #05090b, inset 0 0 46px 12px rgba(0, 0, 0, 0.72), inset 0 1px 0 1px rgba(160, 255, 200, 0.07);
-  --gloss: radial-gradient(ellipse 130% 55% at 50% -22%, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.03) 45%, transparent 62%);
-  --scan: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.26) 0 1px, transparent 1px 3px);
-  --screws: radial-gradient(circle at 13px 13px, #8a949e 0 1.6px, #3a434b 2.2px, #0d1114 3.1px, transparent 4px),
-            radial-gradient(circle at calc(100% - 13px) 13px, #8a949e 0 1.6px, #3a434b 2.2px, #0d1114 3.1px, transparent 4px),
-            radial-gradient(circle at 13px calc(100% - 13px), #8a949e 0 1.6px, #3a434b 2.2px, #0d1114 3.1px, transparent 4px),
-            radial-gradient(circle at calc(100% - 13px) calc(100% - 13px), #8a949e 0 1.6px, #3a434b 2.2px, #0d1114 3.1px, transparent 4px);
-  --bezel: linear-gradient(165deg, #434b53 0%, #30373e 35%, #262d33 70%, #1f252a 100%);
-  --bezel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.7), inset 1px 0 0 rgba(255, 255, 255, 0.05), 0 0 0 1px #0b0e11, 0 6px 16px rgba(0, 0, 0, 0.55);
-  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 3px), linear-gradient(180deg, #2b3238 0%, #22282e 50%, #1a1f24 100%);
+  --ink: #04070a; --metal-hi: #353b42; --metal: #22272c; --metal-lo: #14181c; --etch: #8a939c;
+  --g0: #030c07; --g1: #0a2e1b; --g2: #1a7a44; --g3: #4ad585; --g4: #b9f5cf; --amber: #e9a63f;
+  --font: 'IBM Plex Mono', 'Share Tech Mono', monospace;
+  --glass: radial-gradient(ellipse 80% 65% at 50% 44%, #0a2d1c 0%, #071f14 45%, transparent 100%), radial-gradient(ellipse at 50% 50%, #06200f 0%, #04140b 60%, #020a06 100%);
+  --glass-shadow: inset 0 0 0 2px #04070a, inset 0 0 50px 14px rgba(0, 0, 0, 0.8), inset 0 1px 0 1px rgba(160, 255, 200, 0.05);
+  --gloss: radial-gradient(ellipse 130% 55% at 50% -22%, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 45%, transparent 62%);
+  --scan: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0 1px, transparent 1px 3px);
+  --screws: radial-gradient(circle at 12px 12px, #5e666e 0 1.4px, #2a3036 2px, #0a0d10 2.8px, transparent 3.6px),
+            radial-gradient(circle at calc(100% - 12px) 12px, #5e666e 0 1.4px, #2a3036 2px, #0a0d10 2.8px, transparent 3.6px),
+            radial-gradient(circle at 12px calc(100% - 12px), #5e666e 0 1.4px, #2a3036 2px, #0a0d10 2.8px, transparent 3.6px),
+            radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), #5e666e 0 1.4px, #2a3036 2px, #0a0d10 2.8px, transparent 3.6px);
+  --bezel: linear-gradient(165deg, #2f353b 0%, #24292e 40%, #1c2126 75%, #171b1f 100%);
+  --bezel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 -1px 0 rgba(0, 0, 0, 0.8), 0 0 0 1px #07090b, 0 8px 20px rgba(0, 0, 0, 0.6);
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px), linear-gradient(180deg, #1b1f23 0%, #15181c 50%, #0f1215 100%);
   color: var(--g3); font-family: var(--font);
 }
 body[data-tab="darts"][data-theme="sonar"] main { max-width: none; padding: 16px; height: 100vh; box-sizing: border-box; display: grid; gap: 18px; /* a fixed height: the fr rows split it and each screen scrolls inside */
-  grid-template-columns: minmax(250px, 1fr) minmax(0, 2fr) minmax(250px, 1fr);
+  grid-template-columns: minmax(240px, 1fr) minmax(0, 2.4fr) minmax(240px, 1fr);
   grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto;
-  grid-template-areas: "head head head" "log scope analysis" "targets scope axes" "score command manual"; padding-bottom: 44px; }
+  grid-template-areas: "head head head" "timer scope score" "log scope manual" "command command command"; padding-bottom: 44px; }
 body[data-tab="darts"][data-theme="sonar"] header, body[data-theme="sonar"] #tab-darts, body[data-theme="sonar"] .panel { display: contents; }
 body[data-theme="sonar"] .actor, body[data-theme="sonar"] .dart, body[data-theme="sonar"] .mug, body[data-theme="sonar"] .bottle,
 body[data-theme="sonar"] #d-start, body[data-theme="sonar"] #d-nextp, body[data-theme="sonar"] #d-submit, body[data-theme="sonar"] .blk-command .legend { display: none !important; }
@@ -127,38 +127,38 @@ body[data-theme="sonar"] #d-start, body[data-theme="sonar"] #d-nextp, body[data-
 /* A screen: a steel bezel with screws (the element), the curved glass behind the content (::before),
    and the label engraved on the metal above the glass (::after). */
 body[data-theme="sonar"] .blk, body[data-theme="sonar"] .stage {
-  position: relative; border-radius: 9px; background: var(--screws), var(--bezel); box-shadow: var(--bezel-shadow);
-  color: var(--g3); text-shadow: 0 0 5px rgba(95, 242, 154, 0.45); min-height: 0; min-width: 0; }
+  position: relative; border-radius: 5px; background: var(--screws), var(--bezel); box-shadow: var(--bezel-shadow);
+  color: var(--g3); text-shadow: 0 0 3px rgba(74, 213, 133, 0.3); min-height: 0; min-width: 0; }
 body[data-theme="sonar"] .blk { padding: 44px 24px 22px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; overflow: hidden; }
 body[data-theme="sonar"] .blk > * { position: relative; z-index: 1; min-height: 0; margin: 0; }
 body[data-theme="sonar"] .blk > ol, body[data-theme="sonar"] .blk > div, body[data-theme="sonar"] .blk > dl, body[data-theme="sonar"] .blk > details { overflow: auto; }
-body[data-theme="sonar"] .blk::before, body[data-theme="sonar"] .stage::before { content: ''; position: absolute; inset: 30px 12px 12px; border-radius: 16px / 20px; z-index: 0;
+body[data-theme="sonar"] .blk::before, body[data-theme="sonar"] .stage::before { content: ''; position: absolute; inset: 30px 12px 12px; border-radius: 10px / 12px; z-index: 0;
   background: var(--gloss), var(--scan), var(--glass); box-shadow: var(--glass-shadow); animation: flicker 7s steps(1) infinite; }
-body[data-theme="sonar"] .stage::before { inset: 12px; border-radius: 6% / 6%; }
+body[data-theme="sonar"] .stage::before { inset: 12px; border-radius: 14px; }
 body[data-theme="sonar"] .blk::after, body[data-theme="sonar"] .stage::after { content: attr(data-title); position: absolute; top: 8px; left: 26px; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
   color: var(--etch); text-shadow: 0 1px 0 #000, 0 -1px 0 rgba(255, 255, 255, 0.06); z-index: 1; }
-body[data-theme="sonar"] .stage::after { content: ''; inset: 12px; top: 12px; left: 12px; border-radius: 6% / 6%; background: var(--gloss); pointer-events: none; z-index: 3; }
+body[data-theme="sonar"] .stage::after { content: ''; inset: 12px; top: 12px; left: 12px; border-radius: 14px; background: var(--gloss); pointer-events: none; z-index: 3; }
 @keyframes flicker { 0%, 100% { opacity: 1; } 31% { opacity: 0.97; } 32% { opacity: 1; } 63% { opacity: 0.985; } 64% { opacity: 1; } 87% { opacity: 0.96; } 88% { opacity: 1; } }
-body[data-theme="sonar"] .blk-contacts { grid-area: log; } body[data-theme="sonar"] .blk-rounds { grid-area: targets; } body[data-theme="sonar"] .blk-tally { grid-area: score; }
-body[data-theme="sonar"] .blk-details { grid-area: analysis; } body[data-theme="sonar"] .blk-axes { grid-area: axes; } body[data-theme="sonar"] .blk-manual { grid-area: manual; }
+body[data-theme="sonar"] .blk-contacts { grid-area: log; } body[data-theme="sonar"] .blk-tally { grid-area: score; }
+body[data-theme="sonar"] .blk-timer { grid-area: timer; } body[data-theme="sonar"] .blk-manual { grid-area: manual; }
 body[data-theme="sonar"] .blk-command, body[data-theme="sonar"] .blk-score { grid-area: command; }
 body[data-theme="sonar"] .blk-score { display: none; } /* the result takes the terminal's place when the game is over */
 body.d-over[data-theme="sonar"] .blk-score { display: flex; } body.d-over[data-theme="sonar"] .blk-command { display: none; }
 
 /* Head strip: an engraved steel nameplate, with round and score on a small readout at the right. */
-body[data-theme="sonar"] .sign { grid-area: head; display: flex; align-items: center; gap: 26px; padding: 12px 22px; margin: 0; border-radius: 9px;
-  background: var(--screws), linear-gradient(180deg, #4a525a 0%, #353c43 50%, #2a3137 100%); box-shadow: var(--bezel-shadow); }
+body[data-theme="sonar"] .sign { grid-area: head; display: flex; align-items: center; gap: 26px; padding: 12px 22px; margin: 0; border-radius: 5px;
+  background: var(--screws), linear-gradient(180deg, #2f353b 0%, #24292e 50%, #1c2126 100%); box-shadow: var(--bezel-shadow); }
 body[data-theme="sonar"] .sign::before { display: none; }
-body[data-theme="sonar"] .sign h1 { font: 21px/1 var(--font); letter-spacing: 0.3em; text-transform: uppercase; color: #dfe5ea; margin: 0; display: flex; align-items: center; gap: 12px; text-shadow: 0 1px 0 #000; }
+body[data-theme="sonar"] .sign h1 { font: 500 18px/1 var(--font); letter-spacing: 0.32em; text-transform: uppercase; color: #aeb7bf; margin: 0; display: flex; align-items: center; gap: 12px; text-shadow: 0 1px 0 #000; }
 body[data-theme="sonar"] .sign h1::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 10px var(--g3), inset 0 0 2px #000; animation: blink 2.4s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0.35; } }
 body[data-theme="sonar"] .sign .sub { font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--etch); margin: 0; text-shadow: 0 1px 0 #000; }
 body[data-theme="sonar"] .sign .status { margin: 0 0 0 auto; padding: 8px 16px; font-size: 16px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g4); white-space: nowrap; border-radius: 8px;
-  background: var(--scan), var(--glass); box-shadow: var(--glass-shadow); text-shadow: 0 0 6px rgba(95, 242, 154, 0.6); }
+  background: var(--scan), var(--glass); box-shadow: var(--glass-shadow); text-shadow: 0 0 4px rgba(74, 213, 133, 0.4); border-radius: 4px; }
 
 /* The scope: a square CRT in the middle; the SVG draws the round display, bearing ring and corner readouts. */
-body[data-theme="sonar"] .stage { grid-area: scope; aspect-ratio: 1; width: min(100%, calc(100vh - 300px)); margin: auto; overflow: hidden; /* 300 = padding, gaps, nameplate, terminal */ }
-body[data-theme="sonar"] .stage svg { position: absolute; inset: 12px; width: calc(100% - 24px); height: calc(100% - 24px); z-index: 2; shape-rendering: geometricPrecision; filter: drop-shadow(0 0 3px rgba(95, 242, 154, 0.35)); }
+body[data-theme="sonar"] .stage { grid-area: scope; width: 100%; height: 100%; margin: 0; overflow: hidden; /* fills its rows; the round display sits centred on the glass */ }
+body[data-theme="sonar"] .stage svg { position: absolute; inset: 12px; width: calc(100% - 24px); height: calc(100% - 24px); z-index: 2; shape-rendering: geometricPrecision; filter: drop-shadow(0 0 2px rgba(74, 213, 133, 0.3)); }
 body[data-theme="sonar"] .stage svg text { font-family: var(--font); }
 body[data-theme="sonar"] .stage svg .axis { font-size: 22px; fill: var(--g4); letter-spacing: 0.1em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
 body[data-theme="sonar"] .stage svg .tag { font-size: 19px; fill: var(--g4); letter-spacing: 0.06em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
@@ -191,12 +191,12 @@ body[data-theme="sonar"] button[aria-pressed="true"], body[data-theme="sonar"] b
 body[data-theme="sonar"] button[aria-pressed="true"]::before, body[data-theme="sonar"] button.again::before, body[data-theme="sonar"] .share button::before { background: var(--g3); box-shadow: 0 0 8px var(--g3); }
 
 /* The terminal: one wide line under the scope. Enter pings; Enter again moves to the next target. */
-body[data-theme="sonar"] .blk-command { padding: 30px 30px 22px; justify-content: center; gap: 8px; }
+body[data-theme="sonar"] .blk-command { padding: 28px 34px 22px; justify-content: center; gap: 8px; }
 body[data-theme="sonar"] .blk-command::before { inset: 12px; }
 body[data-theme="sonar"] .blk-command::after { display: none; }
 body[data-theme="sonar"] form { display: flex; align-items: center; gap: 14px; margin: 0; }
 body[data-theme="sonar"] .prompt { color: var(--g4); font-size: 34px; line-height: 1; }
-body[data-theme="sonar"] input { flex: 1; min-width: 0; background: transparent; border: 0; border-radius: 0; color: var(--g4); font: 32px/1.2 var(--font); text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 0; caret-color: var(--g3); outline: none; text-shadow: 0 0 8px rgba(95, 242, 154, 0.6); }
+body[data-theme="sonar"] input { flex: 1; min-width: 0; background: transparent; border: 0; border-radius: 0; color: var(--g4); font: 500 30px/1.2 var(--font); text-transform: uppercase; letter-spacing: 0.12em; padding: 4px 0; caret-color: var(--g3); outline: none; text-shadow: 0 0 6px rgba(74, 213, 133, 0.45); }
 body[data-theme="sonar"] input::placeholder { color: var(--g2); text-transform: none; letter-spacing: 0.02em; font-size: 24px; }
 body[data-theme="sonar"] .message { color: var(--amber); font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; min-height: 1.3em; margin: 0; }
 body[data-theme="sonar"] .message:not(:empty)::before { content: '> '; }
@@ -227,7 +227,14 @@ body[data-theme="sonar"] .detail b { color: var(--g4); font-weight: normal; }
 body[data-theme="sonar"] #d-reveal-wrap .legend { margin: 10px 0 4px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g2); }
 body[data-theme="sonar"] #d-reveal li { grid-template-columns: 2.2em 1fr; font-size: 12px; }
 body[data-theme="sonar"] #d-reveal .hint { grid-column: 2; }
-body[data-theme="sonar"] #d-axes { width: 100%; height: auto; display: block; overflow: visible; }
+/* Timer: a stopwatch for the current target, with each finished round's time under it. */
+body[data-theme="sonar"] .timer { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+body[data-theme="sonar"] .clock { font-size: 44px; font-weight: 500; letter-spacing: 0.08em; color: var(--g4); font-variant-numeric: tabular-nums; text-shadow: 0 0 8px rgba(74, 213, 133, 0.45); line-height: 1; }
+body[data-theme="sonar"] .clock-label { font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g2); }
+body[data-theme="sonar"] .times { list-style: none; margin: 10px 0 0; padding: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+body[data-theme="sonar"] .times li { display: grid; grid-template-columns: 2em 1fr auto; gap: 8px; padding: 5px 0; border-top: 1px dashed var(--g1); }
+body[data-theme="sonar"] .times li:first-child { border-top: 0; }
+body[data-theme="sonar"] .times .n { color: var(--g2); } body[data-theme="sonar"] .times .w { color: var(--g3); } body[data-theme="sonar"] .times .t { color: var(--g4); font-variant-numeric: tabular-nums; }
 body[data-theme="sonar"] .blk-score .result { font-size: 20px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--g4); margin: 0 0 8px; }
 body[data-theme="sonar"] .share { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 body[data-theme="sonar"] .share code { font-family: var(--font); font-size: 15px; background: var(--g0); color: var(--g3); padding: 8px 10px; border: 1px solid var(--g1); }
@@ -237,8 +244,8 @@ body[data-theme="sonar"] details p { margin: 8px 0 0; }
 
 @media (max-width: 960px) {
   body[data-tab="darts"][data-theme="sonar"] main { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 16px; padding: 12px;
-    grid-template-areas: "head" "scope" "command" "analysis" "axes" "log" "targets" "score" "manual"; padding-bottom: 56px; }
-  body[data-theme="sonar"] .stage { width: 100%; }
+    grid-template-areas: "head" "scope" "command" "timer" "log" "score" "manual"; padding-bottom: 56px; }
+  body[data-theme="sonar"] .stage { width: 100%; height: auto; aspect-ratio: 1; }
   body[data-theme="sonar"] .blk { min-height: 150px; }
   body[data-theme="sonar"] .sign { flex-wrap: wrap; gap: 8px 20px; }
   body[data-theme="sonar"] .sign .status { margin-left: 0; width: 100%; box-sizing: border-box; white-space: normal; font-size: 15px; }

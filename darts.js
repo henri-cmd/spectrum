@@ -56,6 +56,8 @@ let throws = [];          // {word, x, y, d, score}, throw k was at targets[k]
 let started = false, over = false, practice = false;
 let awaiting = false;     // a dart has landed on the current target; the next target waits for a click
 let throwing = false;     // the throw animation is playing
+let roundStart = 0;       // when the current target appeared (ms); the round's clock runs from here
+let times = [];           // seconds taken for each finished round
 const shardCache = new Map();
 
 const $ = id => document.getElementById(id);
@@ -345,6 +347,20 @@ for (const b of document.querySelectorAll('.themes button')) b.addEventListener(
   applyTheme(initial || 'saloon');
 }
 
+// ---- Round timer: a stopwatch per target, shown on the console's Timer screen ----
+const fmt = sec => { const m = Math.floor(sec / 60), s = sec - m * 60; return `${String(m).padStart(2, '0')}:${s.toFixed(1).padStart(4, '0')}`; };
+const running = () => started && !over && !awaiting && !throwing && roundStart > 0;
+function tick() {
+  if (!theme.console || !puzzle) return;
+  const idx = Math.min(round(), ROUNDS - 1);
+  $('d-clock').textContent = fmt(running() ? (Date.now() - roundStart) / 1000 : (times[idx] ?? 0));
+  $('d-clock-label').textContent = over ? `total ${fmt(times.reduce((a, b) => a + b, 0))}` : `round ${idx + 1}`;
+}
+setInterval(tick, 100);
+function renderTimes() {
+  $('d-times').innerHTML = times.map((t, k) => `<li><span class="n">${k + 1}</span><span class="w">${esc(throws[k] ? throws[k].word : '')}</span><span class="t">${fmt(t)}</span></li>`).join('');
+}
+
 // ---- Readout ----
 function hint(t, tg) {
   if (t.d <= RINGS[0][0]) return 'bullseye!';
@@ -360,7 +376,7 @@ function hint(t, tg) {
 }
 function renderReadout() {
   $('d-readout').innerHTML = throws.map((t, k) =>
-    `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}</span><span class="hint">${hint(t, targets[k])}</span></li>`).join('');
+    `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}${times[k] !== undefined ? ` · ${fmt(times[k])}` : ''}</span><span class="hint">${hint(t, targets[k])}</span></li>`).join('');
 }
 
 // The console's other screens: the status strip in the head, and the analysis screen (latest return, axis bars).
@@ -368,35 +384,11 @@ function renderSide() {
   if (!theme.console || !puzzle) return;
   const cur = over ? -1 : round(), last = throws[throws.length - 1], sum = total(throws);
   $('d-status').textContent = over ? `Final ${sum} / ${MAX_SCORE}` : `Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS} · Score ${sum} / ${MAX_SCORE}`;
-  $('d-rounds').innerHTML = targets.map((t, k) => {
-    const th = throws[k], cls = k === cur ? 'cur' : th ? 'done' : '';
-    const status = th ? `${esc(th.word)} · ${th.score} pts` : k === cur ? (awaiting ? 'plotted' : 'tracking') : 'standby';
-    return `<li class="${cls}"><span>Target ${k + 1}</span><span>${status}</span></li>`;
-  }).join('');
   const best = throws.reduce((a, b) => !a || b.score > a.score ? b : a, null);
   $('d-score').innerHTML = `<dt>Round</dt><dd>${Math.min(over ? ROUNDS : cur + 1, ROUNDS)} / ${ROUNDS}</dd><dt>Score</dt><dd>${sum} / ${MAX_SCORE}</dd>` +
     `<dt>Bullseyes</dt><dd>${throws.filter(t => t.score === RINGS[0][1]).length}</dd><dt>Best</dt><dd>${best ? `${esc(best.word)} ${best.score}` : '—'}</dd>`;
   const tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
-  $('d-detail').innerHTML = over ? `All ${ROUNDS} targets resolved. Final score <b>${sum}</b> of ${MAX_SCORE}.`
-    : awaiting ? `Target ${throws.length} · <b>${esc(last.word)}</b>\n${brgRng(last)} · <b>${last.score} pts</b>\n${hint(last, targets[throws.length - 1])}`
-    : `Target ${cur + 1} · ${brgRng(tg)}${last ? `\nLast ping <b>${esc(last.word)}</b> · ${last.score} pts` : '\nNo pings yet.'}`;
-  // Axis analysis: each spectrum as a bar, the target hollow, the latest word solid.
-  const L = 70, Rr = 230, rows = axes.map((i, k) => {
-    const sp = puzzle.spectrums[i], y = 30 + k * 46, px = v => L + (v + 1) / 2 * (Rr - L);
-    const tv = k === 0 ? tg.x : tg.y, wv = last ? (k === 0 ? last.x : last.y) : null;
-    let r = `<text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="#5ff29a">${esc(sp.low.toUpperCase())}</text>` +
-            `<text x="${Rr + 8}" y="${y + 4}" font-size="11" fill="#5ff29a">${esc(sp.high.toUpperCase())}</text>` +
-            `<line x1="${L}" y1="${y}" x2="${Rr}" y2="${y}" stroke="#1f8a4d" stroke-width="1"/>`;
-    for (const v of [-1, -0.5, 0, 0.5, 1]) r += `<line x1="${px(v)}" y1="${y - 4}" x2="${px(v)}" y2="${y + 4}" stroke="#1f8a4d"/>`;
-    r += `<circle cx="${px(tv)}" cy="${y}" r="6" fill="none" stroke="#c8ffd9" stroke-width="1.5"/>`;
-    if (wv !== null) {
-      const cl = Math.max(-1.1, Math.min(1.1, wv));
-      r += `<circle cx="${px(cl)}" cy="${y}" r="4" fill="#5ff29a"/>` +
-           `<text x="${(px(tv) + px(cl)) / 2}" y="${y + 19}" text-anchor="middle" font-size="11" fill="#ffb84a">${Math.abs(wv - tv) < 0.12 ? 'ON' : `${wv > tv ? '+' : '−'}${Math.abs(wv - tv).toFixed(2)}`}</text>`;
-    }
-    return r;
-  });
-  $('d-axes').innerHTML = rows.join('') + `<text x="150" y="104" text-anchor="middle" font-size="10" fill="#1f8a4d">○ TARGET   ● YOUR WORD</text>`;
+  renderTimes();
 }
 
 // For each round: the common words that would have scored, best first (at most four shown).
@@ -414,6 +406,7 @@ function msg(text, colour) { $('d-message').textContent = text; $('d-message').s
 
 function start() {
   started = true;
+  roundStart = Date.now();
   $('d-start').hidden = true;
   $('d-form').hidden = false;
   render();
@@ -439,9 +432,10 @@ async function submitThrow(e) {
   save();
 }
 
-async function addThrow(word, entry, animate) {
+async function addThrow(word, entry, animate, seconds) {
   const tg = targets[round()];
   const d = dist(entry, tg), score = scoreDart(d);
+  times[throws.length] = seconds !== undefined ? seconds : roundStart ? Math.round((Date.now() - roundStart) / 100) / 10 : 0;
   throws.push({ word, x: entry.x, y: entry.y, d, score });
   if (animate) {
     throwing = true;
@@ -469,6 +463,7 @@ async function addThrow(word, entry, animate) {
 
 function nextTarget() {
   awaiting = false;
+  roundStart = Date.now();
   msg('');
   $('d-nextp').hidden = true;
   $('d-form').hidden = false;
@@ -484,7 +479,8 @@ function endGame() {
   $('d-nextp').hidden = true;
   msg('');
   const sum = total(throws), bulls = throws.filter(t => t.score === RINGS[0][1]).length;
-  $('d-result').textContent = `Score ${sum} of ${MAX_SCORE}${bulls ? `, with ${bulls} bullseye${bulls > 1 ? 's' : ''}` : ''}.`;
+  const clock = times.reduce((a, b) => a + b, 0);
+  $('d-result').textContent = `Score ${sum} of ${MAX_SCORE}${bulls ? `, with ${bulls} bullseye${bulls > 1 ? 's' : ''}` : ''}${clock ? `, in ${fmt(clock)}` : ''}.`;
   $('d-share-text').textContent = `Darts #${puzzle.number} · ${sum}/${MAX_SCORE} · ${throws.map(t => t.score).join(' ')}`;
   $('d-share').hidden = false;
   $('d-reveal').innerHTML = answers().map((a, k) => {
@@ -498,7 +494,7 @@ function endGame() {
 
 // Fresh, unseeded targets on the same board for another go. Practice games aren't saved.
 function again() {
-  practice = true; over = false; awaiting = false; throws = [];
+  practice = true; over = false; awaiting = false; throws = []; times = []; roundStart = Date.now();
   document.body.classList.remove('d-over');
   targets = makeTargets(Math.random);
   $('d-nextp').hidden = true;
@@ -513,20 +509,22 @@ function again() {
 const key = () => `darts:${puzzle.id}:${puzzle.date}`;
 function save() {
   if (practice) return;
-  try { localStorage.setItem(key(), JSON.stringify({ started, words: throws.map(t => t.word), awaiting })); } catch {}
+  try { localStorage.setItem(key(), JSON.stringify({ started, words: throws.map(t => t.word), awaiting, times, roundStart })); } catch {}
 }
 async function restore() {
   let saved;
   try { saved = JSON.parse(localStorage.getItem(key())); } catch {}
   if (!saved || !saved.started) return;
   start();
-  for (const w of saved.words) {
+  const savedTimes = saved.times || [];
+  for (const [k, w] of saved.words.entries()) {
     if (over) break;
     if (awaiting) nextTarget();
     const entry = await lookup(w);
-    if (entry) await addThrow(w, entry, false);
+    if (entry) await addThrow(w, entry, false, savedTimes[k] ?? 0);
   }
   if (awaiting && !saved.awaiting) nextTarget(); // they had already clicked on to the next target
+  if (!over && !awaiting && saved.roundStart) roundStart = saved.roundStart; // the round's clock keeps running across a reload
   save();
 }
 

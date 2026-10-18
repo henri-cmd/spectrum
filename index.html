@@ -6,7 +6,7 @@
 <title>Spectrum</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Pixelify+Sans:wght@400..700&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="themes.css">
 <style>
   :root { color-scheme: light; }
@@ -108,25 +108,20 @@
       <div class="blk blk-contacts" data-title="Log">
         <ol id="d-readout" class="readout"></ol>
       </div>
-      <div class="blk blk-rounds sonar-only" data-title="Targets">
-        <ol id="d-rounds" class="rounds"></ol>
-      </div>
       <div class="blk blk-tally sonar-only" data-title="Score">
         <dl id="d-score" class="score"></dl>
       </div>
-      <div class="blk blk-details" data-title="Analysis">
-        <div id="d-detail" class="detail"></div>
-        <div id="d-reveal-wrap" hidden>
-          <p class="legend">What would have hit each target:</p>
-          <ol id="d-reveal" class="readout"></ol>
-        </div>
-      </div>
-      <div class="blk blk-axes sonar-only" data-title="Axis analysis">
-        <svg id="d-axes" viewBox="0 0 300 110" aria-label="Where the latest word sat on each spectrum"></svg>
+      <div class="blk blk-timer sonar-only" data-title="Timer">
+        <div class="timer"><span id="d-clock" class="clock">00:00.0</span><span id="d-clock-label" class="clock-label"></span></div>
+        <ol id="d-times" class="times"></ol>
       </div>
       <div class="blk blk-score" data-title="Result">
         <p id="d-result" class="result"></p>
         <p id="d-share" class="share" hidden><code id="d-share-text"></code><button id="d-copy">Copy</button><button class="again" id="d-again">New targets</button></p>
+        <div id="d-reveal-wrap" hidden>
+          <p class="legend">What would have hit each target:</p>
+          <ol id="d-reveal" class="readout"></ol>
+        </div>
       </div>
       <div class="blk blk-manual" data-title="Manual">
         <details>
