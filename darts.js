@@ -446,6 +446,7 @@ async function addThrow(word, entry, animate) {
   if (throws.length === ROUNDS) return endGame();
   awaiting = true;
   if (theme.terminal) { // the terminal stays up: the result prints, Enter moves on
+    $('d-form').hidden = false;
     msg(`${word} · ${score ? `${score} points` : 'no points'} · ${hint(throws[throws.length - 1], tg)}  Press Enter for target ${throws.length + 1}.`);
     render();
     $('d-guess').focus();
