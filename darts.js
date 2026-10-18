@@ -25,6 +25,7 @@ let axes = [0, 1];        // which of the puzzle's spectrums run left→right an
 let targets = [];         // one {x, y} per round
 let throws = [];          // {word, x, y, d, score}, throw k was at targets[k]
 let started = false, over = false, practice = false;
+let awaiting = false;   // a dart has landed on the current target; the next target waits for a click
 const shardCache = new Map();
 
 const $ = id => document.getElementById(id);
@@ -32,7 +33,7 @@ const svg = $('d-board');
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const normalise = s => s.trim().toLowerCase().replace(/[^a-z\s-]/g, '').replace(/[\s-]+/g, ' ').trim();
 const sx = x => C + x * R, sy = y => C - y * R;   // units → screen
-const round = () => throws.length;                 // index of the round being played
+const round = () => throws.length - (awaiting ? 1 : 0); // index of the target on the board
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 // ---- Seeded random: everyone gets the same targets on the same day ----
@@ -139,7 +140,7 @@ function render() {
   const labels = [];
   throws.forEach((t, k) => {
     const x = sx(t.x), y = sy(t.y), last = k === throws.length - 1, tg = targets[k];
-    if (last && !over) s += `<line x1="${x}" y1="${y}" x2="${sx(tg.x)}" y2="${sy(tg.y)}" stroke="#999" stroke-width="1" stroke-dasharray="2 3"/>`;
+    if (last && awaiting) s += `<line x1="${x}" y1="${y}" x2="${sx(tg.x)}" y2="${sy(tg.y)}" stroke="#999" stroke-width="1" stroke-dasharray="2 3"/>`;
     s += `<circle cx="${x}" cy="${y}" r="5" fill="${last && !over ? '#111' : '#fff'}" stroke="#111" stroke-width="1.7"/>`;
     labels.push({ x, y, word: t.word, fill: '#111' });
   });
@@ -160,6 +161,7 @@ function render() {
   svg.innerHTML = s;
   $('d-legend').textContent = over
     ? `○ your darts   ● words that would have scored most on each numbered target${practice ? '   · practice' : ''}`
+    : awaiting ? `Round ${round() + 1} of ${ROUNDS}.   ● where your word landed${practice ? '   · practice' : ''}`
     : `Round ${round() + 1} of ${ROUNDS}: throw a word at the red target.   ○ earlier darts${practice ? '   · practice' : ''}`;
 }
 
@@ -225,13 +227,28 @@ function addThrow(word, entry) {
   throws.push({ word, x: entry.x, y: entry.y, d, score });
   renderReadout();
   if (throws.length === ROUNDS) return endGame();
-  msg(score ? `${score} points${score === RINGS[0][1] ? ' — bullseye!' : ''}. New target.` : 'Missed. New target.', score ? '#111' : '#a00');
+  awaiting = true;
+  msg(score ? `${score} points${score === RINGS[0][1] ? ' — bullseye!' : ''}.` : 'Missed.', score ? '#111' : '#a00');
+  $('d-form').hidden = true;
+  $('d-nextp').hidden = false;
   render();
+  $('d-next').focus();
+}
+
+function nextTarget() {
+  awaiting = false;
+  msg('');
+  $('d-nextp').hidden = true;
+  $('d-form').hidden = false;
+  render();
+  $('d-guess').focus();
+  save();
 }
 
 function endGame() {
-  over = true;
+  over = true; awaiting = false;
   $('d-form').hidden = true;
+  $('d-nextp').hidden = true;
   msg('');
   const sum = total(throws), bulls = throws.filter(t => t.score === RINGS[0][1]).length;
   $('d-result').textContent = `Score ${sum} of ${MAX_SCORE}${bulls ? `, with ${bulls} bullseye${bulls > 1 ? 's' : ''}` : ''}.`;
@@ -248,8 +265,9 @@ function endGame() {
 
 // Fresh, unseeded targets on the same board for another go. Practice games aren't saved.
 function again() {
-  practice = true; over = false; throws = [];
+  practice = true; over = false; awaiting = false; throws = [];
   targets = makeTargets(Math.random);
+  $('d-nextp').hidden = true;
   $('d-readout').innerHTML = ''; $('d-result').textContent = ''; $('d-share').hidden = true; $('d-reveal-wrap').hidden = true;
   $('d-form').hidden = false;
   msg('');
@@ -261,7 +279,7 @@ function again() {
 const key = () => `darts:${puzzle.id}:${puzzle.date}`;
 function save() {
   if (practice) return;
-  try { localStorage.setItem(key(), JSON.stringify({ started, words: throws.map(t => t.word) })); } catch {}
+  try { localStorage.setItem(key(), JSON.stringify({ started, words: throws.map(t => t.word), awaiting })); } catch {}
 }
 async function restore() {
   let saved;
@@ -270,10 +288,11 @@ async function restore() {
   start();
   for (const w of saved.words) {
     if (over) break;
+    if (awaiting) nextTarget();
     const entry = await lookup(w);
     if (entry) addThrow(w, entry);
   }
-  if (!over) msg('');
+  if (awaiting && !saved.awaiting) nextTarget(); // they had already clicked on to the next target
   save();
 }
 
@@ -281,6 +300,7 @@ async function restore() {
 $('d-go').addEventListener('click', start);
 $('d-form').addEventListener('submit', submitThrow);
 $('d-again').addEventListener('click', again);
+$('d-next').addEventListener('click', nextTarget);
 $('d-copy').addEventListener('click', () => navigator.clipboard.writeText($('d-share-text').textContent).then(() => { $('d-copy').textContent = 'Copied'; }));
 
 // ---- Load today's puzzle (same schedule as Spectrum) ----
