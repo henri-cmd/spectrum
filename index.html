@@ -6,7 +6,7 @@
 <title>Spectrum</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Pixelify+Sans:wght@400..700&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=JetBrains+Mono:wght@300;400&family=Pixelify+Sans:wght@400..700&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="themes.css">
 <style>
   :root { color-scheme: light; }
@@ -84,7 +84,8 @@
   <section id="tab-darts" hidden>
     <nav class="themes" aria-label="Look">
       <button data-theme="saloon" aria-pressed="true">Saloon</button>
-      <button data-theme="sonar" aria-pressed="false">Sonar</button>
+      <button data-theme="graphite" aria-pressed="false">Graphite</button>
+      <button data-theme="abyss" aria-pressed="false">Abyss</button>
     </nav>
     <div class="stage" id="d-stage">
       <svg id="d-board" viewBox="0 0 600 600" aria-label="Dartboard"></svg>
@@ -106,10 +107,11 @@
         <p id="d-nextp" hidden><button class="go" id="d-next">Next target</button></p>
       </div>
       <div class="blk blk-contacts" data-title="Log">
+        <p id="d-logstatus" class="logstatus sonar-only"></p>
         <ol id="d-readout" class="readout"></ol>
       </div>
-      <div class="blk blk-tally sonar-only" data-title="Score">
-        <dl id="d-score" class="score"></dl>
+      <div class="blk blk-axes sonar-only" data-title="Axis analysis">
+        <svg id="d-axes" viewBox="0 0 300 110" aria-label="Where the latest word sat on each spectrum"></svg>
       </div>
       <div class="blk blk-timer sonar-only" data-title="Timer">
         <div class="timer"><span id="d-clock" class="clock">00:00.0</span><span id="d-clock-label" class="clock-label"></span></div>

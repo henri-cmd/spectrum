@@ -95,160 +95,141 @@ body[data-theme="saloon"] #tab-darts .panel b { color: var(--fg); }
 
 
 /* ============================================================================================
-   Sonar: a full-screen submarine command console. A brushed-steel panel with CRT screens set into
-   steel bezels: screws in the corners, labels engraved on the metal above the glass, curved glass
-   with a phosphor bloom, vignette, gloss, scanlines and a slow flicker. No sprites.
+   Sonar: a full-screen submarine command console. Near-black panel, hairline bezels, flat dark
+   glass with a deep vignette; only the trace and the typed word are bright. No sprites.
    ============================================================================================ */
-body[data-theme="sonar"] {
-  --ink: #04070a; --metal-hi: #353b42; --metal: #22272c; --metal-lo: #14181c; --etch: #8a939c;
-  --g0: #030c07; --g1: #0a2e1b; --g2: #1a7a44; --g3: #4ad585; --g4: #b9f5cf; --amber: #e9a63f;
-  --font: 'IBM Plex Mono', 'Share Tech Mono', monospace;
-  --glass: radial-gradient(ellipse 80% 65% at 50% 44%, #0a2d1c 0%, #071f14 45%, transparent 100%), radial-gradient(ellipse at 50% 50%, #06200f 0%, #04140b 60%, #020a06 100%);
-  --glass-shadow: inset 0 0 0 2px #04070a, inset 0 0 50px 14px rgba(0, 0, 0, 0.8), inset 0 1px 0 1px rgba(160, 255, 200, 0.05);
-  --gloss: radial-gradient(ellipse 130% 55% at 50% -22%, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 45%, transparent 62%);
-  --scan: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0 1px, transparent 1px 3px);
-  --screws: radial-gradient(circle at 12px 12px, #5e666e 0 1.4px, #2a3036 2px, #0a0d10 2.8px, transparent 3.6px),
-            radial-gradient(circle at calc(100% - 12px) 12px, #5e666e 0 1.4px, #2a3036 2px, #0a0d10 2.8px, transparent 3.6px),
-            radial-gradient(circle at 12px calc(100% - 12px), #5e666e 0 1.4px, #2a3036 2px, #0a0d10 2.8px, transparent 3.6px),
-            radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), #5e666e 0 1.4px, #2a3036 2px, #0a0d10 2.8px, transparent 3.6px);
-  --bezel: linear-gradient(165deg, #2f353b 0%, #24292e 40%, #1c2126 75%, #171b1f 100%);
-  --bezel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 -1px 0 rgba(0, 0, 0, 0.8), 0 0 0 1px #07090b, 0 8px 20px rgba(0, 0, 0, 0.6);
-  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px), linear-gradient(180deg, #1b1f23 0%, #15181c 50%, #0f1215 100%);
-  color: var(--g3); font-family: var(--font);
+/* Graphite: matte graphite panel, hairline bezels, flat glass, mid-green trace. */
+body[data-theme="graphite"] {
+  --ink: #06090a; --panel: #15171a; --panel2: #1b1e22; --bz: #2a2f35; --lbl: #6b7480; --head-fg: #aeb7bf;
+  --g0: #06090a; --g1: #16412b; --g2: #3f8b63; --g3: #86d8a8; --g4: #c9f5db; --amber: #d9a441; --bull: #eafff2;
+  --font: 'IBM Plex Mono', monospace; --weight: 400; --clock-weight: 500;
+  --glass: radial-gradient(ellipse at 50% 40%, #0c1611 0%, #090e0b 60%, #06090a 100%);
+  --glass-shadow: inset 0 0 0 1px #0b0d10, inset 0 0 26px rgba(0, 0, 0, 0.65);
+  --bezel-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 30px rgba(0, 0, 0, 0.5);
+  --status-box: 1px solid var(--bz); --status-bg: #090e0b; --head-border: 1px solid var(--bz); --head-bg: var(--panel2);
+  background: #0d0f11; color: var(--g3); font-family: var(--font);
 }
-body[data-tab="darts"][data-theme="sonar"] main { max-width: none; padding: 16px; height: 100vh; box-sizing: border-box; display: grid; gap: 18px; /* a fixed height: the fr rows split it and each screen scrolls inside */
+/* Abyss: near-black, the glass a deep well, thin light weights, only the trace and the word bright. */
+body[data-theme="abyss"] {
+  --ink: #020403; --panel: #050607; --panel2: #0a0c0e; --bz: #15191c; --lbl: #3d454c; --head-fg: #8b949e;
+  --g0: #020403; --g1: #0e2017; --g2: #245c3f; --g3: #5fbf8a; --g4: #d6ffe6; --amber: #c9933a; --bull: #ffffff;
+  --font: 'JetBrains Mono', 'IBM Plex Mono', monospace; --weight: 300; --clock-weight: 300;
+  --glass: radial-gradient(ellipse at 50% 45%, #07140d 0%, #040a07 55%, #020403 100%);
+  --glass-shadow: inset 0 0 0 1px #0b0e10, inset 0 0 40px 10px rgba(0, 0, 0, 0.85);
+  --bezel-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  --status-box: 0; --status-bg: transparent; --head-border: 0; --head-bg: transparent;
+  background: #030405; color: var(--g3); font-family: var(--font); font-weight: 300;
+}
+body[data-tab="darts"][data-family="console"] main { max-width: none; padding: 14px; height: 100vh; box-sizing: border-box; display: grid; gap: 14px; /* a fixed height: the fr rows split it and each screen scrolls inside */
   grid-template-columns: minmax(240px, 1fr) minmax(0, 2.4fr) minmax(240px, 1fr);
   grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto;
-  grid-template-areas: "head head head" "timer scope score" "log scope manual" "command command command"; padding-bottom: 44px; }
-body[data-tab="darts"][data-theme="sonar"] header, body[data-theme="sonar"] #tab-darts, body[data-theme="sonar"] .panel { display: contents; }
-body[data-theme="sonar"] .actor, body[data-theme="sonar"] .dart, body[data-theme="sonar"] .mug, body[data-theme="sonar"] .bottle,
-body[data-theme="sonar"] #d-start, body[data-theme="sonar"] #d-nextp, body[data-theme="sonar"] #d-submit, body[data-theme="sonar"] .blk-command .legend { display: none !important; }
+  grid-template-areas: "head head head" "timer scope axes" "log scope manual" "command command command"; padding-bottom: 44px; }
+body[data-tab="darts"][data-family="console"] header, body[data-family="console"] #tab-darts, body[data-family="console"] .panel { display: contents; }
+body[data-family="console"] .actor, body[data-family="console"] .dart, body[data-family="console"] .mug, body[data-family="console"] .bottle, body[data-family="console"] .prompt, body[data-family="console"] .message,
+body[data-family="console"] #d-start, body[data-family="console"] #d-nextp, body[data-family="console"] #d-submit, body[data-family="console"] .blk-command .legend { display: none !important; }
 
-/* A screen: a steel bezel with screws (the element), the curved glass behind the content (::before),
-   and the label engraved on the metal above the glass (::after). */
-body[data-theme="sonar"] .blk, body[data-theme="sonar"] .stage {
-  position: relative; border-radius: 5px; background: var(--screws), var(--bezel); box-shadow: var(--bezel-shadow);
-  color: var(--g3); text-shadow: 0 0 3px rgba(74, 213, 133, 0.3); min-height: 0; min-width: 0; }
-body[data-theme="sonar"] .blk { padding: 44px 24px 22px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; overflow: hidden; }
-body[data-theme="sonar"] .blk > * { position: relative; z-index: 1; min-height: 0; margin: 0; }
-body[data-theme="sonar"] .blk > ol, body[data-theme="sonar"] .blk > div, body[data-theme="sonar"] .blk > dl, body[data-theme="sonar"] .blk > details { overflow: auto; }
-body[data-theme="sonar"] .blk::before, body[data-theme="sonar"] .stage::before { content: ''; position: absolute; inset: 30px 12px 12px; border-radius: 10px / 12px; z-index: 0;
-  background: var(--gloss), var(--scan), var(--glass); box-shadow: var(--glass-shadow); animation: flicker 7s steps(1) infinite; }
-body[data-theme="sonar"] .stage::before { inset: 12px; border-radius: 14px; }
-body[data-theme="sonar"] .blk::after, body[data-theme="sonar"] .stage::after { content: attr(data-title); position: absolute; top: 8px; left: 26px; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--etch); text-shadow: 0 1px 0 #000, 0 -1px 0 rgba(255, 255, 255, 0.06); z-index: 1; }
-body[data-theme="sonar"] .stage::after { content: ''; inset: 12px; top: 12px; left: 12px; border-radius: 14px; background: var(--gloss); pointer-events: none; z-index: 3; }
-@keyframes flicker { 0%, 100% { opacity: 1; } 31% { opacity: 0.97; } 32% { opacity: 1; } 63% { opacity: 0.985; } 64% { opacity: 1; } 87% { opacity: 0.96; } 88% { opacity: 1; } }
-body[data-theme="sonar"] .blk-contacts { grid-area: log; } body[data-theme="sonar"] .blk-tally { grid-area: score; }
-body[data-theme="sonar"] .blk-timer { grid-area: timer; } body[data-theme="sonar"] .blk-manual { grid-area: manual; }
-body[data-theme="sonar"] .blk-command, body[data-theme="sonar"] .blk-score { grid-area: command; }
-body[data-theme="sonar"] .blk-score { display: none; } /* the result takes the terminal's place when the game is over */
-body.d-over[data-theme="sonar"] .blk-score { display: flex; } body.d-over[data-theme="sonar"] .blk-command { display: none; }
+/* A screen: a hairline bezel (the element), the glass behind the content (::before), a dim label on the bezel (::after). */
+body[data-family="console"] .blk, body[data-family="console"] .stage {
+  position: relative; border-radius: 3px; background: var(--panel); border: 1px solid var(--bz); box-shadow: var(--bezel-shadow);
+  color: var(--g3); min-height: 0; min-width: 0; }
+body[data-family="console"] .blk { padding: 34px 20px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; overflow: hidden; font-weight: var(--weight); }
+body[data-family="console"] .blk > * { position: relative; z-index: 1; min-height: 0; margin: 0; }
+body[data-family="console"] .blk > ol, body[data-family="console"] .blk > div, body[data-family="console"] .blk > details { overflow: auto; }
+body[data-family="console"] .blk::before, body[data-family="console"] .stage::before { content: ''; position: absolute; inset: 24px 8px 8px; border-radius: 2px; z-index: 0; background: var(--glass); box-shadow: var(--glass-shadow); }
+body[data-family="console"] .stage::before { inset: 8px; }
+body[data-family="console"] .blk::after { content: attr(data-title); position: absolute; top: 7px; left: 10px; font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--lbl); z-index: 1; }
+body[data-family="console"] .blk-timer { grid-area: timer; } body[data-family="console"] .blk-contacts { grid-area: log; }
+body[data-family="console"] .blk-axes { grid-area: axes; } body[data-family="console"] .blk-manual { grid-area: manual; }
+body[data-family="console"] .blk-command, body[data-family="console"] .blk-score { grid-area: command; }
+body[data-family="console"] .blk-score { display: none; } /* the result takes the terminal's place when the game is over */
+body.d-over[data-family="console"] .blk-score { display: flex; } body.d-over[data-family="console"] .blk-command { display: none; }
 
-/* Head strip: an engraved steel nameplate, with round and score on a small readout at the right. */
-body[data-theme="sonar"] .sign { grid-area: head; display: flex; align-items: center; gap: 26px; padding: 12px 22px; margin: 0; border-radius: 5px;
-  background: var(--screws), linear-gradient(180deg, #2f353b 0%, #24292e 50%, #1c2126 100%); box-shadow: var(--bezel-shadow); }
-body[data-theme="sonar"] .sign::before { display: none; }
-body[data-theme="sonar"] .sign h1 { font: 500 18px/1 var(--font); letter-spacing: 0.32em; text-transform: uppercase; color: #aeb7bf; margin: 0; display: flex; align-items: center; gap: 12px; text-shadow: 0 1px 0 #000; }
-body[data-theme="sonar"] .sign h1::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 10px var(--g3), inset 0 0 2px #000; animation: blink 2.4s steps(1) infinite; }
+/* Head strip: a flat bar with the game name, the day's line and, at the right, round and score. */
+body[data-family="console"] .sign { grid-area: head; display: flex; align-items: center; gap: 24px; padding: 10px 16px; margin: 0; border: var(--head-border); border-radius: 3px; background: var(--head-bg); }
+body[data-theme="abyss"] .sign { border-bottom: 1px solid var(--bz); border-radius: 0; }
+body[data-family="console"] .sign::before { display: none; }
+body[data-family="console"] .sign h1 { font: var(--weight) 15px/1 var(--font); letter-spacing: 0.4em; text-transform: uppercase; color: var(--head-fg); margin: 0; display: flex; align-items: center; gap: 12px; }
+body[data-family="console"] .sign h1::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--g3); box-shadow: 0 0 8px var(--g3); animation: blink 2.4s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0.35; } }
-body[data-theme="sonar"] .sign .sub { font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--etch); margin: 0; text-shadow: 0 1px 0 #000; }
-body[data-theme="sonar"] .sign .status { margin: 0 0 0 auto; padding: 8px 16px; font-size: 16px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g4); white-space: nowrap; border-radius: 8px;
-  background: var(--scan), var(--glass); box-shadow: var(--glass-shadow); text-shadow: 0 0 4px rgba(74, 213, 133, 0.4); border-radius: 4px; }
+body[data-family="console"] .sign .sub { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lbl); margin: 0; }
+body[data-family="console"] .sign .status { margin: 0 0 0 auto; font-size: 14px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g4); white-space: nowrap; padding: 6px 12px; border: var(--status-box); border-radius: 3px; background: var(--status-bg); }
 
-/* The scope: a square CRT in the middle; the SVG draws the round display, bearing ring and corner readouts. */
-body[data-theme="sonar"] .stage { grid-area: scope; width: 100%; height: 100%; margin: 0; overflow: hidden; /* fills its rows; the round display sits centred on the glass */ }
-body[data-theme="sonar"] .stage svg { position: absolute; inset: 12px; width: calc(100% - 24px); height: calc(100% - 24px); z-index: 2; shape-rendering: geometricPrecision; filter: drop-shadow(0 0 2px rgba(74, 213, 133, 0.3)); }
-body[data-theme="sonar"] .stage svg text { font-family: var(--font); }
-body[data-theme="sonar"] .stage svg .axis { font-size: 22px; fill: var(--g4); letter-spacing: 0.1em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
-body[data-theme="sonar"] .stage svg .tag { font-size: 19px; fill: var(--g4); letter-spacing: 0.06em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
-body[data-theme="sonar"] .stage svg .tag.ans { fill: var(--amber); }
-body[data-theme="sonar"] .stage svg .bearing { font-size: 15px; fill: var(--g2); letter-spacing: 0.08em; }
-body[data-theme="sonar"] .stage svg .corner { font-size: 15px; fill: var(--g3); letter-spacing: 0.12em; text-transform: uppercase; }
-body[data-theme="sonar"] .stage svg .sweep { transform-origin: 300px 300px; animation: sweep 6s linear infinite; }
-body[data-theme="sonar"] .stage svg .target.live .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2.2s ease-out infinite; }
-body[data-theme="sonar"] .stage svg .target.live .bull { animation: bull 2.2s ease-in-out infinite; }
-@keyframes pulse { 0% { transform: scale(0.22); opacity: 0.9; } 70% { opacity: 0.25; } 100% { transform: scale(1.05); opacity: 0; } }
+/* The scope: flat glass; the SVG draws the round display, bearing ring and corner readouts. */
+body[data-family="console"] .stage { grid-area: scope; width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body[data-family="console"] .stage svg { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); z-index: 2; shape-rendering: geometricPrecision; }
+body[data-family="console"] .stage svg text { font-family: var(--font); }
+body[data-family="console"] .stage svg .axis { font-size: 21px; fill: var(--g4); letter-spacing: 0.14em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
+body[data-family="console"] .stage svg .tag { font-size: 18px; fill: var(--g4); letter-spacing: 0.08em; text-transform: uppercase; paint-order: stroke; stroke: var(--g0); stroke-width: 5px; }
+body[data-family="console"] .stage svg .tag.ans { fill: var(--amber); }
+body[data-family="console"] .stage svg .bearing { font-size: 14px; fill: var(--g2); letter-spacing: 0.08em; }
+body[data-family="console"] .stage svg .corner { font-size: 14px; fill: var(--g2); letter-spacing: 0.14em; text-transform: uppercase; }
+body[data-family="console"] .stage svg .sweep { transform-origin: 300px 300px; animation: sweep 6s linear infinite; }
+body[data-family="console"] .stage svg .target.live .pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2.2s ease-out infinite; }
+body[data-family="console"] .stage svg .target.live .bull { animation: bull 2.2s ease-in-out infinite; }
+@keyframes pulse { 0% { transform: scale(0.22); opacity: 0.8; } 70% { opacity: 0.2; } 100% { transform: scale(1.05); opacity: 0; } }
 @keyframes bull { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-body[data-theme="sonar"] .ping { border: 2px solid var(--g3); box-shadow: 0 0 14px var(--g2), inset 0 0 10px rgba(95, 242, 154, 0.3); z-index: 4; }
-body[data-theme="sonar"] .flash { background: var(--g4); box-shadow: 0 0 22px var(--g3); z-index: 4; }
-body[data-theme="sonar"] .stage.thunk svg { animation: none; }
+body[data-family="console"] .ping { border: 1.5px solid var(--g3); box-shadow: 0 0 12px var(--g2); z-index: 4; }
+body[data-family="console"] .flash { background: var(--bull); box-shadow: 0 0 18px var(--g3); z-index: 4; }
+body[data-family="console"] .stage.thunk svg { animation: none; }
 
-/* Comparison switches (Spectrum / Darts, Saloon / Sonar): not part of the design, so they sit in a
-   small plain strip pinned to the bottom-left corner, out of the panel. */
-body[data-theme="sonar"] .views, body[data-theme="sonar"] .themes { position: fixed; bottom: 8px; display: flex; gap: 4px; padding: 4px; margin: 0; border: 0; border-radius: 4px;
-  background: rgba(0, 0, 0, 0.35); opacity: 0.55; z-index: 10; transition: opacity 0.2s; }
-body[data-theme="sonar"] .views:hover, body[data-theme="sonar"] .themes:hover { opacity: 1; }
-body[data-theme="sonar"] .views { left: 16px; } body[data-theme="sonar"] .themes { left: 196px; }
-body[data-theme="sonar"] .views button, body[data-theme="sonar"] .themes button { font-size: 11px; padding: 4px 8px; letter-spacing: 0.1em; box-shadow: none; border-color: #3a434b; }
-body[data-theme="sonar"] .views button::before, body[data-theme="sonar"] .themes button::before { width: 6px; height: 6px; }
-body[data-theme="sonar"] button { font-family: var(--font); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--etch); background: linear-gradient(#1b2025, #0f1316);
-  border: 1px solid #4c565f; border-radius: 3px; box-shadow: inset 0 1px 0 #3a434b, 0 3px 0 var(--ink); padding: 8px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-shadow: none; }
-body[data-theme="sonar"] button::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #2a3138; box-shadow: inset 0 0 2px #000; flex: none; }
-body[data-theme="sonar"] button:hover { color: #fff; }
-body[data-theme="sonar"] button:active { transform: translateY(2px); box-shadow: inset 0 1px 0 #3a434b, 0 1px 0 var(--ink); }
-body[data-theme="sonar"] button[aria-pressed="true"], body[data-theme="sonar"] button.again, body[data-theme="sonar"] .share button { color: var(--g4); }
-body[data-theme="sonar"] button[aria-pressed="true"]::before, body[data-theme="sonar"] button.again::before, body[data-theme="sonar"] .share button::before { background: var(--g3); box-shadow: 0 0 8px var(--g3); }
+/* Comparison switches (Spectrum / Darts, Saloon / Sonar): not part of the design, pinned bottom-left. */
+body[data-family="console"] .views, body[data-family="console"] .themes { position: fixed; bottom: 8px; display: flex; gap: 4px; padding: 4px; margin: 0; border: 0; border-radius: 3px; background: rgba(0, 0, 0, 0.4); opacity: 0.5; z-index: 10; transition: opacity 0.2s; }
+body[data-family="console"] .views:hover, body[data-family="console"] .themes:hover { opacity: 1; }
+body[data-family="console"] .views { left: 14px; } body[data-family="console"] .themes { left: 196px; }
+body[data-family="console"] button { font-family: var(--font); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8b949e; background: #0f1316; border: 1px solid #2a3036; border-radius: 2px; padding: 5px 9px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+body[data-family="console"] button::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #2a3138; flex: none; }
+body[data-family="console"] button:hover { color: var(--g4); }
+body[data-family="console"] button[aria-pressed="true"], body[data-family="console"] button.again, body[data-family="console"] .share button { color: var(--g4); }
+body[data-family="console"] button[aria-pressed="true"]::before, body[data-family="console"] button.again::before, body[data-family="console"] .share button::before { background: var(--g3); box-shadow: 0 0 6px var(--g3); }
 
-/* The terminal: one wide line under the scope. Enter pings; Enter again moves to the next target. */
-body[data-theme="sonar"] .blk-command { padding: 28px 34px 22px; justify-content: center; gap: 8px; }
-body[data-theme="sonar"] .blk-command::before { inset: 12px; }
-body[data-theme="sonar"] .blk-command::after { display: none; }
-body[data-theme="sonar"] form { display: flex; align-items: center; gap: 14px; margin: 0; }
-body[data-theme="sonar"] .prompt { color: var(--g4); font-size: 34px; line-height: 1; }
-body[data-theme="sonar"] input { flex: 1; min-width: 0; background: transparent; border: 0; border-radius: 0; color: var(--g4); font: 500 30px/1.2 var(--font); text-transform: uppercase; letter-spacing: 0.12em; padding: 4px 0; caret-color: var(--g3); outline: none; text-shadow: 0 0 6px rgba(74, 213, 133, 0.45); }
-body[data-theme="sonar"] input::placeholder { color: var(--g2); text-transform: none; letter-spacing: 0.02em; font-size: 24px; }
-body[data-theme="sonar"] .message { color: var(--amber); font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; min-height: 1.3em; margin: 0; }
-body[data-theme="sonar"] .message:not(:empty)::before { content: '> '; }
+/* The terminal: one centred line under the scope, nothing else on it. Enter pings; Enter again moves on. */
+body[data-family="console"] .blk-command { padding: 22px 30px; justify-content: center; }
+body[data-family="console"] .blk-command::before { inset: 8px; }
+body[data-family="console"] .blk-command::after { display: none; }
+body[data-family="console"] form { display: flex; justify-content: center; margin: 0; }
+body[data-family="console"] input { width: 100%; max-width: 760px; min-width: 0; background: transparent; border: 0; border-radius: 0; color: var(--g4); font: var(--weight) 34px/1.2 var(--font); text-align: center; text-transform: uppercase; letter-spacing: 0.18em; padding: 6px 0; caret-color: var(--g3); outline: none; text-shadow: 0 0 10px rgba(95, 191, 138, 0.5); }
+body[data-family="console"] input::placeholder { color: transparent; text-shadow: none; }
 
-/* Log: one row per ping, with bearing, range and the correction under it. */
-body[data-theme="sonar"] .readout { list-style: none; margin: 0; padding: 0; font-size: 14px; text-transform: uppercase; }
-body[data-theme="sonar"] .readout li { display: grid; grid-template-columns: 2.2em 1fr auto; gap: 2px 10px; padding: 7px 0; border-top: 1px dashed var(--g1); align-items: baseline; }
-body[data-theme="sonar"] .readout li:first-child { border-top: 0; }
-body[data-theme="sonar"] .readout .n { color: var(--g2); } body[data-theme="sonar"] .readout .w { color: var(--g4); font-weight: normal; letter-spacing: 0.08em; }
-body[data-theme="sonar"] .readout .s { color: var(--g4); text-align: right; min-width: 0; }
-body[data-theme="sonar"] .readout .s::after { content: ' pts'; color: var(--g2); }
-body[data-theme="sonar"] .readout .brg { grid-column: 2; color: var(--g2); font-size: 12px; letter-spacing: 0.08em; }
-body[data-theme="sonar"] .readout .hint { grid-column: 2 / -1; color: var(--g3); font-size: 12px; letter-spacing: 0.04em; }
-body[data-theme="sonar"] .readout:empty::before { content: 'No pings yet.'; color: var(--g2); font-size: 13px; letter-spacing: 0.1em; }
+/* Log: every round, done / tracking / standby, with the status line above. */
+body[data-family="console"] .logstatus { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); min-height: 1.3em; margin: 0 0 6px; }
+body[data-family="console"] .logstatus:empty { display: none; }
+body[data-family="console"] .readout { list-style: none; margin: 0; padding: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+body[data-family="console"] .readout li { display: grid; grid-template-columns: 2em 1fr auto; gap: 2px 10px; padding: 7px 0; border-top: 1px solid var(--g1); align-items: baseline; }
+body[data-family="console"] .readout li:first-child { border-top: 0; }
+body[data-family="console"] .readout .n { color: var(--g2); } body[data-family="console"] .readout .w { color: var(--g4); font-weight: normal; letter-spacing: 0.1em; }
+body[data-family="console"] .readout .s { color: var(--g4); text-align: right; min-width: 0; }
+body[data-family="console"] .readout .done .s::after { content: ' pts'; color: var(--g2); }
+body[data-family="console"] .readout .brg { grid-column: 2; color: var(--g2); font-size: 11px; letter-spacing: 0.08em; }
+body[data-family="console"] .readout .hint { grid-column: 2 / -1; color: var(--g3); font-size: 11px; letter-spacing: 0.04em; }
+body[data-family="console"] .readout .cur .w { color: var(--g3); } body[data-family="console"] .readout .cur .n { color: var(--g3); }
+body[data-family="console"] .readout .todo { color: var(--g2); } body[data-family="console"] .readout .todo .w { color: var(--g2); }
 
-/* Targets, score, analysis, axis analysis, manual, result. */
-body[data-theme="sonar"] .rounds { list-style: none; margin: 0; padding: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
-body[data-theme="sonar"] .rounds li { display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: center; padding: 7px 0; border-top: 1px dashed var(--g1); color: var(--g2); white-space: nowrap; }
-body[data-theme="sonar"] .rounds li span:first-of-type { overflow: hidden; text-overflow: ellipsis; }
-body[data-theme="sonar"] .rounds li:first-child { border-top: 0; }
-body[data-theme="sonar"] .rounds li::before { content: ''; width: 10px; height: 10px; border: 1px solid var(--g2); border-radius: 2px; }
-body[data-theme="sonar"] .rounds li.cur { color: var(--g4); } body[data-theme="sonar"] .rounds li.cur::before { background: var(--g3); box-shadow: 0 0 8px var(--g3); border-color: var(--g3); }
-body[data-theme="sonar"] .rounds li.done { color: var(--g3); } body[data-theme="sonar"] .rounds li.done::before { background: var(--g1); border-color: var(--g2); }
-body[data-theme="sonar"] .score { display: grid; grid-template-columns: 1fr auto; gap: 5px 14px; margin: 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.1em; }
-body[data-theme="sonar"] .score dt { color: var(--g2); } body[data-theme="sonar"] .score dd { margin: 0; color: var(--g4); text-align: right; }
-body[data-theme="sonar"] .detail { font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.6; white-space: pre-line; }
-body[data-theme="sonar"] .detail b { color: var(--g4); font-weight: normal; }
-body[data-theme="sonar"] #d-reveal-wrap .legend { margin: 10px 0 4px; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--g2); }
-body[data-theme="sonar"] #d-reveal li { grid-template-columns: 2.2em 1fr; font-size: 12px; }
-body[data-theme="sonar"] #d-reveal .hint { grid-column: 2; }
-/* Timer: a stopwatch for the current target, with each finished round's time under it. */
-body[data-theme="sonar"] .timer { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
-body[data-theme="sonar"] .clock { font-size: 44px; font-weight: 500; letter-spacing: 0.08em; color: var(--g4); font-variant-numeric: tabular-nums; text-shadow: 0 0 8px rgba(74, 213, 133, 0.45); line-height: 1; }
-body[data-theme="sonar"] .clock-label { font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g2); }
-body[data-theme="sonar"] .times { list-style: none; margin: 10px 0 0; padding: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
-body[data-theme="sonar"] .times li { display: grid; grid-template-columns: 2em 1fr auto; gap: 8px; padding: 5px 0; border-top: 1px dashed var(--g1); }
-body[data-theme="sonar"] .times li:first-child { border-top: 0; }
-body[data-theme="sonar"] .times .n { color: var(--g2); } body[data-theme="sonar"] .times .w { color: var(--g3); } body[data-theme="sonar"] .times .t { color: var(--g4); font-variant-numeric: tabular-nums; }
-body[data-theme="sonar"] .blk-score .result { font-size: 20px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--g4); margin: 0 0 8px; }
-body[data-theme="sonar"] .share { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-body[data-theme="sonar"] .share code { font-family: var(--font); font-size: 15px; background: var(--g0); color: var(--g3); padding: 8px 10px; border: 1px solid var(--g1); }
-body[data-theme="sonar"] details { font-size: 13px; color: var(--g3); margin: 0; line-height: 1.5; }
-body[data-theme="sonar"] summary { color: var(--g4); letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; font-size: 12px; }
-body[data-theme="sonar"] details p { margin: 8px 0 0; }
+/* Timer, axis charts, manual, result. */
+body[data-family="console"] .timer { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+body[data-family="console"] .clock { font-size: 46px; font-weight: var(--clock-weight); letter-spacing: 0.06em; color: var(--g4); font-variant-numeric: tabular-nums; line-height: 1; text-shadow: 0 0 10px rgba(95, 191, 138, 0.35); }
+body[data-family="console"] .clock-label { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--g2); }
+body[data-family="console"] .times { list-style: none; margin: 10px 0 0; padding: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+body[data-family="console"] .times li { display: grid; grid-template-columns: 2em 1fr auto; gap: 8px; padding: 5px 0; border-top: 1px solid var(--g1); }
+body[data-family="console"] .times li:first-child { border-top: 0; }
+body[data-family="console"] .times .n { color: var(--g2); } body[data-family="console"] .times .w { color: var(--g3); } body[data-family="console"] .times .t { color: var(--g4); font-variant-numeric: tabular-nums; }
+body[data-family="console"] #d-axes { width: 100%; height: auto; display: block; overflow: visible; }
+body[data-family="console"] .blk-score .result { font-size: 20px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--g4); margin: 0 0 8px; text-align: center; }
+body[data-family="console"] .share { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; }
+body[data-family="console"] .share code { font-family: var(--font); font-size: 14px; background: var(--g0); color: var(--g3); padding: 8px 10px; border: 1px solid var(--g1); }
+body[data-family="console"] #d-reveal-wrap .legend { margin: 10px 0 4px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--g2); }
+body[data-family="console"] #d-reveal li { grid-template-columns: 2em 1fr; font-size: 12px; }
+body[data-family="console"] #d-reveal .hint { grid-column: 2; }
+body[data-family="console"] details { font-size: 13px; color: var(--g3); margin: 0; line-height: 1.55; }
+body[data-family="console"] summary { color: var(--g4); letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; font-size: 12px; }
+body[data-family="console"] details p { margin: 8px 0 0; }
 
 @media (max-width: 960px) {
-  body[data-tab="darts"][data-theme="sonar"] main { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 16px; padding: 12px;
-    grid-template-areas: "head" "scope" "command" "timer" "log" "score" "manual"; padding-bottom: 56px; }
-  body[data-theme="sonar"] .stage { width: 100%; height: auto; aspect-ratio: 1; }
-  body[data-theme="sonar"] .blk { min-height: 150px; }
-  body[data-theme="sonar"] .sign { flex-wrap: wrap; gap: 8px 20px; }
-  body[data-theme="sonar"] .sign .status { margin-left: 0; width: 100%; box-sizing: border-box; white-space: normal; font-size: 15px; }
-  body[data-theme="sonar"] input { font-size: 26px; } body[data-theme="sonar"] .prompt { font-size: 28px; }
-  body[data-theme="sonar"] .views, body[data-theme="sonar"] .themes { background: rgba(8, 11, 14, 0.92); opacity: 0.9; }
+  body[data-tab="darts"][data-family="console"] main { grid-template-columns: 1fr; grid-template-rows: none; height: auto; min-height: 100vh; gap: 14px; padding: 12px;
+    grid-template-areas: "head" "scope" "command" "timer" "log" "axes" "manual"; padding-bottom: 56px; }
+  body[data-family="console"] .stage { width: 100%; height: auto; aspect-ratio: 1; }
+  body[data-family="console"] .blk { min-height: 130px; }
+  body[data-family="console"] .sign { flex-wrap: wrap; gap: 8px 20px; }
+  body[data-family="console"] .sign .status { margin-left: 0; width: 100%; white-space: normal; font-size: 13px; }
+  body[data-family="console"] input { font-size: 26px; }
+  body[data-family="console"] .views, body[data-family="console"] .themes { background: rgba(8, 11, 14, 0.92); opacity: 0.9; }
 }

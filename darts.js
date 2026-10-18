@@ -32,12 +32,17 @@ const THEMES = {
     past: '#5a2a3a', pastText: '#c9a46a', answer: '#ffb347', leader: '#f3e2b4', ink: '#15090a',
     actor: { frames: 6, frameMs: 70 }, animate: (...a) => animateDart(...a),
   },
-  sonar: { // a full-screen command console; the board is a scope, pings instead of darts, no character
+  graphite: { // a full-screen command console: matte graphite, hairline bezels, mid-green trace
     title: 'Sonar', go: 'Ping', next: 'Next target', again: 'New targets', target: 'target', miss: 'No return.', landed: 'return plotted',
-    assets: null, marker: null, sweep: true, console: true, terminal: true, shots: 'pings',
-    disc: '#061a10', grid: '#0b3a22', axis: '#1f8a4d', rings: ['#c8ffd9', '#5ff29a', '#1f8a4d', '#0b3a22'], ringEdge: '#04110a', ringText: '#c8ffd9', ringTextBull: '#04110a',
-    past: '#1f8a4d', pastText: '#5ff29a', answer: '#ffb84a', leader: '#5ff29a', ink: '#04110a',
-    actor: null, animate: (...a) => animatePing(...a),
+    assets: null, marker: null, sweep: true, console: true, terminal: true, shots: 'pings', actor: null, animate: (...a) => animatePing(...a),
+    disc: '#0a1a11', grid: '#16412b', axis: '#3f8b63', rings: ['#eafff2', '#a7ecc6', '#86d8a8', '#3f8b63'], ringEdge: '#06090a', ringText: '#c9f5db', ringTextBull: '#06090a',
+    past: '#3f8b63', pastText: '#86d8a8', answer: '#d9a441', leader: '#a7ecc6', ink: '#06090a',
+  },
+  abyss: { // the same console, near-black: a deep well of glass, only the trace and the word bright
+    title: 'Sonar', go: 'Ping', next: 'Next target', again: 'New targets', target: 'target', miss: 'No return.', landed: 'return plotted',
+    assets: null, marker: null, sweep: true, console: true, terminal: true, shots: 'pings', actor: null, animate: (...a) => animatePing(...a),
+    disc: '#040c07', grid: '#0f2a1c', axis: '#245c3f', rings: ['#ffffff', '#8ff0b8', '#5fbf8a', '#245c3f'], ringEdge: '#020403', ringText: '#d6ffe6', ringTextBull: '#04070a',
+    past: '#245c3f', pastText: '#5fbf8a', answer: '#c9933a', leader: '#8ff0b8', ink: '#020403',
   },
 };
 let theme = THEMES.saloon;
@@ -154,29 +159,30 @@ function targetSvg(t, n, live) {
 function consoleTargetSvg(x, y, n, live) {
   const outer = RINGS[RINGS.length - 1][0] * R, bull = RINGS[0][0] * R;
   if (!live) {
-    return `<g class="target past"><circle cx="${x}" cy="${y}" r="${outer}" fill="none" stroke="#1f8a4d" stroke-width="1" stroke-dasharray="3 7" opacity="0.7"/>` +
-           `<circle cx="${x}" cy="${y}" r="${bull * 0.45}" fill="#1f8a4d" opacity="0.8"/>` +
-           `<text x="${x}" y="${y - bull - 6}" font-size="14" fill="#1f8a4d" text-anchor="middle">${n}</text></g>`;
+    return `<g class="target past"><circle cx="${x}" cy="${y}" r="${outer}" fill="none" stroke="${theme.past}" stroke-width="1" stroke-dasharray="3 7" opacity="0.7"/>` +
+           `<circle cx="${x}" cy="${y}" r="${bull * 0.45}" fill="${theme.past}" opacity="0.8"/>` +
+           `<text x="${x}" y="${y - bull - 6}" font-size="14" fill="${theme.past}" text-anchor="middle">${n}</text></g>`;
   }
-  let s = `<g class="target live"><circle class="pulse" cx="${x}" cy="${y}" r="${outer}" fill="none" stroke="#5ff29a" stroke-width="2"/>`;
-  RINGS.forEach(([r, pts], i) => {
-    const rr = r * R, bright = i === 0;
-    s += `<circle cx="${x}" cy="${y}" r="${rr}" fill="${bright ? '#5ff29a' : 'none'}" fill-opacity="0.12" stroke="${bright ? '#c8ffd9' : '#5ff29a'}" stroke-width="${bright ? 2 : 1.2}" stroke-dasharray="${i === RINGS.length - 1 ? '6 5' : 'none'}" opacity="${bright ? 1 : 0.85 - i * 0.15}"/>`;
-    // the band's value, just inside its top edge
-    s += `<text x="${x}" y="${y - rr + 14}" font-size="12" fill="#c8ffd9" text-anchor="middle" opacity="0.9">${pts}</text>`;
+  const [bullCol, c25, c10, c5] = theme.rings;
+  let s = `<g class="target live"><circle class="pulse" cx="${x}" cy="${y}" r="${outer}" fill="none" stroke="${c25}" stroke-width="1.5"/>`;
+  [[RINGS[3][0], RINGS[3][1], c5, '6 5', 0.5], [RINGS[2][0], RINGS[2][1], c10, 'none', 0.7], [RINGS[1][0], RINGS[1][1], c25, 'none', 0.85]].forEach(([r, pts, col, dash, op]) => {
+    s += `<circle cx="${x}" cy="${y}" r="${r * R}" fill="none" stroke="${col}" stroke-width="1" stroke-dasharray="${dash}" opacity="${op}"/>`;
+    s += `<text x="${x}" y="${y - r * R + 14}" font-size="12" fill="${theme.ringText}" text-anchor="middle" opacity="0.9">${pts}</text>`;
   });
+  s += `<circle cx="${x}" cy="${y}" r="${bull}" fill="${c25}" fill-opacity="0.1" stroke="${bullCol}" stroke-width="1.6"/>`;
+  s += `<text x="${x}" y="${y - bull + 14}" font-size="12" fill="${theme.ringText}" text-anchor="middle" opacity="0.9">${RINGS[0][1]}</text>`;
   // crosshair ticks and the bull
-  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) s += `<line x1="${x + dx * bull * 1.3}" y1="${y + dy * bull * 1.3}" x2="${x + dx * bull * 2.1}" y2="${y + dy * bull * 2.1}" stroke="#c8ffd9" stroke-width="1.2" opacity="0.8"/>`;
-  s += `<circle class="bull" cx="${x}" cy="${y}" r="${bull * 0.42}" fill="#c8ffd9"/>`;
-  s += `<text x="${x}" y="${y + bull + 16}" font-size="12" fill="#c8ffd9" text-anchor="middle" letter-spacing="2">T${n}</text></g>`;
+  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) s += `<line x1="${x + dx * bull * 1.3}" y1="${y + dy * bull * 1.3}" x2="${x + dx * bull * 2.1}" y2="${y + dy * bull * 2.1}" stroke="${bullCol}" stroke-width="1" opacity="0.7"/>`;
+  s += `<circle class="bull" cx="${x}" cy="${y}" r="${bull * 0.4}" fill="${bullCol}"/>`;
+  s += `<text x="${x}" y="${y + bull + 16}" font-size="12" fill="${theme.ringText}" text-anchor="middle" letter-spacing="2">T${n}</text></g>`;
   return s;
 }
 
 // A dart stuck in the board (or a blip on the scope): the theme's pixel sprite, drawn to scale.
 function stuckDart(x, y, faded) {
   if (!theme.marker) { // a sonar return: a bright dot in a thin ring
-    return `<g opacity="${faded ? 0.6 : 1}"><circle cx="${x}" cy="${y}" r="11" fill="none" stroke="#5ff29a" stroke-width="1.5"/>` +
-           `<circle cx="${x}" cy="${y}" r="4.5" fill="#c8ffd9"/></g>`;
+    return `<g opacity="${faded ? 0.6 : 1}"><circle cx="${x}" cy="${y}" r="11" fill="none" stroke="${theme.pastText}" stroke-width="1.2"/>` +
+           `<circle cx="${x}" cy="${y}" r="4.5" fill="${theme.ringText}"/></g>`;
   }
   const w = 12 * svgPerArt;
   return `<image href="${theme.assets}/${theme.marker}" x="${x - w / 2}" y="${y - w / 2}" width="${w}" height="${w}" style="image-rendering:pixelated" opacity="${faded ? 0.55 : 1}"/>`;
@@ -184,10 +190,10 @@ function stuckDart(x, y, faded) {
 
 // The console scope's furniture: a bearing ring with ticks and headings, and readouts in the corners.
 function consoleSvg() {
-  let s = `<circle cx="${C}" cy="${C}" r="${R + 3}" fill="none" stroke="#1f8a4d" stroke-width="1.5"/>`;
+  let s = `<circle cx="${C}" cy="${C}" r="${R + 3}" fill="none" stroke="${theme.axis}" stroke-width="1.2"/>`;
   for (let d = 0; d < 360; d += 5) {
     const a = d * Math.PI / 180, major = d % 30 === 0, len = major ? 14 : d % 10 === 0 ? 9 : 5;
-    s += `<line x1="${C + (R + 6) * Math.sin(a)}" y1="${C - (R + 6) * Math.cos(a)}" x2="${C + (R + 6 + len) * Math.sin(a)}" y2="${C - (R + 6 + len) * Math.cos(a)}" stroke="${major ? '#5ff29a' : '#1f8a4d'}" stroke-width="${major ? 2 : 1}"/>`;
+    s += `<line x1="${C + (R + 6) * Math.sin(a)}" y1="${C - (R + 6) * Math.cos(a)}" x2="${C + (R + 6 + len) * Math.sin(a)}" y2="${C - (R + 6 + len) * Math.cos(a)}" stroke="${major ? theme.pastText : theme.axis}" stroke-width="${major ? 1.6 : 1}"/>`;
     if (major) s += `<text class="bearing" x="${C + (R + 36) * Math.sin(a)}" y="${C - (R + 36) * Math.cos(a) + 5}" text-anchor="middle">${String(d).padStart(3, '0')}</text>`;
   }
   const tg = targets[Math.min(round(), ROUNDS - 1)], sum = total(throws);
@@ -203,9 +209,9 @@ function sweepSvg() {
   let s = '<g class="sweep">';
   for (let k = 0; k < 8; k++) {
     const a0 = -k * 7 * Math.PI / 180, a1 = -(k + 1) * 7 * Math.PI / 180;
-    s += `<path d="M${C},${C} L${C + R * Math.sin(a0)},${C - R * Math.cos(a0)} A${R},${R} 0 0 0 ${C + R * Math.sin(a1)},${C - R * Math.cos(a1)} Z" fill="#27a85e" opacity="${0.42 * (1 - k / 8)}"/>`;
+    s += `<path d="M${C},${C} L${C + R * Math.sin(a0)},${C - R * Math.cos(a0)} A${R},${R} 0 0 0 ${C + R * Math.sin(a1)},${C - R * Math.cos(a1)} Z" fill="${theme.axis}" opacity="${0.4 * (1 - k / 8)}"/>`;
   }
-  s += `<line x1="${C}" y1="${C}" x2="${C}" y2="${C - R}" stroke="#c8ffd9" stroke-width="3" opacity="0.9"/></g>`;
+  s += `<line x1="${C}" y1="${C}" x2="${C}" y2="${C - R}" stroke="${theme.rings[0]}" stroke-width="2" opacity="0.85"/></g>`;
   return s;
 }
 
@@ -213,7 +219,7 @@ function render() {
   if (!puzzle) return;
   const [X, Y] = axes.map(i => puzzle.spectrums[i]);
   let s = `<defs><clipPath id="d-clip"><circle cx="${C}" cy="${C}" r="${R}"/></clipPath>` +
-          `<radialGradient id="d-glass"><stop offset="0" stop-color="#0d3a22"/><stop offset="0.7" stop-color="${theme.disc}"/><stop offset="1" stop-color="#030b07"/></radialGradient></defs>`;
+          `<radialGradient id="d-glass"><stop offset="0" stop-color="${theme.grid}"/><stop offset="0.6" stop-color="${theme.disc}"/><stop offset="1" stop-color="${theme.ink}"/></radialGradient></defs>`;
   s += `<circle cx="${C}" cy="${C}" r="${R}" fill="${theme.console ? 'url(#d-glass)' : theme.disc}"/>`;
   if (theme.console) s += consoleSvg();
   // The matrix: grid lines every GRID units, clipped to the board; the two axes through the centre stand out.
@@ -329,8 +335,10 @@ async function animatePing(landing) {
 
 // ---- Theme switch ----
 function applyTheme(name) {
+  if (name === 'sonar') name = 'graphite'; // the old name for the console
   theme = THEMES[name] || THEMES.saloon;
-  document.body.dataset.theme = theme === THEMES.sonar ? 'sonar' : 'saloon';
+  document.body.dataset.theme = Object.keys(THEMES).find(k => THEMES[k] === theme);
+  document.body.dataset.family = theme.console ? 'console' : 'saloon';
   for (const b of document.querySelectorAll('.themes button')) b.setAttribute('aria-pressed', String(THEMES[b.dataset.theme] === theme));
   if (document.body.dataset.tab === 'darts') { $('title').textContent = theme.title; document.title = theme.title; }
   $('d-go').textContent = theme.go; $('d-submit').textContent = theme.go; $('d-next').textContent = theme.next; $('d-again').textContent = theme.again;
@@ -375,6 +383,16 @@ function hint(t, tg) {
   return off + (parts.length ? `needed ${parts.join(', ')}` : 'so close') + '.';
 }
 function renderReadout() {
+  if (theme.console) {
+    const cur = over ? -1 : round();
+    $('d-readout').innerHTML = targets.map((tg, k) => {
+      const t = throws[k];
+      if (t) return `<li class="done"><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}${times[k] !== undefined ? ` · ${fmt(times[k])}` : ''}</span><span class="hint">${hint(t, tg)}</span></li>`;
+      if (k === cur) return `<li class="cur"><span class="n">${k + 1}</span><span class="w">tracking</span><span class="s"></span><span class="brg">${brgRng(tg)}</span></li>`;
+      return `<li class="todo"><span class="n">${k + 1}</span><span class="w">standby</span><span class="s"></span></li>`;
+    }).join('');
+    return;
+  }
   $('d-readout').innerHTML = throws.map((t, k) =>
     `<li><span class="n">${k + 1}</span><span class="w">${esc(t.word)}</span><span class="s">${t.score}</span><span class="brg">${brgRng(t)}${times[k] !== undefined ? ` · ${fmt(times[k])}` : ''}</span><span class="hint">${hint(t, targets[k])}</span></li>`).join('');
 }
@@ -382,13 +400,28 @@ function renderReadout() {
 // The console's other screens: the status strip in the head, and the analysis screen (latest return, axis bars).
 function renderSide() {
   if (!theme.console || !puzzle) return;
-  const cur = over ? -1 : round(), last = throws[throws.length - 1], sum = total(throws);
+  const cur = over ? -1 : round(), last = awaiting || over ? throws[throws.length - 1] : null, sum = total(throws);
   $('d-status').textContent = over ? `Final ${sum} / ${MAX_SCORE}` : `Round ${Math.min(cur + 1, ROUNDS)} of ${ROUNDS} · Score ${sum} / ${MAX_SCORE}`;
-  const best = throws.reduce((a, b) => !a || b.score > a.score ? b : a, null);
-  $('d-score').innerHTML = `<dt>Round</dt><dd>${Math.min(over ? ROUNDS : cur + 1, ROUNDS)} / ${ROUNDS}</dd><dt>Score</dt><dd>${sum} / ${MAX_SCORE}</dd>` +
-    `<dt>Bullseyes</dt><dd>${throws.filter(t => t.score === RINGS[0][1]).length}</dd><dt>Best</dt><dd>${best ? `${esc(best.word)} ${best.score}` : '—'}</dd>`;
   const tg = targets[Math.min(cur < 0 ? ROUNDS - 1 : cur, ROUNDS - 1)];
   renderTimes();
+  renderReadout();
+  // Axis analysis: each spectrum as a bar, the target hollow, the latest word solid.
+  const L = 70, Rr = 230, rows = axes.map((i, k) => {
+    const sp = puzzle.spectrums[i], y = 30 + k * 46, px = v => L + (v + 1) / 2 * (Rr - L);
+    const tv = k === 0 ? tg.x : tg.y, wv = last ? (k === 0 ? last.x : last.y) : null;
+    let r = `<text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="${theme.pastText}">${esc(sp.low.toUpperCase())}</text>` +
+            `<text x="${Rr + 8}" y="${y + 4}" font-size="11" fill="${theme.pastText}">${esc(sp.high.toUpperCase())}</text>` +
+            `<line x1="${L}" y1="${y}" x2="${Rr}" y2="${y}" stroke="${theme.axis}" stroke-width="1"/>`;
+    for (const v of [-1, -0.5, 0, 0.5, 1]) r += `<line x1="${px(v)}" y1="${y - 4}" x2="${px(v)}" y2="${y + 4}" stroke="${theme.axis}"/>`;
+    r += `<circle cx="${px(tv)}" cy="${y}" r="6" fill="none" stroke="${theme.rings[0]}" stroke-width="1.2"/>`;
+    if (wv !== null) {
+      const cl = Math.max(-1.1, Math.min(1.1, wv));
+      r += `<circle cx="${px(cl)}" cy="${y}" r="4" fill="${theme.leader}"/>` +
+           `<text x="${(px(tv) + px(cl)) / 2}" y="${y + 19}" text-anchor="middle" font-size="11" fill="${theme.answer}">${Math.abs(wv - tv) < 0.12 ? 'ON' : `${wv > tv ? '+' : '−'}${Math.abs(wv - tv).toFixed(2)}`}</text>`;
+    }
+    return r;
+  });
+  $('d-axes').innerHTML = rows.join('') + `<text x="150" y="104" text-anchor="middle" font-size="10" fill="${theme.axis}">○ TARGET   ● YOUR WORD</text>`;
 }
 
 // For each round: the common words that would have scored, best first (at most four shown).
@@ -402,7 +435,7 @@ function answers() {
 }
 
 // ---- Game flow ----
-function msg(text, colour) { $('d-message').textContent = text; $('d-message').style.color = colour || ''; }
+function msg(text, colour) { const el = theme.console ? $('d-logstatus') : $('d-message'); el.textContent = text; el.style.color = colour || ''; if (theme.console) $('d-message').textContent = ''; }
 
 function start() {
   started = true;
@@ -449,7 +482,7 @@ async function addThrow(word, entry, animate, seconds) {
   awaiting = true;
   if (theme.terminal) { // the terminal stays up: the result prints, Enter moves on
     $('d-form').hidden = false;
-    msg(`${word} · ${score ? `${score} points` : 'no points'} · ${hint(throws[throws.length - 1], tg)}  Press Enter for target ${throws.length + 1}.`);
+    msg(`${score ? `${score} points.` : 'No points.'} Press Enter for target ${throws.length + 1}.`);
     render();
     $('d-guess').focus();
     return;
